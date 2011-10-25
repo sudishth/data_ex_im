@@ -1,7 +1,8 @@
 <?php
 
   // This file is used to run various functions etc from the command line.
-
+// Example command line:                                                                                                                            
+// drush @kbailey2_radiov2 php-script /home/kbailey2/projects/radiov2/web/trunk/sites/all/modules/data_export_import/test.php
 require_once 'includes/vocabularies.inc';
 
 
