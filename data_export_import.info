@@ -1,4 +1,4 @@
 ; $Id$
 name = Data export import
-description = The Data Export Import module enables profiled datasets to be exported from Drupal instances as files.  The module also enables a Drupal instance to import these dataset files.
+description = Exports datasets as files which can then imported into other Drupal instances.
 core = 6.x

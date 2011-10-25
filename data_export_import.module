@@ -3,7 +3,16 @@
 
   /**
    * @file
-   * TODO: Enter file description here.
+   * This is the main file for the data_export_import module.  It will have several clearly defined sections
+   * and will be extended by plugins or include files.
+   *
+   * The sections are:
+   * Help 
+   * hook_menu
+   * calbacks
+   * forms 
+   * submit
+   * validation
    */
 
   /**
@@ -12,7 +21,6 @@
    * @param arg array that holds the current path as would be returned from arg() function
    * @return help text for the path
    */
-
 function data_export_import_help($path, $arg) {
   $output = '';  //declare your output variable
   switch ($path) {
@@ -24,11 +32,11 @@ function data_export_import_help($path, $arg) {
   } // function onthisdate_help
 
 
-
-
-
-// This function defines the URL to the page created etc.
-// See http&#58;//api.drupal.org/api/function/hook_menu/6
+/**
+ * This is the hook_menu section.
+ *
+ * Defines all pages and tabs.
+ */
 function data_export_import_menu() {
   $items = array();
   $items['admin/content/data_export_import'] = array(
@@ -50,24 +58,24 @@ function data_export_import_menu() {
 							    );
 
   $items['admin/content/data_export_import/import'] = array(
-							     'title' => 'Import',
-							     'description' => 'Import a dataset',
-							     'page callback' => 'data_export_import_callback_import',
-							     // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-							     'access arguments' => array('access content'),
-							     'weight' => 1,
-							     'type' => MENU_LOCAL_TASK,
-							     );
+							    'title' => 'Import',
+							    'description' => 'Import a dataset',
+							    'page callback' => 'data_export_import_callback_import',
+							    // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+							    'access arguments' => array('access content'),
+							    'weight' => 1,
+							    'type' => MENU_LOCAL_TASK,
+							    );
   
   $items['admin/content/data_export_import/destination'] = array(
-							     'title' => 'Destinations',
-							     'description' => 'Set where datasets are stored',
-							     'page callback' => 'data_export_import_callback_destination',
-							     // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-							     'access arguments' => array('access content'),
-							     'weight' => 2,
-							     'type' => MENU_LOCAL_TASK,
-							     );
+								 'title' => 'Destinations',
+								 'description' => 'Set where datasets are stored',
+								 'page callback' => 'data_export_import_callback_destination',
+								 // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+								 'access arguments' => array('access content'),
+								 'weight' => 2,
+								 'type' => MENU_LOCAL_TASK,
+								 );
 
   $items['admin/content/data_export_import/profile'] = array(
 							     'title' => 'Profiles',
@@ -80,17 +88,24 @@ function data_export_import_menu() {
 							     );
 
   $items['admin/content/data_export_import/schedule'] = array(
-							     'title' => 'Schedules',
-							     'description' => 'Scheduled exports and imports',
-							     'page callback' => 'data_export_import_callback_schedule',
-							     // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-							     'access arguments' => array('access content'),
-							     'weight' => 4,
-							     'type' => MENU_LOCAL_TASK,
-							     );
+							      'title' => 'Schedules',
+							      'description' => 'Scheduled exports and imports',
+							      'page callback' => 'data_export_import_callback_schedule',
+							      // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+							      'access arguments' => array('access content'),
+							      'weight' => 4,
+							      'type' => MENU_LOCAL_TASK,
+							      );
 
   return $items;
 }
+
+/**
+ * These are the callback functions.
+ *
+ * These are all called from each of the pages/tabs defined in hook_menu().
+ */
+
 
 // This function gets called in the browser address bar for: 
 //"http://yourhost/data_export_import" or 
@@ -104,6 +119,55 @@ function data_export_import_callback() {
 
 }
 
+function data_export_import_callback_import() {
+
+  // This form calls the form builder function via the
+  // drupal_get_form() function which takes the name of this form builder
+  // function as an argument. It returns the results to display the form. 
+  ////return drupal_get_form('data_export_import_main_form');
+
+  ////return "Import button goes here.";
+
+  // This form calls the form builder function via the
+  // drupal_get_form() function which takes the name of this form builder
+  // function as an argument. It returns the results to display the form. 
+  return drupal_get_form('data_export_import_import_form');
+
+}
+
+function data_export_import_callback_destination() {
+
+  // This form calls the form builder function via the
+  // drupal_get_form() function which takes the name of this form builder
+  // function as an argument. It returns the results to display the form. 
+  ////return drupal_get_form('data_export_import_main_form');
+  return "Destination list here.";
+}
+
+function data_export_import_callback_profile() {
+
+  // This form calls the form builder function via the
+  // drupal_get_form() function which takes the name of this form builder
+  // function as an argument. It returns the results to display the form. 
+  ////return drupal_get_form('data_export_import_main_form');
+  return "Profile lists here.";
+}
+
+function data_export_import_callback_schedule() {
+
+  // This form calls the form builder function via the
+  // drupal_get_form() function which takes the name of this form builder
+  // function as an argument. It returns the results to display the form. 
+  ////return drupal_get_form('data_export_import_main_form');
+  return "Schedule list here.";
+}
+
+
+/**
+ * This is where the forms are defined.
+ *
+ * These are usually called from the callbackfunctions to create a required form.
+ */
 function data_export_import_main_form($form_state) {
 
   //  $period = drupal_map_assoc(array(3600, 10800, 21600, 32400, 43200, 86400, 172800, 259200, 604800, 1209600, 2419200, 4838400, 9676800), 'format_interval');
@@ -158,9 +222,9 @@ function data_export_import_main_form($form_state) {
 			 '#collapsed' => FALSE,
 			 );
   $form['nodes']['all'] = array(
-				    '#type' => 'checkbox',
-				    '#title' => t('All'),
-				    );
+				'#type' => 'checkbox',
+				'#title' => t('All'),
+				);
 
   $form['nodes']['article'] = array(
 				    '#type' => 'checkbox',
@@ -212,14 +276,12 @@ function data_export_import_main_form($form_state) {
 					'#title' => t('Export all node comments'),
 					);
 
-$form['example_textfield'] = array(
-  '#type' => 'textfield',
-  '#title' => t('Example Textfield'),
-  '#default_value' => 'some text',
-);
+  $form['example_textfield'] = array(
+				     '#type' => 'textfield',
+				     '#title' => t('Example Textfield'),
+				     '#default_value' => 'some text',
+				     );
 
-
-  
   $form['submit'] = array(
 			  '#type' => 'submit',
 			  '#value' => 'Create dataset files',
@@ -227,53 +289,53 @@ $form['example_textfield'] = array(
   return $form;
 }
 
-
-
-// ----------------------------------------------------------------------
-// Import tab
-// ----------------------------------------------------------------------
-
-function data_export_import_callback_import() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form. 
-  ////return drupal_get_form('data_export_import_main_form');
-
-  ////return "Import button goes here.";
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form. 
-  return drupal_get_form('data_export_import_import_form');
-
-}
-
-
 function data_export_import_import_form($form_state) {
 
   $form = array();
   // If this #attribute is not present, upload will fail on submit
   $form['#attributes']['enctype'] = 'multipart/form-data';
   $form['file_upload'] = array(
-    '#title' => t('Upload file'),
+  '#title' => t('Upload file'),
     '#type'  => 'file',
-  );
-  $form['submit_upload'] = array(
-    '#type'  =>  'submit', 
-    '#value'  =>  'Submit'
-  );
-  return $form;
+    );
+$form['submit_upload'] = array(
+			       '#type'  =>  'submit', 
+			       '#value'  =>  'Submit'
+			       );
+return $form;
 }
 
+/**
+ * These are the submit functions.
+ *
+ * These are called by the submit functions on each page/tab.
+ */
+
+// This is the main function called on the data export form.
+function data_export_import_main_form_submit($form, &$form_state) {
+
+  // Case if vocabularies has been selected.
+
+  //drupal_set_message(taxonomy_overview_vocabularies());
+
+  $message_test = "qwertyuiop";
+
+  drupal_set_message($message_test);
+
+  drupal_set_message(t('The dataset files have been created and stored in default/files/data_export_import.'));
+
+  //  $output_message = "<pre>a".$form_state['values']['example_textfield']."b</pre>";
+
+  // $output_message = "<pre>a".$form_state['values']['comments']['comments']."b</pre>";
 
 
+  //  var_dump($form_state);
+
+  // drupal_set_message($output_message);
+
+}
 
 function data_export_import_import_form_submit($form, &$form_state) {
-
-  //  drupal_set_message("<pre>".print_r($form)."</pre>");
-  //return;
-
 
   $validators = array();
   $dest = 'upload_directory';
@@ -297,38 +359,11 @@ function data_export_import_import_form_submit($form, &$form_state) {
 }
 
 
-
-
-
-
-
-function data_export_import_callback_destination() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form. 
-  ////return drupal_get_form('data_export_import_main_form');
-  return "Destination list here.";
-}
-
-function data_export_import_callback_profile() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form. 
-  ////return drupal_get_form('data_export_import_main_form');
-  return "Profile lists here.";
-}
-
-function data_export_import_callback_schedule() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form. 
-  ////return drupal_get_form('data_export_import_main_form');
-  return "Schedule list here.";
-}
-
+/**
+ * These are the validation functions.
+ *
+ * These will be called when the forms are being validated.
+ */
 
 // This adds a handler/function to validate the data entered into the 
 // "year of birth" field to make sure it's between the values of 1900 
@@ -337,96 +372,15 @@ function data_export_import_callback_schedule() {
 // Notice the name of the function. It is simply the name of the form 
 // followed by '_validate'. This is the default validation function.
 function data_export_import_main_form_validate($form, &$form_state) {
-  $year_of_birth = $form_state['values']['year_of_birth'];
-  if ($year_of_birth && ($year_of_birth < 1900 || $year_of_birth > 2000)) {
-    form_set_error('year_of_birth', 'Enter a year between 1900 and 2000.');
-  }
-}
 
-// Adds a submit handler/function to our form to send a successful 
-// completion message to the screen.
-function data_export_import_main_form_submit($form, &$form_state) {
-
-  drupal_set_message(t('The dataset files have been created and stored in default/files/data_export_import.'));
-
-  //  $output_message = "<pre>a".$form_state['values']['example_textfield']."b</pre>";
-
-  $output_message = "<pre>a".$form_state['values']['comments']['comments']."b</pre>";
-
-
-  //  var_dump($form_state);
-
-  drupal_set_message($output_message);
-
+  // Currently not used.
+  $placeholder = 1;
+  /*
+   $year_of_birth = $form_state['values']['year_of_birth'];
+   if ($year_of_birth && ($year_of_birth < 1900 || $year_of_birth > 2000)) {
+   form_set_error('year_of_birth', 'Enter a year between 1900 and 2000.');
+   }
+  */
 }
 
 
-
-
-
-/**
- * Perform an export with the given settings.
- */
-/*
-function backup_migrate_perform_backup(&$settings) {
-
-  
-  backup_migrate_include('destinations', 'files', 'filters');
-  timer_start('backup_migrate_backup');
-
-  // If not in 'safe mode', increase the maximum execution time:
-  if (!ini_get('safe_mode') && ini_get('max_execution_time') < 1200) {
-    set_time_limit(variable_get('backup_migrate_backup_max_time', 1200));
-  }
-
-  if ($settings->append_timestamp && $settings->timestamp_format) {
-    $settings->filename .= "-". date($settings->timestamp_format);
-  }
-  $settings->filename = _backup_migrate_clean_filename($settings->filename);
-
-  $file = new backup_file(array('filename' => $settings->filename));
-  if (!$file) {
-    backup_migrate_backup_fail("Could not run backup because a temporary file could not be created.", array(), $settings);
-    return FALSE;
-  }
-
-  // Register shutdown callback to deal with timeouts.
-  register_shutdown_function('backup_migrate_shutdown', $settings);
-
-  $file = backup_migrate_filters_backup($file, $settings);
-  if (!$file) {
-    if (_backup_migrate_check_timeout()) {
-      backup_migrate_backup_fail('Could not complete the backup because the script timed out. Try increasing your PHP <a href="!url">max_execution_time setting</a>.', array('!url' => 'http://www.php.net/manual/en/info.configuration.php#ini.max-execution-time'), $settings);
-    }
-    else {
-      backup_migrate_backup_fail("Could not complete the backup.", array(), $settings);
-    }
-    return FALSE;
-  }
-
-  $file = backup_migrate_destination_save_file($file, $settings);
-  if (!$file) {
-    backup_migrate_backup_fail("Could not run backup because the file could not be saved to the destination.", array(), $settings);
-    return FALSE;
-  }
-
-  // Backup succeeded, 
-  $time = timer_stop('backup_migrate_backup');
-  $message = '%source backed up successfully to %file in destination %dest in !time ms. !action';
-  $params = array(
-    '%file' => $settings->filename,
-    '%dest' => $settings->get_destination_name(),
-    '%source' => $settings->get_source_name(),
-    '!time' => $time['time'],
-    '!action' => !empty($settings->performed_action) ? $settings->performed_action : '',
-  );
-  if (($destination = $settings->get_destination()) && ($links = $destination->get_file_links($file->file_id()))) {
-    $params['!links'] = implode(", ", $links);
-  }
-
-  backup_migrate_backup_succeed($message, $params, $settings);
-  return $file;
-
-
-}
-*/
