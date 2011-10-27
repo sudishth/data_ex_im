@@ -3,7 +3,8 @@
   // This file is used to run various functions etc from the command line.
 // Example command line:                                                                                                                            
 // drush @kbailey2_radiov2 php-script /home/kbailey2/projects/radiov2/web/trunk/sites/all/modules/data_export_import/test.php
-require_once 'includes/vocabularies.inc';
+
+require_once 'includes/taxonomy_terms.inc';
 
 
 // HERE - NEED TO SORT OUT WHAT HAPPENS IF A TERM HAS TWO PARENTS - THIS PRODUCES TWO TERM RECORDS 
@@ -13,9 +14,10 @@ require_once 'includes/vocabularies.inc';
 
 // NEED TO IDENTIFY RECORDS BY vid,tid AND PARENTS.
 
-//data_export_import_export_vocabularies();
+//data_export_import_export_taxonomy_terms();
 
-data_export_import_import_vocabularies ("sites/default/files/test_vocabularies");
+//data_export_import_import_taxonomy_terms("test_vocabularies");
+data_export_import_import_taxonomy_terms("20111026_174720_taxonomy_terms.dataset");
 
 //reset_taxonomy_vocabulary_hierarchy(10);
 

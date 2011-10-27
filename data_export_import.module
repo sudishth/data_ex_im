@@ -8,6 +8,7 @@
    *
    * The sections are:
    * Help 
+   * Permissions
    * hook_menu
    * calbacks
    * forms 
@@ -31,6 +32,13 @@ function data_export_import_help($path, $arg) {
   return $output;
   } // function onthisdate_help
 
+/**
+ * Implementation of hook_perm().
+ */
+function data_export_import_perm() {
+  return array('access data export import');
+}
+
 
 /**
  * This is the hook_menu section.
@@ -38,64 +46,67 @@ function data_export_import_help($path, $arg) {
  * Defines all pages and tabs.
  */
 function data_export_import_menu() {
-  $items = array();
-  $items['admin/content/data_export_import'] = array(
-						     'title' => t('Data export import'),
-						     'page callback' => 'data_export_import_callback',
-						     'access arguments' => array('access content'),
-						     'description' => t('Data export import'),
-						     'type' => MENU_NORMAL_ITEM,
-						     );
 
+  $items = array();
+
+  $items['admin/content/data_export_import'] = array(
+                                                     'title' => t('Data export import'),
+						     'page callback' => 'data_export_import_callback_export',
+                                                     'access arguments' => array('access data export import'),
+                                                     'description' => t('Data export import'),
+                                                     'type' => MENU_NORMAL_ITEM,
+                                                     );
+
+  // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-							    'title' => 'Export',
-							    'description' => 'Export a dataset.',
-							    'page callback' => 'data_export_import_callback',
-							    // 'page arguments' => array('', 'backup_migrate_ui_manual_backup_quick', TRUE),
-							    'access arguments' => array('access content'),
-							    'weight' => 0,
-							    'type' => MENU_DEFAULT_LOCAL_TASK,
-							    );
+                                                            'title' => 'Export',
+                                                            //'description' => 'Export a dataset.',
+                                                            //'page callback' => 'data_export_import_callback',
+                                                            // 'page arguments' => array('', 'backup_migrate_ui_manual_backup_quick', TRUE),
+                                                            //'access arguments' => array('access content'),
+                                                            'weight' => 0,
+                                                            'type' => MENU_DEFAULT_LOCAL_TASK,
+                                                            );
 
   $items['admin/content/data_export_import/import'] = array(
-							    'title' => 'Import',
-							    'description' => 'Import a dataset',
-							    'page callback' => 'data_export_import_callback_import',
-							    // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-							    'access arguments' => array('access content'),
-							    'weight' => 1,
-							    'type' => MENU_LOCAL_TASK,
-							    );
-  
+                                                            'title' => 'Import',
+                                                            //'description' => 'Import a dataset',
+                                                            'page callback' => 'data_export_import_callback_import',
+                                                            // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+                                                            'access arguments' => array('access data export import'),
+                                                            'weight' => 1,
+                                                            'type' => MENU_LOCAL_TASK,
+                                                            );
+
   $items['admin/content/data_export_import/destination'] = array(
-								 'title' => 'Destinations',
-								 'description' => 'Set where datasets are stored',
-								 'page callback' => 'data_export_import_callback_destination',
-								 // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-								 'access arguments' => array('access content'),
-								 'weight' => 2,
-								 'type' => MENU_LOCAL_TASK,
-								 );
+                                                                 'title' => 'Destinations',
+                                                                 //'description' => 'Set where datasets are stored',
+                                                                 'page callback' => 'data_export_import_callback_destination',
+                                                                 // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+                                                                 'access arguments' => array('access data export import'),
+                                                                 'weight' => 2,
+                                                                 'type' => MENU_LOCAL_TASK,
+                                                                 );
 
   $items['admin/content/data_export_import/profile'] = array(
-							     'title' => 'Profiles',
-							     'description' => 'Dataset profiles',
-							     'page callback' => 'data_export_import_callback_profile',
-							     // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-							     'access arguments' => array('access content'),
-							     'weight' => 3,
-							     'type' => MENU_LOCAL_TASK,
-							     );
+                                                             'title' => 'Profiles',
+                                                             //'description' => 'Dataset profiles',
+                                                             'page callback' => 'data_export_import_callback_profile',
+                                                             // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+                                                             'access arguments' => array('access data export import'),
+                                                             'weight' => 3,
+                                                             'type' => MENU_LOCAL_TASK,
+                                                             );
 
   $items['admin/content/data_export_import/schedule'] = array(
-							      'title' => 'Schedules',
-							      'description' => 'Scheduled exports and imports',
-							      'page callback' => 'data_export_import_callback_schedule',
-							      // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
-							      'access arguments' => array('access content'),
-							      'weight' => 4,
-							      'type' => MENU_LOCAL_TASK,
-							      );
+                                                              'title' => 'Schedules',
+                                                              //'description' => 'Scheduled exports and imports',
+                                                              'page callback' => 'data_export_import_callback_schedule',
+                                                              // 'page arguments' => array('', 'backup_migrate_ui_manual_restore', TRUE),
+                                                              'access arguments' => array('access data export import'),
+                                                              'weight' => 4,
+                                                              'type' => MENU_LOCAL_TASK,
+                                                              );
 
   return $items;
 }
@@ -106,17 +117,15 @@ function data_export_import_menu() {
  * These are all called from each of the pages/tabs defined in hook_menu().
  */
 
-
 // This function gets called in the browser address bar for: 
 //"http://yourhost/data_export_import" or 
 //"http://yourhost/?q=data_export_import". It will generate// a page with //this form on it.
-function data_export_import_callback() {
+function data_export_import_callback_export() {
 
   // This form calls the form builder function via the
   // drupal_get_form() function which takes the name of this form builder
   // function as an argument. It returns the results to display the form. 
-  return drupal_get_form('data_export_import_main_form');
-
+  return drupal_get_form('data_export_import_export_form');
 }
 
 function data_export_import_callback_import() {
@@ -132,7 +141,6 @@ function data_export_import_callback_import() {
   // drupal_get_form() function which takes the name of this form builder
   // function as an argument. It returns the results to display the form. 
   return drupal_get_form('data_export_import_import_form');
-
 }
 
 function data_export_import_callback_destination() {
@@ -162,146 +170,234 @@ function data_export_import_callback_schedule() {
   return "Schedule list here.";
 }
 
-
 /**
  * This is where the forms are defined.
  *
  * These are usually called from the callbackfunctions to create a required form.
  */
-function data_export_import_main_form($form_state) {
+function data_export_import_export_form($form_state) {
 
+  $debug = FALSE;
+
+  if ($debug) {
+    echo "<pre>";
+    var_export($form_state);
+    echo "</pre>";
+  }
   //  $period = drupal_map_assoc(array(3600, 10800, 21600, 32400, 43200, 86400, 172800, 259200, 604800, 1209600, 2419200, 4838400, 9676800), 'format_interval');
   $period = array('Programmes', 'Stations', 'People', 'Primary subject', 'Event', 'Genres', 'Locations');
 
-  $form['vocabularies'] = array(
-				'#type' => 'fieldset',
-				'#title' => t('Vocabularies'),
-				'#collapsible' => TRUE,
-				'#collapsed' => FALSE,
-				);
-  $form['vocabularies']['vocabularies'] = array(
-						'#type' => 'checkbox',
-						'#title' => t('Export all vocabularies and terms'),
-						);
   
-
   $form['taxonomy_terms'] = array(
-				  '#type' => 'fieldset',
-				  '#title' => t('Taxonomy terms'),
-				  '#collapsible' => TRUE,
-				  '#collapsed' => FALSE,
-				  );
+                                  '#type' => 'fieldset',
+                                  '#title' => t('Taxonomy terms'),
+                                  '#collapsible' => TRUE,
+                                  '#collapsed' => FALSE,
+                                  );
 
-  $form['taxonomy_terms']['timer'] = array(
-					   '#type' => 'select',
-					   '#title' => t('Select vocabulary'),
-					   '#default_value' => variable_get('timer', 259200),
-					   '#options' => $period,
-					   '#description' => t('The timer.'),
-					   );
-  $form['taxonomy_terms']['vocabulary'] = array(
+  /*
+
+$form['taxonomy_terms']['timer'] = array(
+'#type' => 'select',
+  '#title' => t('Select vocabulary'),
+    '#default_value' => variable_get('timer', 259200),
+    '#options' => $period,
+    '#description' => t('The timer.'),
+    );
+
+*/
+
+$form['taxonomy_terms']['taxonomy_terms'] = array(
+						  '#type' => 'checkbox',
+						  '#title' => t('Export all taxonomy terms'),
+						  );
+
+/*
+$form['content_types'] = array(
+			       '#type' => 'fieldset',
+			       '#title' => t('Content types'),
+			       '#collapsible' => TRUE,
+			       '#collapsed' => FALSE,
+			       );
+
+$form['content_types']['content_types'] = array(
 						'#type' => 'checkbox',
-						'#title' => t('Export all terms for this vocabulary'),
+						'#title' => t('Export all content types'),
 						);
 
-  $form['content_types'] = array(
-				 '#type' => 'fieldset',
-				 '#title' => t('Content types'),
-				 '#collapsible' => TRUE,
-				 '#collapsed' => FALSE,
-				 );
-  $form['content_types']['content_types'] = array(
-						  '#type' => 'checkbox',
-						  '#title' => t('Export all content types'),
-						  );
-  
-  $form['nodes'] = array(
-			 '#type' => 'fieldset',
-			 '#title' => t('Nodes'),
-			 '#collapsible' => TRUE,
-			 '#collapsed' => FALSE,
-			 );
-  $form['nodes']['all'] = array(
+$form['nodes'] = array(
+		       '#type' => 'fieldset',
+		       '#title' => t('Nodes'),
+		       '#collapsible' => TRUE,
+		       '#collapsed' => FALSE,
+		       );
+
+$form['nodes']['all'] = array(
+			      '#type' => 'checkbox',
+			      '#title' => t('All'),
+			      );
+
+$form['nodes']['article'] = array(
+				  '#type' => 'checkbox',
+				  '#title' => t('Article'),
+				  );
+
+$form['nodes']['competition'] = array(
+				      '#type' => 'checkbox',
+				      '#title' => t('Competition'),
+				      );
+
+$form['nodes']['event'] = array(
 				'#type' => 'checkbox',
-				'#title' => t('All'),
+				'#title' => t('Event'),
 				);
 
-  $form['nodes']['article'] = array(
-				    '#type' => 'checkbox',
-				    '#title' => t('Article'),
-				    );
-  $form['nodes']['competition'] = array(
+$form['nodes']['facebook_feed'] = array(
 					'#type' => 'checkbox',
-					'#title' => t('Competition'),
+					'#title' => t('Facebook feed'),
 					);
-  $form['nodes']['event'] = array(
+
+$form['nodes']['feed'] = array(
+			       '#type' => 'checkbox',
+			       '#title' => t('Feed'),
+			       );
+
+$form['nodes']['checkbox'] = array(
+				   '#type' => 'checkbox',
+				   '#title' => t('Intro article'),
+				   );
+
+$form['nodes']['message'] = array(
 				  '#type' => 'checkbox',
-				  '#title' => t('Event'),
+				  '#title' => t('Message'),
 				  );
-  $form['nodes']['facebook_feed'] = array(
-					  '#type' => 'checkbox',
-					  '#title' => t('Facebook feed'),
-					  );
-  $form['nodes']['feed'] = array(
-				 '#type' => 'checkbox',
-				 '#title' => t('Feed'),
-				 );
-  $form['nodes']['checkbox'] = array(
-				     '#type' => 'checkbox',
-				     '#title' => t('Intro article'),
-				     );
-  $form['nodes']['message'] = array(
-				    '#type' => 'checkbox',
-				    '#title' => t('Message'),
-				    );
-  $form['users'] = array(
-			 '#type' => 'fieldset',
-			 '#title' => t('Users'),
-			 '#collapsible' => TRUE,
-			 '#collapsed' => FALSE,
-			 );
-  $form['users']['users'] = array(
-				  '#type' => 'checkbox',
-				  '#title' => t('Export all users'),
-				  );
+
+$form['users'] = array(
+		       '#type' => 'fieldset',
+		       '#title' => t('Users'),
+		       '#collapsible' => TRUE,
+		       '#collapsed' => FALSE,
+		       );
+
+$form['users']['users'] = array(
+				'#type' => 'checkbox',
+				'#title' => t('Export all users'),
+				);
   
-  $form['comments'] = array(
-			    '#type' => 'fieldset',
-			    '#title' => t('Comments'),
-			    '#collapsible' => TRUE,
-			    '#collapsed' => FALSE,
-			    );
-  $form['comments']['comments'] = array(
-					'#type' => 'checkbox',
-					'#title' => t('Export all node comments'),
-					);
-
-  $form['example_textfield'] = array(
-				     '#type' => 'textfield',
-				     '#title' => t('Example Textfield'),
-				     '#default_value' => 'some text',
-				     );
-
-  $form['submit'] = array(
-			  '#type' => 'submit',
-			  '#value' => 'Create dataset files',
+$form['comments'] = array(
+			  '#type' => 'fieldset',
+			  '#title' => t('Comments'),
+			  '#collapsible' => TRUE,
+			  '#collapsed' => FALSE,
 			  );
-  return $form;
+
+$form['comments']['comments'] = array(
+				      '#type' => 'checkbox',
+				      '#title' => t('Export all node comments'),
+				      );
+
+$form['example_textfield'] = array(
+				   '#type' => 'textfield',
+				   '#title' => t('Example Textfield'),
+				   '#default_value' => 'some text',
+				   );
+*/
+$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => 'Create dataset files',
+			);
+
+if ($debug) {
+  echo "<pre>";
+  echo "form\n";
+  var_export($form);
+  echo "</pre>";
+ }
+
+return $form;
 }
 
 function data_export_import_import_form($form_state) {
 
+  $debug = FALSE;
   $form = array();
-  // If this #attribute is not present, upload will fail on submit
-  $form['#attributes']['enctype'] = 'multipart/form-data';
-  $form['file_upload'] = array(
-  '#title' => t('Upload file'),
-    '#type'  => 'file',
+  
+  //$form['#attributes']['enctype'] = 'multipart/form-data';
+  //$form['file_upload'] = array('#title' => t('Upload file'), '#type'  => 'file');
+  //$form['submit_upload'] = array('#type'  =>  'submit', '#value'  =>  'Submit');
+
+  // Get the contents of the dataset directory and create a list of
+  // links which can be used to trigger the data import.
+
+  $directory = drupal_get_path('module', 'data_export_import') . '/includes';
+  $directory = "sites/default/files/data_export_import";
+  $mask = '.dataset';
+  $files = file_scan_directory($directory, $mask);
+
+
+
+  // $files = file_scan_directory('/home/kbailey2/projects/radiov2/web/trunk/sites/default/files/data_export_import', '*');
+
+  if ($debug) {
+    echo "<pre>";
+    echo "files:\n";
+    var_export($files);
+    echo "</pre>";
+  }
+
+  //  $options = array();  
+  foreach ($files as $file) {
+  /*
+    $form[$file->basename] = array(
+				   '#type' => 'checkbox',
+				   '#title' => "$file->basename",
+				   '#default_menu' => "$file->basename",
+				   );
+*/
+    $options[$file->basename] = $file->basename;
+
+}
+
+/*
+$form['options'] = array(
+'#type' => 'radios',
+'#title' => t('Please select file to import'),
+'#options' => array(t('Optional'), t('Required'));
+*/
+
+
+//$options = array('qqq' => t('Optional'), 'www' => t('Required'));
+
+    $form['options'] = array(
+
+      '#type' => 'radios', 
+
+      '#title' => t('Please select file to import'), 
+
+      '#options' => $options,
+
     );
-$form['submit_upload'] = array(
-			       '#type'  =>  'submit', 
-			       '#value'  =>  'Submit'
-			       );
+
+
+
+
+  /*
+   $form['file1'] = array(
+   '#type' => 'checkbox',
+  '#title' => t('file1'),
+    );
+*/
+/*
+ $form['file2'] = array(
+ '#type' => 'checkbox',
+'#title' => t('file2'),
+  );
+*/
+$form['submit'] = array(
+			'#type' => 'submit',
+			'#value' => 'Import dataset files',
+			);
+
 return $form;
 }
 
@@ -312,31 +408,40 @@ return $form;
  */
 
 // This is the main function called on the data export form.
-function data_export_import_main_form_submit($form, &$form_state) {
+function data_export_import_export_form_submit($form, &$form_state) {
 
-  // Case if vocabularies has been selected.
+  require_once 'includes/taxonomy_terms.inc';
+  
+  $debug = FALSE;
+  
+  if ($debug) {
+    echo "form\n";
+    echo "<pre>";
+    var_export($form);
+    echo "</pre>";
+  }
 
-  //drupal_set_message(taxonomy_overview_vocabularies());
+  if ($debug) {
+    echo "form_state \n";
+    echo "<pre>";
+    var_export($form_state);
+    echo "</pre>";
+  }
+  
+  // Case if Taxonomy terms has been selected.
+  if ($form_state['values']['taxonomy_terms'] == 1) {
 
-  $message_test = "qwertyuiop";
-
-  drupal_set_message($message_test);
-
-  drupal_set_message(t('The dataset files have been created and stored in default/files/data_export_import.'));
-
-  //  $output_message = "<pre>a".$form_state['values']['example_textfield']."b</pre>";
-
-  // $output_message = "<pre>a".$form_state['values']['comments']['comments']."b</pre>";
-
-
-  //  var_dump($form_state);
-
-  // drupal_set_message($output_message);
-
+    $dataset_file = data_export_import_export_taxonomy_terms();
+    drupal_set_message("The Taxonomy terms dataset was output to the file: ".$dataset_file);
+  }
 }
 
 function data_export_import_import_form_submit($form, &$form_state) {
 
+  require_once 'includes/taxonomy_terms.inc';
+
+  $debug = FALSE;
+  /*
   $validators = array();
   $dest = 'upload_directory';
   $file = file_save_upload('file_upload', $validators, $dest);
@@ -356,6 +461,29 @@ function data_export_import_import_form_submit($form, &$form_state) {
   else {
     form_set_error('myform', t("Failed to save the file."));
   }
+  */
+
+  if ($debug) {
+    echo "form\n";
+    echo "<pre>";
+    var_export($form);
+    echo "</pre>";
+  }
+
+  if ($debug) {
+    echo "form_state \n";
+    echo "<pre>";
+    var_export($form_state);
+    echo "</pre>";
+  }
+
+
+
+    $result = data_export_import_import_taxonomy_terms( file  );
+
+
+   drupal_set_message("File(s) imported".$form_state['clicked_button']['#post']['options']);
+
 }
 
 
@@ -382,5 +510,3 @@ function data_export_import_main_form_validate($form, &$form_state) {
    }
   */
 }
-
-
