@@ -122,6 +122,10 @@ function data_export_import_export_taxonomy_terms() {
   // can then be output to a file. 
   $dataset_serialized = serialize($dataset);
 
+  // Create the default directory to hold the datasets.
+  $default_dataset_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($default_dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+
   // Save the string as a file. This is the dataset data file.
   $file_name = date("Ymd_His") . "_taxonomy_terms.dataset";
   $file_path_and_name = "data_export_import/" . $file_name;
