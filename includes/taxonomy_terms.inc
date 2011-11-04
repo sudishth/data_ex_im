@@ -56,7 +56,7 @@ function data_export_import_export_taxonomy_terms() {
     // we'll add the array on terms to the main array. 
     $terms_array = data_export_import_taxonomy_get_tree_with_reset($vocabulary->vid, 0, -1, NULL, TRUE);
 
-    // The list of terms will be used to dedupe the terms returned by
+    // The $list_of_terms will be used to dedupe the terms returned by
     // data_export_import_taxonomy_get_tree_with_reset() which outputs
     // terms twice if they have two parents.
     $list_of_terms = array();
@@ -322,9 +322,13 @@ function data_export_import_import_taxonomy_terms($file) {
       }
 
       // If the term has been exported already then we don't want to
-      // export it again so we'll break out of the foreach loop.
+      // export it again so we'll go to the next term in the foreach loop.
       if (in_array($existing_term->tid, $list_of_terms)) {
-        break;
+
+	if ($debug) {
+	  echo "Found a duplicated term so we'll go back to the beginning of the foreach loop---->:" . $existing_term->tid . "\n";
+	}
+	continue;
       }
 
       if ($debug) {
