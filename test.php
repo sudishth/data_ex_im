@@ -11,12 +11,13 @@
  */
 
 require_once 'includes/taxonomy_terms.inc';
+require_once 'includes/profiles/articles.inc';
 
 // Test the export.
-//$dataset_file = data_export_import_export_taxonomy_terms();
-//echo "dataset file: ".$dataset_file."\n";
+$dataset_file = data_export_import_export_articles();
+echo "dataset file: " . $dataset_file . "\n";
 
 // Test the import.
-data_export_import_import_taxonomy_terms("20111027_182140_taxonomy_terms.dataset");
+// data_export_import_import_taxonomy_terms("20111103_164204_taxonomy_terms.dataset");
 
 return;

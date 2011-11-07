@@ -1,4 +1,3 @@
-; $Id$
 name = Data export import
 description = Exports datasets as files which can then imported into other Drupal instances.
 core = 6.x
