@@ -2,8 +2,7 @@
 
   /**
    * @file
-   * Provides functions to enable taxonomy terms to be exported and
-   * imported.
+   * Enables taxonomy terms to be exported and imported.
    *
    * When exporting, all if the vocabularies details will be exported
    * along with all the terms.
@@ -15,8 +14,7 @@
    */
 
   /**
-   * Exports detailed data about the vocabularies and the associated
-   * terms.
+   * Exports detailed data about the vocabularies and its terms.
    *
    * This function is going to use the API to extract the relevant
    * data. This data is then going to be output to a data file.
@@ -127,8 +125,8 @@ function data_export_import_export_taxonomy_terms() {
   file_check_directory($default_dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
   // Save the string as a file. This is the dataset data file.
-  $file_name = date("Ymd_His") . "_taxonomy_terms.dataset";
-  $file_path_and_name = "data_export_import/" . $file_name;
+  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
+  $file_path_and_name = "data_export_import/taxonomy_terms/" . $file_name;
 
   file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
 
@@ -136,8 +134,7 @@ function data_export_import_export_taxonomy_terms() {
   }
 
 /**
- * Reads the data from the dataset file and imports the data to make
- * the receiving instance have the same vocabulary and terms.
+ * Make taxonomy terms match the terms from a dataset file.
  *
  * This function is to effectively 'import' the vocabularies and all
  * the terms in those vocabularies.
@@ -201,7 +198,7 @@ function data_export_import_import_taxonomy_terms($file) {
   */
 
   // Load the dataset file into a variable.
-  $file_content = file_get_contents("sites/default/files/data_export_import/" . $file);
+  $file_content = file_get_contents("sites/default/files/data_export_import/taxonomy_terms/" . $file);
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
@@ -363,7 +360,7 @@ function data_export_import_import_taxonomy_terms($file) {
       if (isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]) ) {
 
         if ($debug) {
-          echo "FOUND MATCH:" . $existing_term->tid . "\n";
+          echo "Found match:" . $existing_term->tid . "\n";
         }
 
         // We are going to check that the terms match exactly.  First
@@ -480,7 +477,7 @@ function data_export_import_import_taxonomy_terms($file) {
   // Loop through the terms in the dataset being imported and if they
   // don't exist in the receiving instance then we will create them.
   if ($debug) {
-    echo "BRINGING IN THE NEW TERMS FROM THE DATASET...\n";
+    echo "Bringing in the new terms from the dataset.\n";
   }
 
   foreach ($file_content_as_array['vocabulary_terms'] as $vid => $vocabulary_from_dataset) {
@@ -704,15 +701,7 @@ function data_export_import_taxonomy_get_tree_with_reset($vid, $parent = 0, $dep
 }
 
 /**
- *
- *
- *
- *
- *
- */
-/**
- * This function effectively overrides the taxonomy_save_term
- * function.
+ * This function is a modified version of the taxonomy_save_term function.
  *
  * @param $form_values
  *   Array of term data which is to be saved.
@@ -808,7 +797,8 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
   if (!empty($form_values['synonyms'])) {
     foreach (explode("\n", str_replace("\r", '', $form_values['synonyms'])) as $synonym) {
       if ($synonym) {
-        db_query("INSERT INTO {term_synonym} (tid, name) VALUES (%d, '%s')", $form_values['tid'], chop($synonym));
+        // Currently changed from chop() to rtrim() as recommended by coder_tough_love.
+        db_query("INSERT INTO {term_synonym} (tid, name) VALUES (%d, '%s')", $form_values['tid'], rtrim($synonym));
       }
     }
   }
