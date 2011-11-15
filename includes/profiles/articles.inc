@@ -37,16 +37,16 @@ function data_export_import_export_articles() {
 
   $node_id = '300344';
 
-  $orig = node_load($node_id); // load original
+  $orig = node_load($node_id);
 
   if ($debug) {
     echo "----------------->node:" . "\n";
     var_export($orig);
   }
 
-  // $node = $orig;       // copy for mods
+  // $node = $orig;
 
-  // //  $orig->body = 'xxxxqwertyasdasdasd12345678'; // Do some changes
+  // $orig->body = 'xxxxqwertyasdasdasd12345678';
 
   node_save($orig);
 
@@ -70,3 +70,4 @@ function data_export_import_export_articles() {
 
   return $file_name;
 }
+

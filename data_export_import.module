@@ -32,14 +32,14 @@ function data_export_import_help($path, $arg) {
 
   switch ($path) {
   case "admin/help#data_export_import":
-    $output = '<p>'.  t("Exports datasets as files which can then imported into other Drupal instances.") .'</p>';
+    $output = '<p>' . t("Exports datasets as files which can then imported into other Drupal instances.") . '</p>';
     break;
   }
   return $output;
   }
 
 /**
- * Implementation of hook_perm().
+ * Implements hook_perm().
  */
 function data_export_import_perm() {
   return array('access data export import');

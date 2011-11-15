@@ -514,7 +514,7 @@ function data_export_import_import_taxonomy_terms($file) {
 
         // Update the term with data from the dataset.
         $term_data_array = array('tid' => $term_from_dataset->tid,
-                                 'vid' => $term_from_dataset->vid, // Voacabulary ID
+                                 'vid' => $term_from_dataset->vid,
                                  'name' => $term_from_dataset->name,
                                  'description' => $term_from_dataset->description,
                                  'weight' => $term_from_dataset->weight,
@@ -797,7 +797,8 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
   if (!empty($form_values['synonyms'])) {
     foreach (explode("\n", str_replace("\r", '', $form_values['synonyms'])) as $synonym) {
       if ($synonym) {
-        // Currently changed from chop() to rtrim() as recommended by coder_tough_love.
+        // Currently changed from chop() to rtrim() as recommended by
+        // coder_tough_love.
         db_query("INSERT INTO {term_synonym} (tid, name) VALUES (%d, '%s')", $form_values['tid'], rtrim($synonym));
       }
     }
@@ -818,3 +819,4 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
 
   return $status;
 }
+
