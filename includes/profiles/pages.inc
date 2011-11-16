@@ -25,30 +25,7 @@ function data_export_import_export_pages() {
   // be output to the dataset file.
   $dataset = array();
 
-  $dataset[] = "pagesinit";
-
-  /*
-  $node_types = node_get_types();
-
-  if ($debug) {
-    var_export($node_types);
-  }
-  */
-
-  $node_id = '300344';
-
-  $orig = node_load($node_id);
-
-  if ($debug) {
-    echo "----------------->node:" . "\n";
-    var_export($orig);
-  }
-
-  // $node = $orig;
-
-  // $orig->body = 'xxxxqwertyasdasdasd12345678';
-
-  // node_save($orig);
+  $dataset[] = "test_string";
 
   // Here we will serialize the array to convert it to a string which
   // can then be output to a file.
