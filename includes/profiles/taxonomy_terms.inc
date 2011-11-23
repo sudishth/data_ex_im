@@ -1,37 +1,37 @@
 <?php
 
-  /**
-   * @file
-   * Enables taxonomy terms to be exported and imported.
-   *
-   * When exporting, all if the vocabularies details will be exported
-   * along with all the terms.
-   *
-   * When importing, all of the vocabularies on the receiving instance
-   * will be checked first to check that they match the vocabularies
-   * in the dataset. If there are any differences in the vocabularies
-   * then they import routine will raise an error then abort.
-   */
+/**
+ * @file
+ * Enables taxonomy terms to be exported and imported.
+ *
+ * When exporting, all if the vocabularies details will be exported
+ * along with all the terms.
+ *
+ * When importing, all of the vocabularies on the receiving instance
+ * will be checked first to check that they match the vocabularies
+ * in the dataset. If there are any differences in the vocabularies
+ * then they import routine will raise an error then abort.
+ */
 
-  /**
-   * Exports detailed data about the vocabularies and its terms.
-   *
-   * This function is going to use the API to extract the relevant
-   * data. This data is then going to be output to a data file.
-   *
-   * The first element in the array will be an array of the
-   * vocabularies and the vocabulary details. This will be used
-   * during the import to check that there are the correct
-   * vocabularies in place which are ready to receive the terms being
-   * imported.
-   *
-   * The second element will contain details of all the terms which
-   * are in each vocabulary. These terms will be used to ensure that
-   * the receiving instance ends up with a matching set of terms.
-   *
-   * @return
-   *   The filename of the datafile which was created.
-   */
+/**
+ * Exports detailed data about the vocabularies and its terms.
+ *
+ * This function is going to use the API to extract the relevant
+ * data. This data is then going to be output to a data file.
+ *
+ * The first element in the array will be an array of the
+ * vocabularies and the vocabulary details. This will be used
+ * during the import to check that there are the correct
+ * vocabularies in place which are ready to receive the terms being
+ * imported.
+ *
+ * The second element will contain details of all the terms which
+ * are in each vocabulary. These terms will be used to ensure that
+ * the receiving instance ends up with a matching set of terms.
+ *
+ * @return
+ *   The filename of the datafile which was created.
+ */
 function data_export_import_export_taxonomy_terms() {
 
   // This will be the main array which will hold the data which will
@@ -61,7 +61,7 @@ function data_export_import_export_taxonomy_terms() {
     foreach ($terms_array as $array_key => $term) {
 
       // If the term has been exported already then we don't want to
-      //  export it again. So we'll remove the term from the array.
+      // export it again. So we'll remove the term from the array.
       if (in_array($term->tid, $list_of_terms)) {
         unset($terms_array[$array_key]);
       }
@@ -121,17 +121,17 @@ function data_export_import_export_taxonomy_terms() {
   $dataset_serialized = serialize($dataset);
 
   // Create the default directory to hold the datasets.
-  $default_dataset_directory = file_directory_path() . "/data_export_import/taxonomy_terms/";
-  file_check_directory($default_dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+  $dataset_directory = file_directory_path() . "/data_export_import/taxonomy_terms/";
+  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
   // Save the string as a file. This is the dataset data file.
   $file_name = format_date(time(), 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
-  $file_path_and_name = "data_export_import/taxonomy_terms/" . $file_name;
+  $file_path_and_name = $dataset_directory . "/" . $file_name;
 
   file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
 
   return $file_name;
-  }
+}
 
 /**
  * Make taxonomy terms match the terms from a dataset file.
@@ -205,12 +205,12 @@ function data_export_import_import_taxonomy_terms($file) {
 
   // Here we can create a series of tests to check the receiving
   // instance before importing the dataset.
-  //
+  // *
   // Test the vocabularies.
-  //
+  // *
   // This will check that the vocabularies in the dataset file all
   // exist in the receiving instance and are an exact match.
-  //
+  // *
   // NB - The receiving instance may have extra vocabularies which
   // have been created.  This is OK because even though there is not
   // an exact match at least the vocabularies which are needed to
@@ -219,13 +219,14 @@ function data_export_import_import_taxonomy_terms($file) {
   if ($debug) {
     echo "Checking that the vocabularies match... \n\n";
   }
-  foreach ($file_content_as_array['vocabularies'] as $vocabulary_from_file ) {
+
+  foreach ($file_content_as_array['vocabularies'] as $vocabulary_from_file) {
 
     // Get the existing vocabulary as an object.
     // Second parameter is set to TRUE to reset the cache - needed as
     // we call this function after we've unset some values in a
     // previous usage.
-    $existing_vocabulary = taxonomy_vocabulary_load($vocabulary_from_file->vid , TRUE);
+    $existing_vocabulary = taxonomy_vocabulary_load($vocabulary_from_file->vid, TRUE);
 
     // Here we need to carry out a little fix to make the formats
     // match - this probably should not be needed and has been
@@ -234,13 +235,13 @@ function data_export_import_import_taxonomy_terms($file) {
 
     // Here we need to unset the hierarchy value for both objects.
     // This is for two reasons.
-    //
+    // *
     // 1. The hierarchy value is different dependent on the terms.
     // I.e. If any term has two parents then it should be set to a
     // value of '2'.  So we can't expect the values to be the same
     // because the imported terms may have different numbers of
     // parents etc.
-    //
+    // *
     // 2. The hierarchy value does not appear to be being set properly
     // all the time - this has been registered as a bug at:
     // http://drupal.org/node/1309990.
@@ -258,8 +259,7 @@ function data_export_import_import_taxonomy_terms($file) {
       echo "VOCABULARY in dataset matches vocabulary in receiving instance - id: " . $vocabulary_from_file->vid . "\n";
     }
 
-    // foreach vocabulary - this is the test loop to check that the
-    // vocabularies match.
+    // This is the test loop to check that the vocabularies match.
   }
 
   if ($debug) {
@@ -270,24 +270,23 @@ function data_export_import_import_taxonomy_terms($file) {
   // instance.  For each term we will look into the dataset being
   // imported.  If the term exists in the imported dataset then we
   // will update it - if it does not exist then we will delete it.
-  //
+  // *
   // We will use the API to get the list of vocabularies - and then
   // loop through each vocabulary and get all the terms. This should
   // deal with the issue where a new term has been created in the
   // receiving instance which has the same tid as one being imported
   // but is in a different vocabulary.
-  //
+  // *
   // NB - Effectively all new terms in the receiving instance will be
   // deleted - which is fine as we don't want them.
-  //
+  // *
   // In this case we will first need to delete this term completely in
   // the receiving instance.  It will then be created again when we
   // loop through the dataset as it will be created and assigned to
   // the correct vocabulary.
-  //
+  // *
   // This should mean that the terms for a vocabulary in the receiving
   // instance match exactly the terms in the imported dataset.
-
   $existing_vocabularies_array = taxonomy_get_vocabularies();
 
   // We will loop through the vocabularies array and use the vid to
@@ -338,18 +337,18 @@ function data_export_import_import_taxonomy_terms($file) {
 
       // Look for a term in the dataset being imported which matches
       // the existing term.
-      //
+      // *
       // If one doesn't exist then we'll delete it from the existing
       // vocabulary.
-      //
+      // *
       // If we find a matching term then we will check if the existing
       // term is an exact match or not - and if it is not then we'll
       // update the existing term with the term data from the dataset.
-      //
+      // *
       // Check to see if the term can be found in the dataset file
       // with a matching vocabulary id and term id. If it does not
       // exist then is should be deleted from the receiving instance.
-      if (!isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]) ) {
+      if (!isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid])) {
 
         $return_status = taxonomy_del_term($existing_term->tid);
         if ($debug) {
@@ -357,7 +356,7 @@ function data_export_import_import_taxonomy_terms($file) {
         }
       }
 
-      if (isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]) ) {
+      if (isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid])) {
 
         if ($debug) {
           echo "Found match:" . $existing_term->tid . "\n";
@@ -366,11 +365,11 @@ function data_export_import_import_taxonomy_terms($file) {
         // We are going to check that the terms match exactly.  First
         // we need to add some data to the existing terms and unset
         // some fields.
-        //
+        // *
         // The the existing term does not match the term in the
         // dataset exactly then it will be updated to make it match
         // the term being imported.
-        //
+        // *
         // We will sort the synonyms to put them in the same order as
         // they are in the dataset file.
         $synonyms_array = taxonomy_get_synonyms($existing_term->tid);
@@ -394,7 +393,7 @@ function data_export_import_import_taxonomy_terms($file) {
         unset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->depth);
 
         // If the terms don't match then update the existing term.
-
+        // *
         // Get the object which is the existing term in the receiving
         // instance.
         $existing_term_object = $existing_term;
@@ -435,14 +434,15 @@ function data_export_import_import_taxonomy_terms($file) {
           }
 
           // Update the term with data from the dataset.
-          $term_data_array = array('tid' => $existing_term->tid,
+          $term_data_array = array(
+                                   'tid' => $existing_term->tid,
                                    'vid' => $existing_vocabulary_id,
                                    'name' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->name,
                                    'description' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->description,
                                    'weight' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->weight,
                                    'parent' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->parents,
                                    'synonyms' => $synonym_list,
-                                   'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations);
+                                   'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations, );
 
           if ($debug) {
             echo "term_data_array:\n";
@@ -468,10 +468,6 @@ function data_export_import_import_taxonomy_terms($file) {
 
     }
 
-    // This should be called here to reset the hiearchy value for the
-    // vocabulary now we've imported the terms.
-    data_export_import_reset_taxonomy_vocabulary_hierarchy($existing_vocabulary_id);
-
   }
 
   // Loop through the terms in the dataset being imported and if they
@@ -486,7 +482,7 @@ function data_export_import_import_taxonomy_terms($file) {
       echo "vocabulary in dataset ----------------------------->vid:" . $vid . "\n";
     }
 
-    foreach ($vocabulary_from_dataset as $term_from_dataset ) {
+    foreach ($vocabulary_from_dataset as $term_from_dataset) {
 
       if ($debug) {
         echo "term in dataset ---------------------->tid:" . $vid . "\n";
@@ -506,21 +502,21 @@ function data_export_import_import_taxonomy_terms($file) {
         // Will use the a modified taxonomy_save_term API function to
         // create the term. The synonyms need to be converted to a
         // list separated by new lines before we can use it.
-
         $synonym_list = "";
         foreach ($term_from_dataset->synonyms as $synonym) {
           $synonym_list = $synonym_list . $synonym . "\n";
         }
 
         // Update the term with data from the dataset.
-        $term_data_array = array('tid' => $term_from_dataset->tid,
+        $term_data_array = array(
+                                 'tid' => $term_from_dataset->tid,
                                  'vid' => $term_from_dataset->vid,
                                  'name' => $term_from_dataset->name,
                                  'description' => $term_from_dataset->description,
                                  'weight' => $term_from_dataset->weight,
                                  'parent' => $term_from_dataset->parents,
                                  'synonyms' => $synonym_list,
-                                 'relations' => $term_from_dataset->relations);
+                                 'relations' => $term_from_dataset->relations, );
 
         if ($debug) {
           echo "term_data_array about to be used to create new term:\n";
@@ -541,23 +537,20 @@ function data_export_import_import_taxonomy_terms($file) {
       }
 
     }
-
-    // This should be called here to reset the hiearchy value for the
-    // vocabulary now we've imported the terms.
-    data_export_import_reset_taxonomy_vocabulary_hierarchy($vid);
-
   }
 
-  /**
-   * @todo Reset all hierarchy values.  Here we need to loop through
-   * all vocabularies and reset the hierarchy values.  Currently this
-   * is done twice but needs to be carried out here in a single pass
-   * of all vocabularies.
-   *
-   * The current error is that some existing vocabularies may need to
-   * have a new hierarchy value now that we've brought in new
-   * vocabulary terms.
-   */
+  // Loop through all the vocabularies and reset the hierarchy
+  // value. This value is a calculated value which is stored in the
+  // vocabularies table and will need to be calculated dependent on
+  // the structure of the terms in the vocabulary.
+  // Value will be either:
+  // 0 - Flat list of terms.
+  // 1 - One or more terms have a parent.
+  // 2 - One or more terms have more than one parent.
+  $vocabularies_array = taxonomy_get_vocabularies();
+  foreach ($vocabularies_array as $vocabulary) {
+    data_export_import_reset_taxonomy_vocabulary_hierarchy($vocabulary->vid);
+  }
 
 }
 
@@ -618,7 +611,7 @@ function data_export_import_reset_taxonomy_vocabulary_hierarchy($vid) {
 
     // Needs to be cast to an array as that is what the
     // taxonomy_save_vocabulary function expects.
-    $vocabulary_array = (array)$vocabulary_object;
+    $vocabulary_array = (array) $vocabulary_object;
     taxonomy_save_vocabulary($vocabulary_array);
   }
 }

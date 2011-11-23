@@ -77,4 +77,13 @@ USAGE
 -----
 
  * Configure and use the module at admin/content/data_export_import.
+ * The dataset files are exported to and imported from
+   files/default/data_export_import.  Various methods can be used to
+   manage the files and to move the files between Drupal instances.
+   Although not tested the module at:
+   http://drupal.org/project/webfm looks suitable for file management.
+ * The user which is running the module needs to have permissions to
+   be able to delete nodes.  It is expected that data exporting and
+   importing will be carried out by the admin user which has correct
+   permissions.
 
