@@ -19,11 +19,9 @@ require_once 'includes/profiles/taxonomy_terms.inc';
 // echo "dataset file: " . $dataset_file . "\n";
 // *
 // Test the import.
+// data_export_import_import_pages($dataset_file);
 // data_export_import_import_taxonomy_terms("20111116_114401_pages.dataset");
 data_export_import_import_pages("20111122_124839_pages.dataset");
 
-// XXX echo "\n\n<-----START OF FILE IMPORT--->\n\n";
-// data_export_import_import_pages($dataset_file);
-// *
 return;
 

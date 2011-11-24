@@ -77,39 +77,6 @@ function data_export_import_menu() {
                                                             'description' => 'Import dataset files',
                                                             'type' => MENU_LOCAL_TASK, );
 
-  // These are taken out for now and will be brought back in when implmented.
-  // *
-  // This tab should provide a way to manage the file locations.
-  // Currently they are hard coded into
-  // files/default/data_export_import.
-  // *
-  // $items['admin/content/data_export_import/destination'] = array(
-  // 'title' => 'Destinations',
-  // 'page callback' => 'data_export_import_callback_destination',
-  // 'access arguments' => array('access data export import'),
-  // 'weight' => 2,
-  // 'description' => 'Manage destinations of dataset files',
-  // 'type' => MENU_LOCAL_TASK);
-  // *
-  // This tab should provide a way of managing the dataset profiles.
-  // $items['admin/content/data_export_import/profile'] = array(
-  // 'title' => 'Profiles',
-  // 'page callback' => 'data_export_import_callback_profile',
-  // 'access arguments' => array('access data export import'),
-  // 'weight' => 3,
-  // 'description' => 'Manage dataset profiles',
-  // 'type' => MENU_LOCAL_TASK);
-  // *
-  // This tab should enable a way for the exports/imports to be
-  // automated to schedules.
-  // $items['admin/content/data_export_import/schedule'] = array(
-  // 'title' => 'Schedules',
-  // 'page callback' => 'data_export_import_callback_schedule',
-  // 'access arguments' => array('access data export import'),
-  // 'weight' => 4,
-  // 'description' => 'Manage schedules of exports and imports',
-  // 'type' => MENU_LOCAL_TASK);
-  // *
   return $items;
 }
 
@@ -142,48 +109,6 @@ function data_export_import_callback_import() {
 }
 
 /**
- * Callback function for managing the dataset file locations.
- *
- * @return
- *   Form for managing dataset file locations.
- */
-function data_export_import_callback_destination() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form.
-  return "Destination list here.";
-}
-
-/**
- * Callback function for managing dataset profiles.
- *
- * @return
- *   Form for managing dataset profiles.
- */
-function data_export_import_callback_profile() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form.
-  return "Profile lists here.";
-}
-
-/**
- * Callback function for managing the scheduled exports and imports.
- *
- * @return
- *   Form for managing the scheduled exports and imports.
- */
-function data_export_import_callback_schedule() {
-
-  // This form calls the form builder function via the
-  // drupal_get_form() function which takes the name of this form builder
-  // function as an argument. It returns the results to display the form.
-  return "Schedule list here.";
-}
-
-/**
  * Create form to enable users to be able to select datasets to export.
  *
  * @param $form_state
@@ -202,18 +127,6 @@ function data_export_import_export_form($form_state) {
     echo "</pre>";
   }
 
-
-  // Need to import these from the include file.
-  // *
-  // Articles.
-  // $form['articles'] = array('#type' => 'fieldset',
-  // '#title' => 'Articles - NOT FUNCTIONAL YET',
-  // '#collapsible' => TRUE,
-  // '#collapsed' => FALSE);
-  // *
-  // $form['articles']['articles'] = array('#type' => 'checkbox',
-  // '#title' => 'Export all Articles');
-  // *
   // Pages.
   $form['pages'] = array(
                          '#type' => 'fieldset',
@@ -267,47 +180,6 @@ function data_export_import_import_form($form_state) {
 
   $form = array();
 
-  // These profiles need to be imported from the include files.
-  // *
-  // Articles
-  // NB - This section will be added next.
-  // -------------------------------------------------------------------
-  // *
-  // $form['articles'] = array('#type' => 'fieldset',
-  // '#title' => 'Articles - NOT FUNCTIONAL YET',
-  // '#collapsible' => TRUE,
-  // '#collapsed' => FALSE);
-  // *
-  // Get the contents of the dataset directory and create a list of
-  // links which can be used to trigger the data import.
-  // $directory = drupal_get_path('module', 'data_export_import') . '/includes';
-  // $directory = "sites/default/files/data_export_import/articles";
-  // $mask = '.dataset';
-  // $files = file_scan_directory($directory, $mask);
-  // *
-  // Sort them by the filename which is used as the key.
-  // ksort($files);
-  // *
-  // if ($debug) {
-  // echo "<pre>";
-  // echo "files:\n";
-  // var_export($files);
-  // echo "</pre>";
-  // }
-  // *
-  // $options = array();
-  // $options['none'] = "None";
-  // foreach ($files as $file) {
-  // $options[$file->basename] = $file->basename;
-  // *
-  // }
-  // *
-  // $form['articles']['articles'] = array('#type' => 'radios',
-  // '#title' => t('Please select file to import'),
-  // '#default_value' => 'none',
-  // '#options' => $options);
-  // *
-  // *
   // Pages
   // -------------------------------------------------------------------
   $form['pages'] = array(
@@ -346,9 +218,6 @@ function data_export_import_import_form($form_state) {
                                   '#title' => t('Please select file to import'),
                                   '#default_value' => 'none',
                                   '#options' => $options, );
-
-
-
 
 
   // Taxonomy terms
@@ -411,7 +280,6 @@ function data_export_import_import_form($form_state) {
  *   TRUE if all exports ran without error.
  */
 function data_export_import_export_form_submit($form, &$form_state) {
-
 
   // Need to include files holding import functions.
   include_once 'includes/profiles/articles.inc';
@@ -496,10 +364,6 @@ function data_export_import_import_form_submit($form, &$form_state) {
     echo "</pre>";
   }
 
-
-  // Need to have functions from the include files.
-  // Articles
-  // *
   // Pages
   if ($debug) {
     echo "<pre>";

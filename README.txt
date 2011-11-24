@@ -28,13 +28,12 @@ to take into account different Drupal builds. This means that if a
 Drupal instance has a very specialised setup it will be possible to
 create a new dataset profile to export/import data. 
 
-The module should include some initial dataset profiles which can be
-used on standard Drupal instances. These would enable the following
-datasets to be exported/imported. 
+The module currently includes two initial dataset profiles which can
+be used on standard Drupal instances. These enable the following
+datasets to be exported/imported.
 
  * Taxonomy vocabulary terms
- * Basic nodes such as page, story
- * Users
+ * Pages
 
 When exporting all data should be exported - when importing the data
 should be used in a way to make sure that the receiving Drupal
@@ -68,7 +67,7 @@ unique ID's.
 INSTALLATION
 ------------
 
- * Put the module in your drupal modules directory and enable it in
+ * Put the module in your Drupal modules directory and enable it in
    admin/build/modules.
  * Go to admin/user/permissions and grant permission to any roles that
    need to be able to export or import datasets.
@@ -78,12 +77,18 @@ USAGE
 
  * Configure and use the module at admin/content/data_export_import.
  * The dataset files are exported to and imported from
-   files/default/data_export_import.  Various methods can be used to
-   manage the files and to move the files between Drupal instances.
+   {files}/data_export_import.  Various methods can be used to manage
+   the files and to move the files between Drupal instances.
    Although not tested the module at:
    http://drupal.org/project/webfm looks suitable for file management.
  * The user which is running the module needs to have permissions to
-   be able to delete nodes.  It is expected that data exporting and
-   importing will be carried out by the admin user which has correct
-   permissions.
+   be able to delete nodes when importing pages.  It is expected that
+   data exporting and importing will be carried out by the admin user
+   which has correct permissions.
+ * Currently the pages import has been created to import standard
+   simple pages.  It can handle a simple added text type CCK field -
+   but any other file type fields are not being handled yet.
+ * If you have taxonomy terms associated with pages this has not been
+   coded for yet.  It may work OK but you might be better to import
+   the taxonomy terms separately first and then import the pages.
 

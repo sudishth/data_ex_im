@@ -203,14 +203,8 @@ function data_export_import_import_taxonomy_terms($file) {
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
 
-  // Here we can create a series of tests to check the receiving
-  // instance before importing the dataset.
-  // *
-  // Test the vocabularies.
-  // *
   // This will check that the vocabularies in the dataset file all
   // exist in the receiving instance and are an exact match.
-  // *
   // NB - The receiving instance may have extra vocabularies which
   // have been created.  This is OK because even though there is not
   // an exact match at least the vocabularies which are needed to
@@ -235,13 +229,11 @@ function data_export_import_import_taxonomy_terms($file) {
 
     // Here we need to unset the hierarchy value for both objects.
     // This is for two reasons.
-    // *
     // 1. The hierarchy value is different dependent on the terms.
     // I.e. If any term has two parents then it should be set to a
     // value of '2'.  So we can't expect the values to be the same
     // because the imported terms may have different numbers of
     // parents etc.
-    // *
     // 2. The hierarchy value does not appear to be being set properly
     // all the time - this has been registered as a bug at:
     // http://drupal.org/node/1309990.
@@ -724,24 +716,6 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
     echo "form_values:\n";
     var_export($form_values);
   }
-
-  // This code is the original code from taxonomy_save_term and is
-  // replaced by the simple INSERT statement.
-  /*
-   if (!empty($form_values['tid']) && $form_values['name']) {
-   drupal_write_record('term_data', $form_values, 'tid');
-   $hook = 'update';
-   $status = SAVED_UPDATED;
-   }
-   else if (!empty($form_values['tid'])) {
-   return taxonomy_del_term($form_values['tid']);
-   }
-   else {
-   drupal_write_record('term_data', $form_values);
-   $hook = 'insert';
-   $status = SAVED_NEW;
-   }
-  */
 
   // Insert the record into the term_data table.
   // We're using a direct insertion as the drupal_write_record

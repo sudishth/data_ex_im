@@ -122,14 +122,9 @@ function data_export_import_export_pages() {
  */
 function data_export_import_import_pages($file) {
 
-  $debug = TRUE;
+  $debug = FALSE;
 
   // Need to add a check that the file exists and handle the error.
-  // *
-  // XXX if (!file_exists($file)) {
-  // echo "file does not exist: " . $file."\n";
-  // }
-  // *
   // Load the dataset file into a variable.
   $file_content = file_get_contents("sites/default/files/data_export_import/pages/" . $file);
 
@@ -216,21 +211,15 @@ function data_export_import_import_pages($file) {
       var_export($existing_node);
     }
 
-    // Check if there is existing node with the same nid as the
-    // dataset node.
-    // *
-    // @todo Double check that a node with the nid of $dataset_node->nid
-    // exists just in case the node_load() function returns FALSE for
-    // another reason other than the node not existing.
-    // *
+    // If node_load returns FALSE then it was not able to find a node
+    // with the nid - therefore a new node needs to be created.
+    // Otherwise the existing node may need to be updated with the
+    // data from the dataset.
     if ($existing_node == FALSE) {
 
-      // Create a new node from the node in the dataset.
-      // *
-      // HERE HERE HERE
-      // Use a modified node_save() function.
+      // Use a modified node_save() function which allows the node to
+      // be saved with it's existing nid.
       data_export_import_node_insert_with_defined_nid($dataset_node);
-
     }
 
     else {
@@ -240,7 +229,7 @@ function data_export_import_import_pages($file) {
       if ($dataset_node != $existing_node) {
 
         if ($debug) {
-          echo"\n need to update the existing node with ID--------------------------------------->:" . $dataset_node->nid . "\n";
+          echo"\n need to update the existing node with ID---------------------->:" . $dataset_node->nid . "\n";
         }
 
         node_save($dataset_node);
@@ -283,13 +272,6 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
     }
   }
 
-  // No longer needed.
-  // elseif (empty($node->log)) {
-  // When updating a node, however, avoid clobbering an existing
-  // log entry with an empty one.
-  // unset($node->log);
-  // }
-  // *
   // For the same reasons, make sure we have $node->teaser and
   // $node->body set.
   if (!isset($node->teaser)) {
@@ -299,12 +281,6 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
     $node->body = '';
   }
 
-  // Save the old revision if needed.
-  // No longer needed.
-  // if (!$node->is_new && !empty($node->revision) && $node->vid) {
-  // $node->old_vid = $node->vid;
-  // }
-  // *
   $time = time();
   if (empty($node->created)) {
     $node->created = $time;
@@ -320,7 +296,6 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
   if ($node->is_new) {
     _node_save_revision($node, $user->uid);
 
-    // XXX drupal_write_record('node', $node);
     // Call our modified function after putting the nid back into the
     // object.
     $node->nid = $defined_nid;
@@ -330,20 +305,6 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
     $op = 'insert';
   }
 
-  // No longer needed.
-  // else {
-  // drupal_write_record('node', $node, 'nid');
-  // if (!empty($node->revision)) {
-  // _node_save_revision($node, $user->uid);
-  // db_query('UPDATE {node} SET vid = %d WHERE nid = %d',
-  // $node->vid, $node->nid);
-  // }
-  // else {
-  // _node_save_revision($node, $user->uid, 'vid');
-  // }
-  // $op = 'update';
-  // }
-  // *
   // Call the node specific callback (if any).
   node_invoke($node, $op);
   node_invoke_nodeapi($node, $op);
@@ -386,25 +347,11 @@ function data_export_import_drupal_write_record_via_insert_with_defined_id($tabl
   // fields that are not set.
   foreach ($schema['fields'] as $field => $info) {
 
-    // Special case -- skip serial types if we are updating.
-    // No longer needed.
-    // if ($info['type'] == 'serial' && count($update)) {
-    // continue;
-    // }
-    // *
     // For inserts, populate defaults from Schema if not already provided.
     if (!isset($object->$field) && !count($update) && isset($info['default'])) {
       $object->$field = $info['default'];
     }
 
-    // Track serial fields so we can helpfully populate them after the query.
-    // No longer needed.
-    // if ($info['type'] == 'serial') {
-    // $serials[] = $field;
-    // Ignore values for serials when inserting data. Unsupported.
-    // unset($object->$field);
-    // }
-    // *
     // Build arrays for the fields, placeholders, and values in our query.
     if (isset($object->$field)) {
       $fields[] = $field;
@@ -425,40 +372,9 @@ function data_export_import_drupal_write_record_via_insert_with_defined_id($tabl
     $query = "INSERT INTO {" . $table . "} (" . implode(', ', $fields) . ') VALUES (' . implode(', ', $placeholders) . ')';
     $return = SAVED_NEW;
   }
-  // No longer needed.
-  // else {
-  // $query = '';
-  // foreach ($fields as $id => $field) {
-  // if ($query) {
-  // $query .= ', ';
-  // }
-  // $query .= $field . ' = ' . $placeholders[$id];
-  // }
-  // *
-  // foreach ($update as $key) {
-  // $conditions[] = "$key = " .
-  // db_type_placeholder($schema['fields'][$key]['type']);
-  // $values[] = $object->$key;
-  // }
-  // *
-  // $query = "UPDATE {" . $table . "} SET $query WHERE " .
-  // implode(' AND ', $conditions);
-  // $return = SAVED_UPDATED;
-  // }
-  // *
-  // Execute the SQL.
-  if (db_query($query, $values)) {
 
-    $a = 1;
-    // No longer needed.
-    // if ($serials) {
-    // Get last insert ids and fill them in.
-    // foreach ($serials as $field) {
-    // $object->$field = db_last_insert_id($table, $field);
-    // }
-    // }
-  }
-  else {
+  // Execute the SQL.
+  if (!db_query($query, $values)) {
     $return = FALSE;
   }
 
