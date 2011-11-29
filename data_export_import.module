@@ -19,6 +19,7 @@
 
 /**
  * Display help and module information
+ *
  * @param
  *   Path which path of the site we're displaying help.
  * @param
