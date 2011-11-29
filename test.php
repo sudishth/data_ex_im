@@ -10,6 +10,8 @@
  * drush @example_site php-script /path/to/test.php
  */
 
+// Here we should probably set a couple of environment values
+// including the user id.
 require_once 'includes/profiles/articles.inc';
 require_once 'includes/profiles/pages.inc';
 require_once 'includes/profiles/taxonomy_terms.inc';
@@ -21,7 +23,7 @@ require_once 'includes/profiles/taxonomy_terms.inc';
 // Test the import.
 // data_export_import_import_pages($dataset_file);
 // data_export_import_import_taxonomy_terms("20111116_114401_pages.dataset");
-data_export_import_import_pages("20111122_124839_pages.dataset");
+data_export_import_import_pages("20111129_175206_pages.dataset");
 
 return;
 

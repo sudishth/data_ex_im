@@ -364,7 +364,7 @@ function data_export_import_import_form_submit($form, &$form_state) {
     echo "</pre>";
   }
 
-  // Pages
+  // Pages.
   if ($debug) {
     echo "<pre>";
     echo "Pages file to import selected: " . $form_state['clicked_button']['#post']['pages'] . "\n";

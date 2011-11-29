@@ -19,7 +19,7 @@
  */
 function data_export_import_export_pages() {
 
-  $debug = FALSE;
+  $debug = TRUE;
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
@@ -28,7 +28,7 @@ function data_export_import_export_pages() {
   // $node_type = node_get_types('type', 'page');
   $node_types = node_get_types();
   if ($debug) {
-    echo "node_types:\n";
+    echo "node_type:\n";
     var_export($node_types['page']);
   }
 
@@ -127,7 +127,9 @@ function data_export_import_import_pages($file) {
 
   $debug = FALSE;
 
-  // Need to add a check that the file exists and handle the error.
+  // @todo Check that the file exists and can be read.
+  // @todo Check that the users exist and match.
+  // *
   // Load the dataset file into a variable.
   $file_content = file_get_contents("sites/default/files/data_export_import/pages/" . $file);
 
@@ -229,11 +231,64 @@ function data_export_import_import_pages($file) {
 
       // If the nodes don't match then update the existing node with
       // the data from the dataset.
+      // Certain fields can be unset because they would be expected to
+      // be different.
+      // We will store the existing dataset node because it will be
+      // needed when updating the node.
+      $existing_node_vid = $existing_node->vid;
+
+      // The node may have had new revisions created since the dataset
+      // was created.
+      unset($dataset_node->vid);
+      unset($existing_node->vid);
+      unset($dataset_node->log);
+      unset($existing_node->log);
+      unset($dataset_node->revision_timestamp);
+      unset($existing_node->revision_timestamp);
+
+      // The changed date for the existing node could easily be
+      // different from the dataset node - even from a previous import
+      // of the dataset - or say a user saved the node without any changes.
+      unset($dataset_node->changed);
+      unset($existing_node->changed);
+
+      if ($debug) {
+        echo"\ndataset_node before comparison--------------------------------->:\n";
+        var_export($dataset_node);
+      }
+
+      if ($debug) {
+        echo"\nexisting_node before comparison----------------------->:\n";
+        var_export($existing_node);
+      }
+
+      if ($debug) {
+        echo"\ndataset_node object properties before comparison--------------------------------->:\n";
+        var_export(get_object_vars($dataset_node));
+      }
+
+      if ($debug) {
+        echo"\nexisting_node object properties before comparison----------------------->:\n";
+        var_export(get_object_vars($existing_node));
+      }
+
       if ($dataset_node != $existing_node) {
 
         if ($debug) {
           echo"\n need to update the existing node with ID---------------------->:" . $dataset_node->nid . "\n";
         }
+
+        // Create a new revision.
+        // The dataset node may be from several revisions back - and
+        // we don't want to reset back to a previous revision - and we
+        // don't want to overwrite the current revision - so creating
+        // a new revision is the best option.
+        // The only other option is to delete the node (which would
+        // delete all revisions) and then re-create it - but this
+        // would lose all the revision history.
+        $dataset_node->vid = $existing_node_vid;
+        $dataset_node->revision = 1;
+        $dataset_node->log = "Imported from dataset file: " . $file;
 
         node_save($dataset_node);
       }
