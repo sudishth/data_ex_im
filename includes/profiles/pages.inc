@@ -195,6 +195,11 @@ function data_export_import_import_pages($file) {
     }
   }
 
+  // Here we will pick up if the file contains no nodes.
+  if (count($file_content_as_array['nodes']) == 0) {
+    return;
+  }
+
   // Loop through the nodes in the dataset.
   // Update nodes which are different in the dataset and create nodes
   // which don't exist in the dataset.

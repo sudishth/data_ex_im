@@ -121,6 +121,9 @@ function data_export_import_export_taxonomy_terms() {
   $dataset_serialized = serialize($dataset);
 
   // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
   $dataset_directory = file_directory_path() . "/data_export_import/taxonomy_terms/";
   file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
@@ -466,6 +469,11 @@ function data_export_import_import_taxonomy_terms($file) {
   // don't exist in the receiving instance then we will create them.
   if ($debug) {
     echo "Bringing in the new terms from the dataset.\n";
+  }
+
+  // Here we will pick up if the file contains no taxonomy terms.
+  if (count($file_content_as_array['vocabulary_terms']) == 0) {
+    return;
   }
 
   foreach ($file_content_as_array['vocabulary_terms'] as $vid => $vocabulary_from_dataset) {
