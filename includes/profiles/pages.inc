@@ -68,6 +68,9 @@ function data_export_import_export_pages() {
   }
 
   // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
   $dataset_directory = file_directory_path() . "/data_export_import/pages";
   file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
