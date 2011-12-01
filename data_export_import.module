@@ -122,35 +122,31 @@ function data_export_import_export_form($form_state) {
 
   $debug = FALSE;
 
+  $form = array();
+
   if ($debug) {
     echo "<pre>";
     var_export($form_state);
     echo "</pre>";
   }
 
-  // Pages.
-  $form['pages'] = array(
-                         '#type' => 'fieldset',
-                         '#title' => 'Pages',
-                         '#collapsible' => TRUE,
-                         '#collapsed' => FALSE, );
+  // Here we will loop through the profile files and add the required
+  // elements to the $form array.
+  // The reason we are looping through the profile files is so that
+  // this module can be extended by the addition of profile .inc files.
+  $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
+  $mask = '.\.inc$';
+  $files = file_scan_directory($directory, $mask);
 
-  $form['pages']['pages'] = array(
-                                  '#type' => 'checkbox',
-                                  '#title' => 'Export all Pages', );
+  foreach ($files as $file) {
+    drupal_set_message($file->name);
 
+    // Include the file and get the function.
+    include_once $file->filename;
 
-  // Taxonomy terms.
-  $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => t('Taxonomy terms'),
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE, );
-
-  $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'checkbox',
-                                                    '#title' => 'Export all Taxonomy terms', );
-
+    $function_to_run = $file->name . "_add_fieldset_to_export_form";
+    $function_to_run($form);
+  }
 
   $form['submit'] = array(
                           '#type' => 'submit',

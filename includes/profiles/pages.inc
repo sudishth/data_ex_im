@@ -9,6 +9,28 @@
  */
 
 /**
+ * Add fieldset to the data export form.
+ *
+ * @return
+ *   TRUE if all ran OK.
+ */
+function pages_add_fieldset_to_export_form(&$form) {
+
+  // Pages.
+  $form['pages'] = array(
+                         '#type' => 'fieldset',
+                         '#title' => 'Pages',
+                         '#collapsible' => TRUE,
+                         '#collapsed' => FALSE, );
+
+  $form['pages']['pages'] = array(
+                                  '#type' => 'checkbox',
+                                  '#title' => 'Export all Pages', );
+
+  return TRUE;
+}
+
+/**
  * Exports detailed data about the pages.
  *
  * This function is going to use the API to extract the relevant

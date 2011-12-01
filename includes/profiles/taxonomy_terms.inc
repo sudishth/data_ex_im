@@ -14,6 +14,28 @@
  */
 
 /**
+ * Add fieldset to the data export form.
+ *
+ * @return
+ *   TRUE if all ran OK.
+ */
+function taxonomy_terms_add_fieldset_to_export_form(&$form) {
+
+  // Taxonomy terms.
+  $form['taxonomy_terms'] = array(
+                                  '#type' => 'fieldset',
+                                  '#title' => t('Taxonomy terms'),
+                                  '#collapsible' => TRUE,
+                                  '#collapsed' => FALSE, );
+
+  $form['taxonomy_terms']['taxonomy_terms'] = array(
+                                                    '#type' => 'checkbox',
+                                                    '#title' => 'Export all Taxonomy terms', );
+
+  return TRUE;
+}
+
+/**
  * Exports detailed data about the vocabularies and its terms.
  *
  * This function is going to use the API to extract the relevant

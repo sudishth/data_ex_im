@@ -2,14 +2,43 @@
 
 /**
  * @file
- * Provides functions to enable articles to be exported and imported.
+ * Provides functions to enable nodes to be exported and imported.
  *
  * When importing the content type will need to be checked to make
- * sure that the articles can be imported with all their data.
+ * sure that the nodes can be imported with all their data.
  */
 
 /**
- * Exports detailed data about the articles.
+ * Add fieldset to the data export form.
+ *
+ * @return
+ *   TRUE if all ran OK.
+ */
+function all_content_types_add_fieldset_to_export_form(&$form) {
+
+  $form['all_content_types'] = array(
+                                     '#type' => 'fieldset',
+                                     '#title' => 'All content types.',
+                                     '#collapsible' => TRUE,
+                                     '#collapsed' => FALSE, );
+
+  $node_types = node_get_types();
+
+  foreach ($node_types as $node_type) {
+
+    $node_type_type = $node_type->type;
+    $node_type_name = $node_type->name;
+
+    $form['all_content_types'][$node_type_type] = array(
+                                                        '#type' => 'checkbox',
+                                                        '#title' => $node_type_name, );
+  }
+  
+  return TRUE;
+}
+
+/**
+ * Exports detailed data about the nodes.
  *
  * This function is going to use the API to extract the relevant
  * data. This data is then going to be output to a data file.
@@ -17,7 +46,7 @@
  * @return
  *   The filename of the datafile which was created.
  */
-function data_export_import_export_articles() {
+function data_export_import_export_nodes() {
 
   $debug = TRUE;
 
