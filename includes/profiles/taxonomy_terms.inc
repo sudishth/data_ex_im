@@ -16,10 +16,8 @@
 /**
  * Add fieldset to the data export form.
  *
- * @return
- *   TRUE if all ran OK.
  */
-function taxonomy_terms_add_fieldset_to_export_form(&$form) {
+function _taxonomy_terms_add_fieldset_to_export_form(&$form) {
 
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
@@ -31,8 +29,17 @@ function taxonomy_terms_add_fieldset_to_export_form(&$form) {
   $form['taxonomy_terms']['taxonomy_terms'] = array(
                                                     '#type' => 'checkbox',
                                                     '#title' => 'Export all Taxonomy terms', );
+}
 
-  return TRUE;
+/**
+ * Export the required dataset file.
+ *
+ */
+function _taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
+
+  if ($form_state['values']['pages'] == 1) {
+    $dataset_files_created[] = data_export_import_export_taxonomy_terms();
+  }
 }
 
 /**

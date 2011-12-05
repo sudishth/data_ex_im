@@ -11,10 +11,8 @@
 /**
  * Add fieldset to the data export form.
  *
- * @return
- *   TRUE if all ran OK.
  */
-function pages_add_fieldset_to_export_form(&$form) {
+function _pages_add_fieldset_to_export_form(&$form) {
 
   // Pages.
   $form['pages'] = array(
@@ -26,8 +24,17 @@ function pages_add_fieldset_to_export_form(&$form) {
   $form['pages']['pages'] = array(
                                   '#type' => 'checkbox',
                                   '#title' => 'Export all Pages', );
+}
 
-  return TRUE;
+/**
+ * Export the required dataset file.
+ *
+ */
+function _pages_export_to_file($form_state, &$dataset_files_created) {
+
+  if ($form_state['values']['pages'] == 1) {
+    $dataset_files_created[] = data_export_import_export_pages();
+  }
 }
 
 /**
@@ -41,7 +48,7 @@ function pages_add_fieldset_to_export_form(&$form) {
  */
 function data_export_import_export_pages() {
 
-  $debug = TRUE;
+  $debug = FALSE;
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
@@ -106,7 +113,7 @@ function data_export_import_export_pages() {
 }
 
 /**
- * Make pages match the pages from a dataset file.
+ * Make current pages match the pages from a dataset file.
  *
  * The purpose of this function is to effectively 'import' the pages
  * stored in a dataset file.

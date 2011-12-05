@@ -124,6 +124,13 @@ function data_export_import_export_form($form_state) {
 
   $form = array();
 
+  // This stops the values being posted from being flattened into a
+  // single level array - we need it to be a multi layered array
+  // because some profiles may provide for many options - I.e. The
+  // all_content_types profile allows the user to choose to export
+  // nodes of various content types.
+  $form['#tree'] = TRUE;
+
   if ($debug) {
     echo "<pre>";
     var_export($form_state);
@@ -139,12 +146,11 @@ function data_export_import_export_form($form_state) {
   $files = file_scan_directory($directory, $mask);
 
   foreach ($files as $file) {
-    drupal_set_message($file->name);
 
     // Include the file and get the function.
     include_once $file->filename;
 
-    $function_to_run = $file->name . "_add_fieldset_to_export_form";
+    $function_to_run = "_" . $file->name . "_add_fieldset_to_export_form";
     $function_to_run($form);
   }
 
@@ -263,7 +269,6 @@ function data_export_import_import_form($form_state) {
   return $form;
 }
 
-
 /**
  * This is the main function called on the data export form.
  *
@@ -278,10 +283,6 @@ function data_export_import_import_form($form_state) {
  */
 function data_export_import_export_form_submit($form, &$form_state) {
 
-  // Need to include files holding import functions.
-  include_once 'includes/profiles/articles.inc';
-  include_once 'includes/profiles/pages.inc';
-  include_once 'includes/profiles/taxonomy_terms.inc';
 
   $debug = FALSE;
 
@@ -299,6 +300,41 @@ function data_export_import_export_form_submit($form, &$form_state) {
     echo "</pre>";
   }
 
+
+
+  // Need to include files holding import functions.
+  //  include_once 'includes/profiles/articles.inc';
+  include_once 'includes/profiles/pages.inc';
+  include_once 'includes/profiles/taxonomy_terms.inc';
+
+
+  // Here we will loop through the profile files and run the data
+  // export if needed.
+  // The reason we are looping through the profile files is so that
+  // this module can be extended by the addition of profile .inc files.
+  $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
+  $mask = '.\.inc$';
+  $files = file_scan_directory($directory, $mask);
+
+  $dataset_files_created = array();
+  foreach ($files as $file) {
+
+    // Include the file.
+    include_once $file->filename;
+
+    $function_to_run = "_" . $file->name . "_export_to_file";
+    $function_to_run($form_state, $dataset_files_created);
+  }
+
+  drupal_set_message("The following dataset files were created:");
+
+  foreach ($dataset_files_created as $dataset_file_name) {
+    drupal_set_message($dataset_file_name);
+  }
+
+
+
+  /*
   // These need to be brought in from the include files.
   // Articles.
   // Case if Articles has been selected.
@@ -307,7 +343,9 @@ function data_export_import_export_form_submit($form, &$form_state) {
     $dataset_file = data_export_import_export_articles();
     drupal_set_message(check_plain("The Articles dataset was output to the file: " . $dataset_file));
   }
+  */
 
+  /*
   // Pages.
   // Case if Pages has been selected.
   if ($form_state['values']['pages'] == 1) {
@@ -323,6 +361,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
     $dataset_file = data_export_import_export_taxonomy_terms();
     drupal_set_message(check_plain("The Taxonomy terms dataset was output to the file: " . $dataset_file));
   }
+  */
 
   return TRUE;
 }
@@ -341,7 +380,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
  */
 function data_export_import_import_form_submit($form, &$form_state) {
 
-  include_once 'includes/profiles/articles.inc';
+  //  include_once 'includes/profiles/articles.inc';
   include_once 'includes/profiles/pages.inc';
   include_once 'includes/profiles/taxonomy_terms.inc';
 
