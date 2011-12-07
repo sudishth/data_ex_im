@@ -246,7 +246,7 @@ function data_export_import_import_taxonomy_terms($file) {
     // Check the vocabularies actually match.
     if ($vocabulary_from_file != $existing_vocabulary) {
 
-      drupal_set_message(check_plain("ERROR - There is a mismatch between the vocabularies in the dataset file and the existing vocabularies - vocabulary name: " . $vocabulary_from_file->name . "\n"));
+      drupal_set_message(check_plain(t("ERROR - There is a mismatch between the vocabularies in the dataset file and the existing vocabularies - vocabulary name: ") . $vocabulary_from_file->name . "\n"));
       return;
     }
 
@@ -731,7 +731,7 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
   // value.
   $query_result = db_query("INSERT INTO {term_data} (`tid`, `vid`, `name`, `description`, `weight`) VALUES (%d, %d, '%s', '%s', %d)", $form_values['tid'], $form_values['vid'], $form_values['name'], $form_values['description'], $form_values['weight']);
   if ($query_result == FALSE) {
-    drupal_set_message("Insertion into term_data table failed.");
+    drupal_set_message(t("Insertion into term_data table failed."));
   }
 
   // Set up parameters used later when calling hook_taxonomy().

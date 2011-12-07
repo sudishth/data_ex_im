@@ -163,7 +163,7 @@ function data_export_import_import_pages($file) {
       echo "\n";
     }
 
-    drupal_set_message(check_plain("ERROR - When the dataset was created the page content type was different from this site's page content type."));
+    drupal_set_message(check_plain(t("ERROR - When the dataset was created the page content type was different from this site's page content type.")));
     return;
   }
 
