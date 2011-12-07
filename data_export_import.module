@@ -20,12 +20,13 @@
 /**
  * Display help and module information
  *
- * @param
+ * @param string $path
  *   Path which path of the site we're displaying help.
- * @param
+ * @param array $arg
  *   Arg array that holds the current path as would be returned from
- * arg() function.
- * @return
+ *   arg() function.
+ *
+ * @return string
  *   Help text for the path.
  */
 function data_export_import_help($path, $arg) {
@@ -57,7 +58,7 @@ function data_export_import_menu() {
   $items = array();
 
   $items['admin/content/data_export_import'] = array(
-                                                     'title' => t('Data export import'),
+                                                     'title' => 'Data export import',
                                                      'page callback' => 'data_export_import_callback_export',
                                                      'access arguments' => array('access data export import'),
                                                      'description' => 'Data export import',
@@ -65,13 +66,13 @@ function data_export_import_menu() {
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-                                                            'title' => t('Export'),
+                                                            'title' => 'Export',
                                                             'weight' => 0,
                                                             'description' => 'Data export import',
                                                             'type' => MENU_DEFAULT_LOCAL_TASK, );
 
   $items['admin/content/data_export_import/import'] = array(
-                                                            'title' => t('Import'),
+                                                            'title' => 'Import',
                                                             'page callback' => 'data_export_import_callback_import',
                                                             'access arguments' => array('access data export import'),
                                                             'weight' => 1,
@@ -309,7 +310,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   if ($form_state['values']['articles'] == 1) {
 
     $dataset_file = data_export_import_export_articles();
-    drupal_set_message(check_plain(t("The Articles dataset was output to the file: ") . $dataset_file));
+    drupal_set_message(check_plain(t("The Articles dataset was output to the file:") . $dataset_file));
   }
 
   // Pages.
@@ -317,7 +318,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   if ($form_state['values']['pages'] == 1) {
 
     $dataset_file = data_export_import_export_pages();
-    drupal_set_message(check_plain(t("The Pages dataset was output to the file: ") . $dataset_file));
+    drupal_set_message(check_plain(t("The Pages dataset was output to the file:") . $dataset_file));
   }
 
   // Taxonomy terms.
@@ -325,7 +326,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   if ($form_state['values']['taxonomy_terms'] == 1) {
 
     $dataset_file = data_export_import_export_taxonomy_terms();
-    drupal_set_message(check_plain(t("The Taxonomy terms dataset was output to the file: ") . $dataset_file));
+    drupal_set_message(check_plain(t("The Taxonomy terms dataset was output to the file:") . $dataset_file));
   }
 
   return TRUE;
