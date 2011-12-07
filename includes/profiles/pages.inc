@@ -14,7 +14,7 @@
  * This function is going to use the API to extract the relevant
  * data. This data is then going to be output to a data file.
  *
- * @return
+ * @return string
  *   The filename of the datafile which was created.
  */
 function data_export_import_export_pages() {
@@ -117,10 +117,10 @@ function data_export_import_export_pages() {
  * have their old ID's set to match exactly - again due to the related
  * terms.
  *
- * @param $file
+ * @param string $file
  *   The dataset file which is being imported.
  *
- * @return
+ * @return bool
  *   TRUE if the import process ran without errors.
  */
 function data_export_import_import_pages($file) {
@@ -448,4 +448,3 @@ function data_export_import_drupal_write_record_via_insert_with_defined_id($tabl
 
   return $return;
 }
-

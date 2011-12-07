@@ -29,7 +29,7 @@
  * are in each vocabulary. These terms will be used to ensure that
  * the receiving instance ends up with a matching set of terms.
  *
- * @return
+ * @return string
  *   The filename of the datafile which was created.
  */
 function data_export_import_export_taxonomy_terms() {
@@ -183,10 +183,10 @@ function data_export_import_export_taxonomy_terms() {
  * created in the receiving instance which has the same tid as one
  * being imported but it is in a different vocabulary.
  *
- * @param $file
+ * @param string $file
  *   The dataset file which is being imported.
  *
- * @return
+ * @return bool
  *   TRUE if the import process ran without errors.
  */
 function data_export_import_import_taxonomy_terms($file) {
@@ -567,10 +567,10 @@ function data_export_import_import_taxonomy_terms($file) {
  * hierarchy value my not be correct for the terms and so needs to be
  * reset.
  *
- * @param $vid
+ * @param int $vid
  *   Vocabulary ID of the vocabulary having it's hierarchy reset.
  *
- * @return
+ * @return bool
  *   TRUE if the function ran without error.
  */
 function data_export_import_reset_taxonomy_vocabulary_hierarchy($vid) {
@@ -626,25 +626,25 @@ function data_export_import_reset_taxonomy_vocabulary_hierarchy($vid) {
  * values would stay the same between the function calls resulting in
  * stale data being returned.
  *
- * @param $vid
+ * @param int $vid
  *   Which vocabulary to generate the tree for.
  *
- * @param $parent
+ * @param int $parent
  *   The term ID under which to generate the tree. If 0, generate the
  *   tree for the entire vocabulary.
  *
- * @param $depth
+ * @param int $depth
  *   Internal use only.
  *
- * @param $max_depth
+ * @param int $max_depth
  *   The number of levels of the tree to return. Leave NULL to return
  *   all levels.
  *
- * @param $reset
+ * @param bool $reset
  *   Whether or not to clear the static variables to force this
  *   function to get fresh data
  *
- * @return
+ * @return array
  *   An array of all term objects in the tree. Each term object is
  *   extended to  have "depth" and "parents" attributes in addition to
  *   its normal ones. Results are statically cached.
@@ -696,10 +696,10 @@ function data_export_import_taxonomy_get_tree_with_reset($vid, $parent = 0, $dep
 /**
  * This function is a modified version of the taxonomy_save_term function.
  *
- * @param $form_values
+ * @param array &$form_values
  *   Array of term data which is to be saved.
  *
- * @return
+ * @return int
  *   $status value showing if the term was saved OK.
  */
 function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
@@ -794,4 +794,3 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
 
   return $status;
 }
-
