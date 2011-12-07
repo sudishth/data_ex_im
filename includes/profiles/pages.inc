@@ -19,7 +19,7 @@
  */
 function data_export_import_export_pages() {
 
-  $debug = TRUE;
+  $debug = FALSE;
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
