@@ -210,7 +210,7 @@ function data_export_import_import_form($form_state) {
   $options = array();
   $options['none'] = "None";
   foreach ($files as $file) {
-    $options[$file->basename] = $file->basename;
+    $options[$file->basename] = check_plain($file->basename);
 
   }
 
@@ -249,7 +249,7 @@ function data_export_import_import_form($form_state) {
   $options = array();
   $options['none'] = "None";
   foreach ($files as $file) {
-    $options[$file->basename] = $file->basename;
+    $options[$file->basename] = check_plain($file->basename);
 
   }
 
