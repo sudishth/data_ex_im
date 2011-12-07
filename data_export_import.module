@@ -57,7 +57,7 @@ function data_export_import_menu() {
   $items = array();
 
   $items['admin/content/data_export_import'] = array(
-                                                     'title' => 'Data export import',
+                                                     'title' => t('Data export import'),
                                                      'page callback' => 'data_export_import_callback_export',
                                                      'access arguments' => array('access data export import'),
                                                      'description' => 'Data export import',
@@ -65,13 +65,13 @@ function data_export_import_menu() {
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-                                                            'title' => 'Export',
+                                                            'title' => t('Export'),
                                                             'weight' => 0,
                                                             'description' => 'Data export import',
                                                             'type' => MENU_DEFAULT_LOCAL_TASK, );
 
   $items['admin/content/data_export_import/import'] = array(
-                                                            'title' => 'Import',
+                                                            'title' => t('Import'),
                                                             'page callback' => 'data_export_import_callback_import',
                                                             'access arguments' => array('access data export import'),
                                                             'weight' => 1,
@@ -131,13 +131,13 @@ function data_export_import_export_form($form_state) {
   // Pages.
   $form['pages'] = array(
                          '#type' => 'fieldset',
-                         '#title' => 'Pages',
+                         '#title' => t('Pages'),
                          '#collapsible' => TRUE,
                          '#collapsed' => FALSE, );
 
   $form['pages']['pages'] = array(
                                   '#type' => 'checkbox',
-                                  '#title' => 'Export all Pages', );
+                                  '#title' => t('Export all Pages'), );
 
 
   // Taxonomy terms.
@@ -149,7 +149,7 @@ function data_export_import_export_form($form_state) {
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
                                                     '#type' => 'checkbox',
-                                                    '#title' => 'Export all Taxonomy terms', );
+                                                    '#title' => t('Export all Taxonomy terms'), );
 
 
   $form['submit'] = array(
@@ -185,7 +185,7 @@ function data_export_import_import_form($form_state) {
   // -------------------------------------------------------------------
   $form['pages'] = array(
                          '#type' => 'fieldset',
-                         '#title' => 'Pages',
+                         '#title' => t('Pages'),
                          '#collapsible' => TRUE,
                          '#collapsed' => FALSE, );
 
@@ -225,7 +225,7 @@ function data_export_import_import_form($form_state) {
   // -------------------------------------------------------------------
   $form['taxonomy_terms'] = array(
                                   '#type' => 'fieldset',
-                                  '#title' => 'Taxonomy terms',
+                                  '#title' => t('Taxonomy terms'),
                                   '#collapsible' => TRUE,
                                   '#collapsed' => FALSE, );
 
@@ -309,7 +309,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   if ($form_state['values']['articles'] == 1) {
 
     $dataset_file = data_export_import_export_articles();
-    drupal_set_message(check_plain("The Articles dataset was output to the file: " . $dataset_file));
+    drupal_set_message(check_plain(t("The Articles dataset was output to the file: ") . $dataset_file));
   }
 
   // Pages.
@@ -317,7 +317,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   if ($form_state['values']['pages'] == 1) {
 
     $dataset_file = data_export_import_export_pages();
-    drupal_set_message(check_plain("The Pages dataset was output to the file: " . $dataset_file));
+    drupal_set_message(check_plain(t("The Pages dataset was output to the file: ") . $dataset_file));
   }
 
   // Taxonomy terms.
@@ -325,7 +325,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   if ($form_state['values']['taxonomy_terms'] == 1) {
 
     $dataset_file = data_export_import_export_taxonomy_terms();
-    drupal_set_message(check_plain("The Taxonomy terms dataset was output to the file: " . $dataset_file));
+    drupal_set_message(check_plain(t("The Taxonomy terms dataset was output to the file: ") . $dataset_file));
   }
 
   return TRUE;
