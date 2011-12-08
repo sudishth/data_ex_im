@@ -20,7 +20,7 @@
 /**
  * Display help and module information
  *
- * @param $path
+ * @param string $path
  *   Path which path of the site we're displaying help.
  * @param array $arg
  *   Arg array that holds the current path as would be returned from
