@@ -48,33 +48,34 @@ function _all_content_types_add_fieldset_to_export_form(&$form) {
  */
 function _all_content_types_export_to_file($form_state, &$dataset_files_created) {
 
+  $debug = FALSE;
+
   $string_to_output = var_export($form_state, TRUE);
   drupal_set_message("<pre>" . $string_to_output . "</pre>");
 
-
-  // HERE HERE HERE HERE - we can loop through which content types
-  // need to be imported.
-
-  // Then we need to call the function with specific argument to
-  // decide which content types to export - and to show which data
-  // files have been created.
-
   // See if any content types were selected - if none then exist out
   // gracefully.
+  if (!isset($form_state['clicked_button']['#post']['all_content_types'])) {
+      drupal_set_message("No content types selected.");
+      return TRUE;
+  } 
 
-  
+  if ($debug) {
+    drupal_set_message(var_dump($form_state['clicked_button']['#post']['all_content_types']));
+  }
+
+  // We can loop through which content types need to be exported.
   // The #post array will only contain values which have been set to
   // have a value of '1'.
   foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
 
     drupal_set_message("content type: " . $content_type . " - value - " . $value);
     $dataset_files_created[] = data_export_import_export_nodes_for_a_content_type($content_type);
-
   }
 
+  return TRUE;
   //  $dataset_files_created[] = data_export_import_export_all_content_types();
 }
-
 
 /**
  * Exports detailed node data.
@@ -87,8 +88,7 @@ function _all_content_types_export_to_file($form_state, &$dataset_files_created)
  */
 function data_export_import_export_nodes_for_a_content_type($content_type) {
 
-
-  // Convert to run for the $content_type and not page.
+  // HERE HERE HERE Convert to run for the $content_type and not page.
 
   $debug = FALSE;
 
@@ -97,6 +97,10 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   $dataset = array();
 
   // $node_type = node_get_types('type', 'page');
+
+  // Here we are getting all content types and selecting just the one
+  // we need - this seems to give more consistent results than just
+  // extracting the single node object.
   $node_types = node_get_types();
   if ($debug) {
     echo "node_type:\n";
@@ -109,15 +113,15 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   // serialize/unserialize should cover this but the objects would not
   // be counted as matching.  Possibly related to:
   // https://bugs.php.net/bug.php?id=48016
-  $dataset['content_type'] = serialize($node_types['page']);
+  $dataset['content_type'] = serialize($node_types[$content_type]);
 
-  $type = 'page';
+  //$type = 'page';
 
   // Get the node objects and add them to the array.
   $query = db_rewrite_sql("SELECT nid FROM {node} n WHERE type = '%s'", 'n');
 
   // $results = db_query_range($query, $type, $offset, $limit);
-  $results = db_query($query, $type);
+  $results = db_query($query, $content_type);
 
   while ($nid = db_result($results)) {
     $node = node_load($nid);
@@ -142,11 +146,11 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
   file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
 
-  $dataset_directory = file_directory_path() . "/data_export_import/pages";
+  $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
   file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
   // Save the string as a file. This is the dataset data file.
-  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_pages.dataset";
+  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_". $content_type .".dataset";
   $file_path_and_name = $dataset_directory . "/" . $file_name;
 
   file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
@@ -188,8 +192,6 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
 
   return $file_name;
 }
-
-
 
 
 /**
