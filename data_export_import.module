@@ -61,14 +61,16 @@ function data_export_import_menu() {
     'page callback' => 'data_export_import_callback_export',
     'access arguments' => array('access data export import'),
     'description' => 'Data export import',
-    'type' => MENU_NORMAL_ITEM, );
+    'type' => MENU_NORMAL_ITEM,
+  );
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
     'title' => 'Export',
     'weight' => 0,
     'description' => 'Data export import',
-    'type' => MENU_DEFAULT_LOCAL_TASK, );
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
 
   $items['admin/content/data_export_import/import'] = array(
     'title' => 'Import',
@@ -76,7 +78,8 @@ function data_export_import_menu() {
     'access arguments' => array('access data export import'),
     'weight' => 1,
     'description' => 'Import dataset files',
-    'type' => MENU_LOCAL_TASK, );
+    'type' => MENU_LOCAL_TASK,
+  );
 
   return $items;
 }
@@ -133,28 +136,31 @@ function data_export_import_export_form($form_state) {
     '#type' => 'fieldset',
     '#title' => t('Pages'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE, );
+    '#collapsed' => FALSE,
+  );
 
   $form['pages']['pages'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Export all Pages'), );
-
+    '#title' => t('Export all Pages'),
+  );
 
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
     '#type' => 'fieldset',
     '#title' => t('Taxonomy terms'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE, );
+    '#collapsed' => FALSE,
+  );
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Export all Taxonomy terms'), );
-
+    '#title' => t('Export all Taxonomy terms'),
+  );
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Create dataset files', );
+    '#value' => 'Create dataset files',
+  );
 
   if ($debug) {
     echo "<pre>";
@@ -187,7 +193,8 @@ function data_export_import_import_form($form_state) {
     '#type' => 'fieldset',
     '#title' => t('Pages'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE, );
+    '#collapsed' => FALSE,
+  );
 
 
   // Get the contents of the dataset directory and create a list of
@@ -218,7 +225,8 @@ function data_export_import_import_form($form_state) {
     '#type' => 'radios',
     '#title' => t('Please select file to import'),
     '#default_value' => 'none',
-    '#options' => $options, );
+    '#options' => $options,
+  );
 
 
   // Taxonomy terms
@@ -227,7 +235,8 @@ function data_export_import_import_form($form_state) {
     '#type' => 'fieldset',
     '#title' => t('Taxonomy terms'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE, );
+    '#collapsed' => FALSE,
+  );
 
   // Get the contents of the dataset directory and create a list of
   // links which can be used to trigger the data import.
@@ -257,16 +266,16 @@ function data_export_import_import_form($form_state) {
     '#type' => 'radios',
     '#title' => t('Please select file to import'),
     '#default_value' => 'none',
-    '#options' => $options, );
-
+    '#options' => $options,
+  );
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Import dataset files', );
+    '#value' => 'Import dataset files',
+  );
 
   return $form;
 }
-
 
 /**
  * This is the main function called on the data export form.
@@ -401,5 +410,4 @@ function data_export_import_import_form_submit($form, &$form_state) {
     $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
     drupal_set_message(check_plain("File(s) imported" . $form_state['clicked_button']['#post']['taxonomy_terms']));
   }
-
 }

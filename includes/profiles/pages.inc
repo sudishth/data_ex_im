@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Provides functions to enable pages to be exported and imported.
@@ -301,7 +300,6 @@ function data_export_import_import_pages($file) {
   }
 }
 
-
 /**
  * Implements saving a node with a defined nid value.
  *
@@ -315,7 +313,6 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
   // We will then re-introduce the nid when needed.
   $defined_nid = $node->nid;
   unset($node->nid);
-
 
   // Let modules modify the node before it is saved to the database.
   node_invoke_nodeapi($node, 'presave');
@@ -348,6 +345,7 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
   if (empty($node->created)) {
     $node->created = $time;
   }
+
   // The changed timestamp is always updated for bookkeeping purposes
   // (revisions, searching, ...)
   $node->changed = $time;
@@ -385,6 +383,7 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
  * Overrides the standard drupal_write_record() function.
  */
 function data_export_import_drupal_write_record_via_insert_with_defined_id($table, &$object, $update = array()) {
+
   // Standardize $update to an array.
   if (is_string($update)) {
     $update = array($update);

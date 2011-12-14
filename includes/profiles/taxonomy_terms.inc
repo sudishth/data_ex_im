@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Enables taxonomy terms to be exported and imported.
@@ -437,7 +436,8 @@ function data_export_import_import_taxonomy_terms($file) {
                                    'weight' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->weight,
                                    'parent' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->parents,
                                    'synonyms' => $synonym_list,
-                                   'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations, );
+                                   'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations,
+                                   );
 
           if ($debug) {
             echo "term_data_array:\n";
@@ -516,7 +516,8 @@ function data_export_import_import_taxonomy_terms($file) {
                                  'weight' => $term_from_dataset->weight,
                                  'parent' => $term_from_dataset->parents,
                                  'synonyms' => $synonym_list,
-                                 'relations' => $term_from_dataset->relations, );
+                                 'relations' => $term_from_dataset->relations,
+                                 );
 
         if ($debug) {
           echo "term_data_array about to be used to create new term:\n";
