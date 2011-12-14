@@ -1,34 +1,33 @@
 <?php
+  /**
+   * @file
+   * This module can export and import datasets.
+   *
+   * It will have several clearly defined sections and will be
+   * extended by  plugins or include files.
+   *
+   * The sections are:
+   * Help
+   * Permissions
+   * hook_menu
+   * calbacks
+   * forms
+   * submit
+   * validation
+   */
 
-/**
- * @file
- * This module can export and import datasets.
- *
- * It will have several clearly defined sections and will be
- * extended by  plugins or include files.
- *
- * The sections are:
- * Help
- * Permissions
- * hook_menu
- * calbacks
- * forms
- * submit
- * validation
- */
-
-/**
- * Display help and module information
- *
- * @param string $path
- *   Path which path of the site we're displaying help.
- * @param array $arg
- *   Arg array that holds the current path as would be returned from
- *   arg() function.
- *
- * @return string
- *   Help text for the path.
- */
+  /**
+   * Display help and module information
+   *
+   * @param string $path
+   *   Path which path of the site we're displaying help.
+   * @param array $arg
+   *   Arg array that holds the current path as would be returned from
+   *   arg() function.
+   *
+   * @return string
+   *   Help text for the path.
+   */
 function data_export_import_help($path, $arg) {
 
   $output = '';
@@ -39,7 +38,7 @@ function data_export_import_help($path, $arg) {
       break;
   }
   return $output;
-}
+  }
 
 /**
  * Implements hook_perm().
@@ -58,26 +57,26 @@ function data_export_import_menu() {
   $items = array();
 
   $items['admin/content/data_export_import'] = array(
-                                                     'title' => 'Data export import',
-                                                     'page callback' => 'data_export_import_callback_export',
-                                                     'access arguments' => array('access data export import'),
-                                                     'description' => 'Data export import',
-                                                     'type' => MENU_NORMAL_ITEM, );
+    'title' => 'Data export import',
+    'page callback' => 'data_export_import_callback_export',
+    'access arguments' => array('access data export import'),
+    'description' => 'Data export import',
+    'type' => MENU_NORMAL_ITEM, );
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-                                                            'title' => 'Export',
-                                                            'weight' => 0,
-                                                            'description' => 'Data export import',
-                                                            'type' => MENU_DEFAULT_LOCAL_TASK, );
+    'title' => 'Export',
+    'weight' => 0,
+    'description' => 'Data export import',
+    'type' => MENU_DEFAULT_LOCAL_TASK, );
 
   $items['admin/content/data_export_import/import'] = array(
-                                                            'title' => 'Import',
-                                                            'page callback' => 'data_export_import_callback_import',
-                                                            'access arguments' => array('access data export import'),
-                                                            'weight' => 1,
-                                                            'description' => 'Import dataset files',
-                                                            'type' => MENU_LOCAL_TASK, );
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import',
+    'access arguments' => array('access data export import'),
+    'weight' => 1,
+    'description' => 'Import dataset files',
+    'type' => MENU_LOCAL_TASK, );
 
   return $items;
 }
@@ -131,31 +130,31 @@ function data_export_import_export_form($form_state) {
 
   // Pages.
   $form['pages'] = array(
-                         '#type' => 'fieldset',
-                         '#title' => t('Pages'),
-                         '#collapsible' => TRUE,
-                         '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Pages'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   $form['pages']['pages'] = array(
-                                  '#type' => 'checkbox',
-                                  '#title' => t('Export all Pages'), );
+    '#type' => 'checkbox',
+    '#title' => t('Export all Pages'), );
 
 
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => t('Taxonomy terms'),
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'checkbox',
-                                                    '#title' => t('Export all Taxonomy terms'), );
+    '#type' => 'checkbox',
+    '#title' => t('Export all Taxonomy terms'), );
 
 
   $form['submit'] = array(
-                          '#type' => 'submit',
-                          '#value' => 'Create dataset files', );
+    '#type' => 'submit',
+    '#value' => 'Create dataset files', );
 
   if ($debug) {
     echo "<pre>";
@@ -185,10 +184,10 @@ function data_export_import_import_form($form_state) {
   // Pages
   // -------------------------------------------------------------------
   $form['pages'] = array(
-                         '#type' => 'fieldset',
-                         '#title' => t('Pages'),
-                         '#collapsible' => TRUE,
-                         '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Pages'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
 
   // Get the contents of the dataset directory and create a list of
@@ -216,19 +215,19 @@ function data_export_import_import_form($form_state) {
   }
 
   $form['pages']['pages'] = array(
-                                  '#type' => 'radios',
-                                  '#title' => t('Please select file to import'),
-                                  '#default_value' => 'none',
-                                  '#options' => $options, );
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options, );
 
 
   // Taxonomy terms
   // -------------------------------------------------------------------
   $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => t('Taxonomy terms'),
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   // Get the contents of the dataset directory and create a list of
   // links which can be used to trigger the data import.
@@ -255,15 +254,15 @@ function data_export_import_import_form($form_state) {
   }
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'radios',
-                                                    '#title' => t('Please select file to import'),
-                                                    '#default_value' => 'none',
-                                                    '#options' => $options, );
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options, );
 
 
   $form['submit'] = array(
-                          '#type' => 'submit',
-                          '#value' => 'Import dataset files', );
+    '#type' => 'submit',
+    '#value' => 'Import dataset files', );
 
   return $form;
 }
