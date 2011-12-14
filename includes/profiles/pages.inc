@@ -18,18 +18,11 @@
  */
 function data_export_import_export_pages() {
 
-  $debug = FALSE;
-
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
   $dataset = array();
 
-  // $node_type = node_get_types('type', 'page');
   $node_types = node_get_types();
-  if ($debug) {
-    echo "node_type:\n";
-    var_export($node_types['page']);
-  }
 
   // Add the content type details to the array.
   // We are going to serialize the object here as it can then be
@@ -52,19 +45,9 @@ function data_export_import_export_pages() {
     $dataset['nodes'][$node->nid] = $node;
   }
 
-  if ($debug) {
-    echo "Dataset being exported ------------------------------->:\n";
-    var_export($dataset);
-  }
-
   // Here we will serialize the array to convert it to a string which
   // can then be output to a file.
   $dataset_serialized = serialize($dataset);
-
-  if ($debug) {
-    echo "Dataset after being serialized ------------------------------->:\n";
-    var_export($dataset_serialized);
-  }
 
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
@@ -124,8 +107,6 @@ function data_export_import_export_pages() {
  */
 function data_export_import_import_pages($file) {
 
-  $debug = FALSE;
-
   // @todo Check that the file exists and can be read.
   // @todo Check that the users exist and match.
   // *
@@ -134,11 +115,6 @@ function data_export_import_import_pages($file) {
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
-
-  if ($debug) {
-    echo "----------------->file content as array:\n";
-    var_export($file_content_as_array);
-  }
 
   // Check that the content type is an exact match between the sending
   // instance and the receiving instance.
@@ -149,25 +125,8 @@ function data_export_import_import_pages($file) {
   $node_types = node_get_types();
   if (unserialize($file_content_as_array['content_type']) != $node_types['page']) {
 
-    if ($debug) {
-      echo "\nContent types do not match.---------------> \n";
-      echo "content_type from array:\n";
-      var_export(unserialize($file_content_as_array['content_types']));
-      echo "\n";
-    }
-
-    if ($debug) {
-      echo "content_type from api call:\n";
-      var_export($node_types);
-      echo "\n";
-    }
-
     drupal_set_message(check_plain(t("ERROR - When the dataset was created the page content type was different from this site's page content type.")));
     return;
-  }
-
-  if ($debug) {
-    echo "\nContent types match.---------------> \n";
   }
 
   // Loop through all the existing nodes - and if they don't exist in
@@ -180,14 +139,8 @@ function data_export_import_import_pages($file) {
 
   while ($nid = db_result($results)) {
 
-    if ($debug) {
-      echo "\nNID of existing node--------------->:" . $nid . "\n";
-    }
-
     if (!isset($file_content_as_array['nodes'][$nid])) {
-      if ($debug) {
-        echo "Array does not hold a value - therefore this node should be deleted.";
-      }
+
       // Delete node as it does not exist in the dataset being
       // imported.
       node_delete($nid);
@@ -205,20 +158,10 @@ function data_export_import_import_pages($file) {
   foreach ($file_content_as_array['nodes'] as $dataset_node) {
     echo "\n\nPage--------------------------------------->:\n";
 
-    if ($debug) {
-      echo"\ndataset_node--------------------------------->:\n";
-      var_export($dataset_node);
-    }
-
     // Find if there is an existing node and see if it matches what is
     // in the dataset.
     // NB node_load() returns FALSE if it can't find a node.
     $existing_node = node_load($dataset_node->nid);
-
-    if ($debug) {
-      echo"\nexisting_node----------------------->:\n";
-      var_export($existing_node);
-    }
 
     // If node_load returns FALSE then it was not able to find a node
     // with the nid - therefore a new node needs to be created.
@@ -256,31 +199,7 @@ function data_export_import_import_pages($file) {
       unset($dataset_node->changed);
       unset($existing_node->changed);
 
-      if ($debug) {
-        echo"\ndataset_node before comparison--------------------------------->:\n";
-        var_export($dataset_node);
-      }
-
-      if ($debug) {
-        echo"\nexisting_node before comparison----------------------->:\n";
-        var_export($existing_node);
-      }
-
-      if ($debug) {
-        echo"\ndataset_node object properties before comparison--------------------------------->:\n";
-        var_export(get_object_vars($dataset_node));
-      }
-
-      if ($debug) {
-        echo"\nexisting_node object properties before comparison----------------------->:\n";
-        var_export(get_object_vars($existing_node));
-      }
-
       if ($dataset_node != $existing_node) {
-
-        if ($debug) {
-          echo"\n need to update the existing node with ID---------------------->:" . $dataset_node->nid . "\n";
-        }
 
         // Create a new revision.
         // The dataset node may be from several revisions back - and

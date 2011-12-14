@@ -123,14 +123,6 @@ function data_export_import_callback_import() {
  */
 function data_export_import_export_form($form_state) {
 
-  $debug = FALSE;
-
-  if ($debug) {
-    echo "<pre>";
-    var_export($form_state);
-    echo "</pre>";
-  }
-
   // Pages.
   $form['pages'] = array(
     '#type' => 'fieldset',
@@ -162,13 +154,6 @@ function data_export_import_export_form($form_state) {
     '#value' => 'Create dataset files',
   );
 
-  if ($debug) {
-    echo "<pre>";
-    echo "form\n";
-    var_export($form);
-    echo "</pre>";
-  }
-
   return $form;
 }
 
@@ -182,8 +167,6 @@ function data_export_import_export_form($form_state) {
  *   The form elements to enable the user to choose which datasets to export.
  */
 function data_export_import_import_form($form_state) {
-
-  $debug = FALSE;
 
   $form = array();
 
@@ -206,13 +189,6 @@ function data_export_import_import_form($form_state) {
 
   // Sort them by the filename which is used as the key.
   ksort($files);
-
-  if ($debug) {
-    echo "<pre>";
-    echo "files:\n";
-    var_export($files);
-    echo "</pre>";
-  }
 
   $options = array();
   $options['none'] = "None";
@@ -247,13 +223,6 @@ function data_export_import_import_form($form_state) {
 
   // Sort them by the filename which is used as the key.
   ksort($files);
-
-  if ($debug) {
-    echo "<pre>";
-    echo "files:\n";
-    var_export($files);
-    echo "</pre>";
-  }
 
   $options = array();
   $options['none'] = "None";
@@ -294,22 +263,6 @@ function data_export_import_export_form_submit($form, &$form_state) {
   // Need to include files holding import functions.
   include_once 'includes/profiles/pages.inc';
   include_once 'includes/profiles/taxonomy_terms.inc';
-
-  $debug = FALSE;
-
-  if ($debug) {
-    echo "form\n";
-    echo "<pre>";
-    var_export($form);
-    echo "</pre>";
-  }
-
-  if ($debug) {
-    echo "form_state \n";
-    echo "<pre>";
-    var_export($form_state);
-    echo "</pre>";
-  }
 
   // These need to be brought in from the include files.
   // Articles.
@@ -356,56 +309,15 @@ function data_export_import_import_form_submit($form, &$form_state) {
   include_once 'includes/profiles/pages.inc';
   include_once 'includes/profiles/taxonomy_terms.inc';
 
-  $debug = FALSE;
-
-  if ($debug) {
-    echo "form\n";
-    echo "<pre>";
-    var_export($form);
-    echo "</pre>";
-  }
-
-  if ($debug) {
-    echo "form_state \n";
-    echo "<pre>";
-    var_export($form_state);
-    echo "</pre>";
-  }
-
   // Pages.
-  if ($debug) {
-    echo "<pre>";
-    echo "Pages file to import selected: " . $form_state['clicked_button']['#post']['pages'] . "\n";
-    echo "</pre>";
-  }
-
   if ($form_state['clicked_button']['#post']['pages'] != 'none') {
-
-    if ($debug) {
-      echo "<pre>";
-      echo "File being imported: " . $form_state['clicked_button']['#post']['pages'] . "\n";
-      echo "</pre>";
-    }
 
     $result = data_export_import_import_pages($form_state['clicked_button']['#post']['pages']);
     drupal_set_message(check_plain("File(s) imported" . $form_state['clicked_button']['#post']['pages']));
   }
 
   // Taxonomy terms.
-  if ($debug) {
-    echo "<pre>";
-    echo "Taxonomy terms file to import selected: " . $form_state['clicked_button']['#post']['taxonomy_terms'] . "\n";
-    echo "</pre>";
-  }
-
-
   if ($form_state['clicked_button']['#post']['taxonomy_terms'] != 'none') {
-
-    if ($debug) {
-      echo "<pre>";
-      echo "File being imported: " . $form_state['clicked_button']['#post']['taxonomy_terms'] . "\n";
-      echo "</pre>";
-    }
 
     $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
     drupal_set_message(check_plain("File(s) imported" . $form_state['clicked_button']['#post']['taxonomy_terms']));
