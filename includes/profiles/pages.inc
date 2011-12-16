@@ -111,7 +111,7 @@ function data_export_import_import_pages($file) {
   // @todo Check that the users exist and match.
   // *
   // Load the dataset file into a variable.
-  $file_content = file_get_contents("sites/default/files/data_export_import/pages/" . $file);
+  $file_content = file_get_contents(file_directory_path() . "/data_export_import/pages/" . $file);
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
@@ -125,7 +125,9 @@ function data_export_import_import_pages($file) {
   $node_types = node_get_types();
   if (unserialize($file_content_as_array['content_type']) != $node_types['page']) {
 
-    drupal_set_message(check_plain(t("ERROR - When the dataset was created the page content type was different from this site's page content type.")));
+//    drupal_set_message(t("ERROR - When the dataset was created the page content type was different from this site's page content type."));
+    drupal_set_message(t('When the dataset was created the page content type was different from this site\'s page content type. Please compare manually the content type: %content_type', array('%content_type'=>$dataset->content_type)), 'error');
+
     return;
   }
 
@@ -148,7 +150,8 @@ function data_export_import_import_pages($file) {
   }
 
   // Here we will pick up if the file contains no nodes.
-  if (count($file_content_as_array['nodes']) == 0) {
+  //if (count($file_content_as_array['nodes']) == 0) {
+  if (empty($file_content_as_array['nodes'])) {
     return;
   }
 
@@ -156,7 +159,6 @@ function data_export_import_import_pages($file) {
   // Update nodes which are different in the dataset and create nodes
   // which don't exist in the dataset.
   foreach ($file_content_as_array['nodes'] as $dataset_node) {
-    echo "\n\nPage--------------------------------------->:\n";
 
     // Find if there is an existing node and see if it matches what is
     // in the dataset.

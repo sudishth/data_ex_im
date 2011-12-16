@@ -10,6 +10,16 @@
  * will be checked first to check that they match the vocabularies
  * in the dataset. If there are any differences in the vocabularies
  * then they import routine will raise an error then abort.
+ * 
+ * After updating or inserting a taxonomy term there will be a check
+ * to see if the i18ntaxonomy module is installed.  If it is installed
+ * then the value of the 'language' column of the {term_data} table
+ * will be updated with the imported value.
+ *
+ * It is better that this is called after the term is updated or
+ * inserted with the API functions as the hook_taxonomy() function of
+ * i18ntaxonomy.module incorrectly sets the value to a default value
+ * if it can't find a value in a couple of forms.
  */
 
 /**
@@ -193,7 +203,7 @@ function data_export_import_import_taxonomy_terms($file) {
   // @todo Need to add a check that the file exists and handle the error.
   // *
   // Load the dataset file into a variable.
-  $file_content = file_get_contents("sites/default/files/data_export_import/taxonomy_terms/" . $file);
+  $file_content = file_get_contents(file_directory_path() . "/data_export_import/taxonomy_terms/" . $file);
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
@@ -234,7 +244,10 @@ function data_export_import_import_taxonomy_terms($file) {
     // Check the vocabularies actually match.
     if ($vocabulary_from_file != $existing_vocabulary) {
 
-      drupal_set_message(check_plain(t("ERROR - There is a mismatch between the vocabularies in the dataset file and the existing vocabularies - vocabulary name: ") . $vocabulary_from_file->name . "\n"));
+//      drupal_set_message(t("ERROR - There is a mismatch between the vocabularies in the dataset file and the existing vocabularies - vocabulary name: ") . $vocabulary_from_file->name . "\n");
+
+      drupal_set_message(t('There is a mismatch between the vocabularies in the dataset file and the currentvocabularies - vocabulary name: %vocabular_name', array('%vocabular_name'=>$vocabulary_from_file->name)), 'error');
+
       return;
     }
   }
@@ -365,7 +378,7 @@ function data_export_import_import_taxonomy_terms($file) {
           // new lines before we can use it.
           $synonym_list = "";
           foreach ($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->synonyms as $synonym) {
-            $synonym_list = $synonym_list . $synonym . "\n";
+            $synonym_list .= $synonym . "\n";
           }
 
           // Update the term with data from the dataset.
@@ -383,9 +396,24 @@ function data_export_import_import_taxonomy_terms($file) {
           // Here we are using the standard taxonomy_save_term() API
           // function as it handles terms being updated OK.
           $save_term_status = taxonomy_save_term($term_data_array);
-
           if ($save_term_status != 2) {
             echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
+          }
+          
+          // Here we need to update the language field if the translation
+          // module has been enabled.  This also picks up the fault of
+          // the hook_taxonomy() function in i18ntaxonomy.module from
+          // setting the language to a default setting if it can't find
+          // a value in a couple of forms.  hook_taxonomy() is called
+          // when using the
+          // data_export_import_taxonomy_save_term_with_defined_tid()
+          // function.
+          if (module_exists('i18ntaxonomy')) {
+
+            $query_result = db_query("UPDATE {term_data} SET language = '%s' WHERE tid = %d", $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->language, $existing_term->tid);
+            if ($query_result == FALSE) {
+              drupal_set_message(t("Insertion into term_data table failed."), 'error');
+            }
           }
         }
       }
@@ -393,7 +421,8 @@ function data_export_import_import_taxonomy_terms($file) {
   }
 
   // Here we will pick up if the file contains no taxonomy terms.
-  if (count($file_content_as_array['vocabulary_terms']) == 0) {
+  // if (count($file_content_as_array['vocabulary_terms']) == 0) {
+  if (empty($file_content_as_array['vocabulary_terms'])) {
     return;
   }
 
@@ -412,7 +441,7 @@ function data_export_import_import_taxonomy_terms($file) {
         // list separated by new lines before we can use it.
         $synonym_list = "";
         foreach ($term_from_dataset->synonyms as $synonym) {
-          $synonym_list = $synonym_list . $synonym . "\n";
+          $synonym_list .= $synonym . "\n";
         }
 
         // Update the term with data from the dataset.
@@ -433,8 +462,21 @@ function data_export_import_import_taxonomy_terms($file) {
           echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
         }
 
+        // Here we need to update the language field if the translation
+        // module has been enabled.  This also picks up the fault of
+        // the hook_taxonomy() function in i18ntaxonomy.module from
+        // setting the language to a default setting if it can't find
+        // a value in a couple of forms.  hook_taxonomy() is called
+        // when using the
+        // data_export_import_taxonomy_save_term_with_defined_tid()
+        // function.
+        if (module_exists('i18ntaxonomy')) {
+          $query_result = db_query("UPDATE {term_data} SET language = '%s' WHERE tid = %d", $term_from_dataset->language, $term_from_dataset->tid);
+          if ($query_result == FALSE) {
+            drupal_set_message(t("Insertion into term_data table failed."), 'error');
+          }
+        }
       }
-
     }
   }
 
