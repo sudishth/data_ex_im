@@ -10,7 +10,7 @@
  * will be checked first to check that they match the vocabularies
  * in the dataset. If there are any differences in the vocabularies
  * then they import routine will raise an error then abort.
- * 
+ *
  * After updating or inserting a taxonomy term there will be a check
  * to see if the i18ntaxonomy module is installed.  If it is installed
  * then the value of the 'language' column of the {term_data} table
@@ -244,10 +244,7 @@ function data_export_import_import_taxonomy_terms($file) {
     // Check the vocabularies actually match.
     if ($vocabulary_from_file != $existing_vocabulary) {
 
-//      drupal_set_message(t("ERROR - There is a mismatch between the vocabularies in the dataset file and the existing vocabularies - vocabulary name: ") . $vocabulary_from_file->name . "\n");
-
-      drupal_set_message(t('There is a mismatch between the vocabularies in the dataset file and the currentvocabularies - vocabulary name: %vocabular_name', array('%vocabular_name'=>$vocabulary_from_file->name)), 'error');
-
+      drupal_set_message(t('There is a mismatch between the vocabularies in the dataset file and the currentvocabularies - vocabulary name: %vocabular_name', array('%vocabular_name' => $vocabulary_from_file->name)), 'error');
       return;
     }
   }
@@ -399,7 +396,7 @@ function data_export_import_import_taxonomy_terms($file) {
           if ($save_term_status != 2) {
             echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
           }
-          
+
           // Here we need to update the language field if the translation
           // module has been enabled.  This also picks up the fault of
           // the hook_taxonomy() function in i18ntaxonomy.module from
@@ -415,6 +412,7 @@ function data_export_import_import_taxonomy_terms($file) {
               drupal_set_message(t("Insertion into term_data table failed."), 'error');
             }
           }
+
         }
       }
     }

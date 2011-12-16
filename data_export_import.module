@@ -170,7 +170,7 @@ function data_export_import_import_form($form_state) {
 
   $form = array();
 
-  // Pages
+  // Pages.
   $form['pages'] = array(
     '#type' => 'fieldset',
     '#title' => t('Pages'),
@@ -207,8 +207,7 @@ function data_export_import_import_form($form_state) {
     '#options' => $options,
   );
 
-  // Taxonomy terms
-  // -------------------------------------------------------------------
+  // Taxonomy terms.
   $form['taxonomy_terms'] = array(
     '#type' => 'fieldset',
     '#title' => t('Taxonomy terms'),
@@ -263,6 +262,13 @@ function data_export_import_import_form($form_state) {
  */
 function data_export_import_export_form_submit($form, &$form_state) {
 
+  // This module has not yet been extended to correctly handle datawhich
+  // has localization enabled.
+  if (module_exists('i18n')) {
+    drupal_set_message("The data export functionality is not currently compatible with localization.", 'error');
+    return TRUE;
+  }
+
   // Need to include files holding import functions.
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
@@ -301,8 +307,13 @@ function data_export_import_export_form_submit($form, &$form_state) {
  */
 function data_export_import_import_form_submit($form, &$form_state) {
 
-  // include_once 'includes/profiles/pages.inc';
-  // include_once 'includes/profiles/taxonomy_terms.inc';
+  // This module has not yet been extended to correctly handle datawhich
+  // has localization enabled.
+  if (module_exists('i18n')) {
+    drupal_set_message("The data export functionality is not currently compatible with localization.", 'error');
+    return TRUE;
+  }
+
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
 

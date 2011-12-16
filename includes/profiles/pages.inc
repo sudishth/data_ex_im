@@ -125,9 +125,7 @@ function data_export_import_import_pages($file) {
   $node_types = node_get_types();
   if (unserialize($file_content_as_array['content_type']) != $node_types['page']) {
 
-//    drupal_set_message(t("ERROR - When the dataset was created the page content type was different from this site's page content type."));
-    drupal_set_message(t('When the dataset was created the page content type was different from this site\'s page content type. Please compare manually the content type: %content_type', array('%content_type'=>$dataset->content_type)), 'error');
-
+    drupal_set_message(t("When the dataset was created the page content type was different from this site's page content type. Please compare manually the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
     return;
   }
 
@@ -150,7 +148,6 @@ function data_export_import_import_pages($file) {
   }
 
   // Here we will pick up if the file contains no nodes.
-  //if (count($file_content_as_array['nodes']) == 0) {
   if (empty($file_content_as_array['nodes'])) {
     return;
   }

@@ -91,3 +91,13 @@ USAGE
  * If you have taxonomy terms associated with pages this has not been
    coded for yet.  It may work OK but you might be better to import
    the taxonomy terms separately first and then import the pages.
+
+NOTES
+-----
+
+ * This module is not compatible with any site which has localisation
+   enabled. Checks have been put in place to prevent data being output
+   if localisation has been installed and enabled using the i18n
+   module.
+ * If this is a requirement then please get in touch with the
+   maintainer.
