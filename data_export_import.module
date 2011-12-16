@@ -265,7 +265,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   // This module has not yet been extended to correctly handle datawhich
   // has localization enabled.
   if (module_exists('i18n')) {
-    drupal_set_message("The data export functionality is not currently compatible with localization.", 'error');
+    drupal_set_message(t("The data export functionality is not currently compatible with localization."), 'error');
     return TRUE;
   }
 
@@ -310,7 +310,7 @@ function data_export_import_import_form_submit($form, &$form_state) {
   // This module has not yet been extended to correctly handle datawhich
   // has localization enabled.
   if (module_exists('i18n')) {
-    drupal_set_message("The data export functionality is not currently compatible with localization.", 'error');
+    drupal_set_message(t("The data export functionality is not currently compatible with localization."), 'error');
     return TRUE;
   }
 
