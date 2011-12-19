@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Enables taxonomy terms to be exported and imported.
@@ -11,6 +10,16 @@
  * will be checked first to check that they match the vocabularies
  * in the dataset. If there are any differences in the vocabularies
  * then they import routine will raise an error then abort.
+ *
+ * After updating or inserting a taxonomy term there will be a check
+ * to see if the i18ntaxonomy module is installed.  If it is installed
+ * then the value of the 'language' column of the {term_data} table
+ * will be updated with the imported value.
+ *
+ * It is better that this is called after the term is updated or
+ * inserted with the API functions as the hook_taxonomy() function of
+ * i18ntaxonomy.module incorrectly sets the value to a default value
+ * if it can't find a value in a couple of forms.
  */
 
 /**
@@ -58,7 +67,7 @@ function _taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
  * are in each vocabulary. These terms will be used to ensure that
  * the receiving instance ends up with a matching set of terms.
  *
- * @return
+ * @return string
  *   The filename of the datafile which was created.
  */
 function data_export_import_export_taxonomy_terms() {
@@ -212,25 +221,18 @@ function data_export_import_export_taxonomy_terms() {
  * created in the receiving instance which has the same tid as one
  * being imported but it is in a different vocabulary.
  *
- * @param $file
+ * @param string $file
  *   The dataset file which is being imported.
  *
- * @return
+ * @return bool
  *   TRUE if the import process ran without errors.
  */
 function data_export_import_import_taxonomy_terms($file) {
 
-  $debug = FALSE;
-
-  // Need to add a check that the file exists and handle the error.
-  /*
-   if (!file_exists($file)) {
-   echo "file does not exist: " . $file."\n";
-   }
-  */
-
+  // @todo Need to add a check that the file exists and handle the error.
+  // *
   // Load the dataset file into a variable.
-  $file_content = file_get_contents("sites/default/files/data_export_import/taxonomy_terms/" . $file);
+  $file_content = file_get_contents(file_directory_path() . "/data_export_import/taxonomy_terms/" . $file);
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
@@ -242,10 +244,6 @@ function data_export_import_import_taxonomy_terms($file) {
   // an exact match at least the vocabularies which are needed to
   // enable the terms to be imported all exist and are an exact match
   // to the vocabularies exported from.
-  if ($debug) {
-    echo "Checking that the vocabularies match... \n\n";
-  }
-
   foreach ($file_content_as_array['vocabularies'] as $vocabulary_from_file) {
 
     // Get the existing vocabulary as an object.
@@ -275,19 +273,9 @@ function data_export_import_import_taxonomy_terms($file) {
     // Check the vocabularies actually match.
     if ($vocabulary_from_file != $existing_vocabulary) {
 
-      drupal_set_message(check_plain("ERROR - There is a mismatch between the vocabularies in the dataset file and the existing vocabularies - vocabulary name: " . $vocabulary_from_file->name . "\n"));
+      drupal_set_message(t('There is a mismatch between the vocabularies in the dataset file and the currentvocabularies - vocabulary name: %vocabular_name', array('%vocabular_name' => $vocabulary_from_file->name)), 'error');
       return;
     }
-
-    if ($debug) {
-      echo "VOCABULARY in dataset matches vocabulary in receiving instance - id: " . $vocabulary_from_file->vid . "\n";
-    }
-
-    // This is the test loop to check that the vocabularies match.
-  }
-
-  if ($debug) {
-    echo "Checking that the vocabularies match  finished - now bringing in the data... \n\n";
   }
 
   // Here we will loop through the vocabulary terms in the receiving
@@ -317,10 +305,6 @@ function data_export_import_import_taxonomy_terms($file) {
   // then get the list of terms in that vocabulary.
   foreach ($existing_vocabularies_array as $existing_vocabulary) {
 
-    if ($debug) {
-      echo "vocabulary --------------------->:" . $existing_vocabulary->vid . "\n";
-    }
-
     // Get the vocabulary ID so we can use it to get the terms in that
     // vocabulary.
     $existing_vocabulary_id = $existing_vocabulary->vid;
@@ -338,22 +322,11 @@ function data_export_import_import_taxonomy_terms($file) {
     $list_of_terms = array();
     foreach ($existing_terms_array as $existing_term) {
 
-      if ($debug) {
-        echo "existing term ---->:" . $existing_term->tid . "\n";
-      }
-
       // If the term has been exported already then we don't want to
       // export it again so we'll go to the next term in the foreach loop.
       if (in_array($existing_term->tid, $list_of_terms)) {
 
-        if ($debug) {
-          echo "Found a duplicated term so we'll go back to the beginning of the foreach loop---->:" . $existing_term->tid . "\n";
-        }
         continue;
-      }
-
-      if ($debug) {
-        echo "existing term after dedupe check---->:" . $existing_term->tid . "\n";
       }
 
       // Add the term id to the list we've worked on.
@@ -375,16 +348,9 @@ function data_export_import_import_taxonomy_terms($file) {
       if (!isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid])) {
 
         $return_status = taxonomy_del_term($existing_term->tid);
-        if ($debug) {
-          echo "TERM NOT FOUND IN THE DATASET - return_status from deleting the term - " . $existing_term->tid . " - is: " . $return_status . "\n";
-        }
       }
 
       if (isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid])) {
-
-        if ($debug) {
-          echo "Found match:" . $existing_term->tid . "\n";
-        }
 
         // We are going to check that the terms match exactly.  First
         // we need to add some data to the existing terms and unset
@@ -425,146 +391,119 @@ function data_export_import_import_taxonomy_terms($file) {
         // Get the term object from the dataset array.
         $term_object_from_dataset = $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid];
 
-        if ($debug) {
-          echo "existing_term_object:\n";
-          var_export($existing_term_object);
-
-          echo "term_object_from_dataset:\n";
-          var_export($term_object_from_dataset);
-        }
-
         if ($existing_term_object == $term_object_from_dataset) {
 
           // Don't update the term - maybe carry out a count later.
           $place_holder = 1;
-
-          if ($debug) {
-            echo "Objects are equal.\n";
-          }
         }
 
         // Update the term with the data from the dataset.
         if ($existing_term_object != $term_object_from_dataset) {
 
-          if ($debug) {
-            echo "Objects are not equal.\n";
-          }
-
           // The synonyms need to be converted to a list separated by
           // new lines before we can use it.
           $synonym_list = "";
           foreach ($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->synonyms as $synonym) {
-            $synonym_list = $synonym_list . $synonym . "\n";
+            $synonym_list .= $synonym . "\n";
           }
 
           // Update the term with data from the dataset.
           $term_data_array = array(
-                                   'tid' => $existing_term->tid,
-                                   'vid' => $existing_vocabulary_id,
-                                   'name' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->name,
-                                   'description' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->description,
-                                   'weight' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->weight,
-                                   'parent' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->parents,
-                                   'synonyms' => $synonym_list,
-                                   'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations, );
-
-          if ($debug) {
-            echo "term_data_array:\n";
-            var_export($term_data_array);
-            echo "\n";
-          }
+            'tid' => $existing_term->tid,
+            'vid' => $existing_vocabulary_id,
+            'name' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->name,
+            'description' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->description,
+            'weight' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->weight,
+            'parent' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->parents,
+            'synonyms' => $synonym_list,
+            'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations,
+          );
 
           // Here we are using the standard taxonomy_save_term() API
           // function as it handles terms being updated OK.
           $save_term_status = taxonomy_save_term($term_data_array);
-
-          if ($debug) {
-            echo "Save term status:" . $save_term_status . "\n";
-          }
-
           if ($save_term_status != 2) {
             echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
           }
 
+          // Here we need to update the language field if the translation
+          // module has been enabled.  This also picks up the fault of
+          // the hook_taxonomy() function in i18ntaxonomy.module from
+          // setting the language to a default setting if it can't find
+          // a value in a couple of forms.  hook_taxonomy() is called
+          // when using the
+          // data_export_import_taxonomy_save_term_with_defined_tid()
+          // function.
+          if (module_exists('i18ntaxonomy')) {
+
+            $query_result = db_query("UPDATE {term_data} SET language = '%s' WHERE tid = %d", $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->language, $existing_term->tid);
+            if ($query_result == FALSE) {
+              drupal_set_message(t("Insertion into term_data table failed."), 'error');
+            }
+          }
+
         }
-
       }
-
     }
+  }
 
+  // Here we will pick up if the file contains no taxonomy terms.
+  // if (count($file_content_as_array['vocabulary_terms']) == 0) {
+  if (empty($file_content_as_array['vocabulary_terms'])) {
+    return;
   }
 
   // Loop through the terms in the dataset being imported and if they
   // don't exist in the receiving instance then we will create them.
-  if ($debug) {
-    echo "Bringing in the new terms from the dataset.\n";
-  }
-
-  // Here we will pick up if the file contains no taxonomy terms.
-  if (count($file_content_as_array['vocabulary_terms']) == 0) {
-    return;
-  }
-
   foreach ($file_content_as_array['vocabulary_terms'] as $vid => $vocabulary_from_dataset) {
 
-    if ($debug) {
-      echo "vocabulary in dataset ----------------------------->vid:" . $vid . "\n";
-    }
-
     foreach ($vocabulary_from_dataset as $term_from_dataset) {
-
-      if ($debug) {
-        echo "term in dataset ---------------------->tid:" . $vid . "\n";
-      }
 
       $get_term_result = taxonomy_get_term($term_from_dataset->tid, $reset = TRUE);
 
       if (!$get_term_result) {
-
-        if ($debug) {
-          echo "tid in dataset file but not in receiving instance:" . $term_from_dataset->tid . "\n";
-
-          echo "term object from the dataset:\n";
-          var_export($term_from_dataset);
-        }
 
         // Will use the a modified taxonomy_save_term API function to
         // create the term. The synonyms need to be converted to a
         // list separated by new lines before we can use it.
         $synonym_list = "";
         foreach ($term_from_dataset->synonyms as $synonym) {
-          $synonym_list = $synonym_list . $synonym . "\n";
+          $synonym_list .= $synonym . "\n";
         }
 
         // Update the term with data from the dataset.
         $term_data_array = array(
-                                 'tid' => $term_from_dataset->tid,
-                                 'vid' => $term_from_dataset->vid,
-                                 'name' => $term_from_dataset->name,
-                                 'description' => $term_from_dataset->description,
-                                 'weight' => $term_from_dataset->weight,
-                                 'parent' => $term_from_dataset->parents,
-                                 'synonyms' => $synonym_list,
-                                 'relations' => $term_from_dataset->relations, );
-
-        if ($debug) {
-          echo "term_data_array about to be used to create new term:\n";
-          var_export($term_data_array);
-          echo "\n";
-        }
+          'tid' => $term_from_dataset->tid,
+          'vid' => $term_from_dataset->vid,
+          'name' => $term_from_dataset->name,
+          'description' => $term_from_dataset->description,
+          'weight' => $term_from_dataset->weight,
+          'parent' => $term_from_dataset->parents,
+          'synonyms' => $synonym_list,
+          'relations' => $term_from_dataset->relations,
+        );
 
         $save_term_status = data_export_import_taxonomy_save_term_with_defined_tid($term_data_array);
-
-        if ($debug) {
-          echo "Save term status:" . $save_term_status . "\n";
-        }
 
         if ($save_term_status != 1) {
           echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
         }
 
+        // Here we need to update the language field if the translation
+        // module has been enabled.  This also picks up the fault of
+        // the hook_taxonomy() function in i18ntaxonomy.module from
+        // setting the language to a default setting if it can't find
+        // a value in a couple of forms.  hook_taxonomy() is called
+        // when using the
+        // data_export_import_taxonomy_save_term_with_defined_tid()
+        // function.
+        if (module_exists('i18ntaxonomy')) {
+          $query_result = db_query("UPDATE {term_data} SET language = '%s' WHERE tid = %d", $term_from_dataset->language, $term_from_dataset->tid);
+          if ($query_result == FALSE) {
+            drupal_set_message(t("Insertion into term_data table failed."), 'error');
+          }
+        }
       }
-
     }
   }
 
@@ -596,10 +535,10 @@ function data_export_import_import_taxonomy_terms($file) {
  * hierarchy value my not be correct for the terms and so needs to be
  * reset.
  *
- * @param $vid
+ * @param int $vid
  *   Vocabulary ID of the vocabulary having it's hierarchy reset.
  *
- * @return
+ * @return bool
  *   TRUE if the function ran without error.
  */
 function data_export_import_reset_taxonomy_vocabulary_hierarchy($vid) {
@@ -655,25 +594,25 @@ function data_export_import_reset_taxonomy_vocabulary_hierarchy($vid) {
  * values would stay the same between the function calls resulting in
  * stale data being returned.
  *
- * @param $vid
+ * @param int $vid
  *   Which vocabulary to generate the tree for.
  *
- * @param $parent
+ * @param int $parent
  *   The term ID under which to generate the tree. If 0, generate the
  *   tree for the entire vocabulary.
  *
- * @param $depth
+ * @param int $depth
  *   Internal use only.
  *
- * @param $max_depth
+ * @param int $max_depth
  *   The number of levels of the tree to return. Leave NULL to return
  *   all levels.
  *
- * @param $reset
+ * @param bool $reset
  *   Whether or not to clear the static variables to force this
  *   function to get fresh data
  *
- * @return
+ * @return array
  *   An array of all term objects in the tree. Each term object is
  *   extended to  have "depth" and "parents" attributes in addition to
  *   its normal ones. Results are statically cached.
@@ -725,34 +664,20 @@ function data_export_import_taxonomy_get_tree_with_reset($vid, $parent = 0, $dep
 /**
  * This function is a modified version of the taxonomy_save_term function.
  *
- * @param $form_values
+ * @param array &$form_values
  *   Array of term data which is to be saved.
  *
- * @return
+ * @return int
  *   $status value showing if the term was saved OK.
  */
 function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
 
-  $debug = FALSE;
-
-  if ($debug) {
-    echo "Inside the function data_export_import_taxonomy_save_term_with_defined_tid.........\n";
-    echo "form_values:\n";
-    var_export($form_values);
-  }
-
   // I think this has the effect of making sure these values exist on
   // the array but not overwrite any existing values.
   $form_values += array(
-                        'description' => '',
-                        'weight' => 0,
-                        );
-
-  if ($debug) {
-    echo "After form values array is added.........\n";
-    echo "form_values:\n";
-    var_export($form_values);
-  }
+    'description' => '',
+    'weight' => 0,
+  );
 
   // Insert the record into the term_data table.
   // We're using a direct insertion as the drupal_write_record
@@ -760,7 +685,7 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
   // value.
   $query_result = db_query("INSERT INTO {term_data} (`tid`, `vid`, `name`, `description`, `weight`) VALUES (%d, %d, '%s', '%s', %d)", $form_values['tid'], $form_values['vid'], $form_values['name'], $form_values['description'], $form_values['weight']);
   if ($query_result == FALSE) {
-    drupal_set_message("Insertion into term_data table failed.");
+    drupal_set_message(t("Insertion into term_data table failed."));
   }
 
   // Set up parameters used later when calling hook_taxonomy().
@@ -823,4 +748,3 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
 
   return $status;
 }
-

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * This module can export and import datasets.
@@ -20,12 +19,13 @@
 /**
  * Display help and module information
  *
- * @param
+ * @param string $path
  *   Path which path of the site we're displaying help.
- * @param
+ * @param array $arg
  *   Arg array that holds the current path as would be returned from
- * arg() function.
- * @return
+ *   arg() function.
+ *
+ * @return string
  *   Help text for the path.
  */
 function data_export_import_help($path, $arg) {
@@ -57,26 +57,29 @@ function data_export_import_menu() {
   $items = array();
 
   $items['admin/content/data_export_import'] = array(
-                                                     'title' => 'Data export import',
-                                                     'page callback' => 'data_export_import_callback_export',
-                                                     'access arguments' => array('access data export import'),
-                                                     'description' => 'Data export import',
-                                                     'type' => MENU_NORMAL_ITEM, );
+    'title' => 'Data export import',
+    'page callback' => 'data_export_import_callback_export',
+    'access arguments' => array('access data export import'),
+    'description' => 'Data export import',
+    'type' => MENU_NORMAL_ITEM,
+  );
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-                                                            'title' => 'Export',
-                                                            'weight' => 0,
-                                                            'description' => 'Data export import',
-                                                            'type' => MENU_DEFAULT_LOCAL_TASK, );
+    'title' => 'Export',
+    'weight' => 0,
+    'description' => 'Data export import',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
 
   $items['admin/content/data_export_import/import'] = array(
-                                                            'title' => 'Import',
-                                                            'page callback' => 'data_export_import_callback_import',
-                                                            'access arguments' => array('access data export import'),
-                                                            'weight' => 1,
-                                                            'description' => 'Import dataset files',
-                                                            'type' => MENU_LOCAL_TASK, );
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import',
+    'access arguments' => array('access data export import'),
+    'weight' => 1,
+    'description' => 'Import dataset files',
+    'type' => MENU_LOCAL_TASK,
+  );
 
   return $items;
 }
@@ -84,7 +87,7 @@ function data_export_import_menu() {
 /**
  * Callback function for exporting datasets.
  *
- * @return
+ * @return string
  *   Form to enable the user to select datasets for exporting.
  */
 function data_export_import_callback_export() {
@@ -98,7 +101,7 @@ function data_export_import_callback_export() {
 /**
  * Callback function for importing datasets.
  *
- * @return
+ * @return string
  *   Form to enable the user to select datasets for importing.
  */
 function data_export_import_callback_import() {
@@ -112,15 +115,13 @@ function data_export_import_callback_import() {
 /**
  * Create form to enable users to be able to select datasets to export.
  *
- * @param $form_state
+ * @param array $form_state
  *   The current values of the form elements.
  *
- * @return
+ * @return array
  *   The form elements to enable the user to choose which datasets to export.
  */
 function data_export_import_export_form($form_state) {
-
-  $debug = FALSE;
 
   $form = array();
 
@@ -130,12 +131,6 @@ function data_export_import_export_form($form_state) {
   // all_content_types profile allows the user to choose to export
   // nodes of various content types.
   $form['#tree'] = TRUE;
-
-  if ($debug) {
-    echo "<pre>";
-    var_export($form_state);
-    echo "</pre>";
-  }
 
   // Here we will loop through the profile files and add the required
   // elements to the $form array.
@@ -147,23 +142,16 @@ function data_export_import_export_form($form_state) {
 
   foreach ($files as $file) {
 
-    // Include the file and get the function.
-    include_once $file->filename;
+    module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
 
     $function_to_run = "_" . $file->name . "_add_fieldset_to_export_form";
     $function_to_run($form);
   }
 
   $form['submit'] = array(
-                          '#type' => 'submit',
-                          '#value' => 'Create dataset files', );
-
-  if ($debug) {
-    echo "<pre>";
-    echo "form\n";
-    var_export($form);
-    echo "</pre>";
-  }
+    '#type' => 'submit',
+    '#value' => 'Create dataset files',
+  );
 
   return $form;
 }
@@ -171,68 +159,60 @@ function data_export_import_export_form($form_state) {
 /**
  * Create form to enable users to be able to select datasets to import.
  *
- * @param $form_state
+ * @param array $form_state
  *   The current values of the form elements.
  *
- * @return
+ * @return array
  *   The form elements to enable the user to choose which datasets to export.
  */
 function data_export_import_import_form($form_state) {
 
-  // HERE HERE HERE.
-  // Pull in the parts of this form from the include files.
-
-  $debug = FALSE;
-
   $form = array();
 
-  // Pages
-  // -------------------------------------------------------------------
+  // Pages.
   $form['pages'] = array(
-                         '#type' => 'fieldset',
-                         '#title' => 'Pages',
-                         '#collapsible' => TRUE,
-                         '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Pages'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
 
+  $directory = file_directory_path() . '/data_export_import/pages';
 
-  // Get the contents of the dataset directory and create a list of
-  // links which can be used to trigger the data import.
-  $directory = drupal_get_path('module', 'data_export_import') . '/includes';
-  $directory = "sites/default/files/data_export_import/pages";
-  $mask = '.dataset';
-  $files = file_scan_directory($directory, $mask);
+  // NB - This will only produce TRUE if the directory exists and it
+  // is writable - so we need to be aware of this returning false if
+  // the directory was created during testing and it is not writable
+  // by the web server account.
+  if (file_check_directory($directory)) {
 
-  // Sort them by the filename which is used as the key.
-  ksort($files);
+    $mask = '.dataset';
+    $files = file_scan_directory($directory, $mask);
 
-  if ($debug) {
-    echo "<pre>";
-    echo "files:\n";
-    var_export($files);
-    echo "</pre>";
-  }
+    // Sort them by the filename which is used as the key.
+    ksort($files);
 
-  $options = array();
-  $options['none'] = "None";
-  foreach ($files as $file) {
-    $options[$file->basename] = $file->basename;
+    $options = array();
+    $options['none'] = "None";
+    foreach ($files as $file) {
 
+      $options[$file->basename] = check_plain($file->basename);
+    }
   }
 
   $form['pages']['pages'] = array(
-                                  '#type' => 'radios',
-                                  '#title' => t('Please select file to import'),
-                                  '#default_value' => 'none',
-                                  '#options' => $options, );
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
 
-
-  // Taxonomy terms
-  // -------------------------------------------------------------------
+  // Taxonomy terms.
   $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => 'Taxonomy terms',
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
 
   // Get the contents of the dataset directory and create a list of
   // links which can be used to trigger the data import.
@@ -244,30 +224,24 @@ function data_export_import_import_form($form_state) {
   // Sort them by the filename which is used as the key.
   ksort($files);
 
-  if ($debug) {
-    echo "<pre>";
-    echo "files:\n";
-    var_export($files);
-    echo "</pre>";
-  }
-
   $options = array();
   $options['none'] = "None";
   foreach ($files as $file) {
-    $options[$file->basename] = $file->basename;
+    $options[$file->basename] = check_plain($file->basename);
 
   }
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'radios',
-                                                    '#title' => t('Please select file to import'),
-                                                    '#default_value' => 'none',
-                                                    '#options' => $options, );
-
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
 
   $form['submit'] = array(
-                          '#type' => 'submit',
-                          '#value' => 'Import dataset files', );
+    '#type' => 'submit',
+    '#value' => 'Import dataset files',
+  );
 
   return $form;
 }
@@ -275,41 +249,33 @@ function data_export_import_import_form($form_state) {
 /**
  * This is the main function called on the data export form.
  *
- * @param $form
+ * @param array $form
  *   Form items.
  *
- * @param $form_state
+ * @param array &$form_state
  *   Values of form items.
  *
- * @return
+ * @return bool
  *   TRUE if all exports ran without error.
  */
 function data_export_import_export_form_submit($form, &$form_state) {
 
+  // This module has not yet been extended to correctly handle datawhich
+  // has localization enabled.
+  if (module_exists('i18n')) {
 
-  $debug = FALSE;
-
-  if ($debug) {
-    echo "form\n";
-    echo "<pre>";
-    var_export($form);
-    echo "</pre>";
+    drupal_set_message(t("The data export functionality is not currently compatible with localization."), 'error');
+    return TRUE;
   }
 
-  if ($debug) {
-    echo "form_state \n";
-    echo "<pre>";
-    var_export($form_state);
-    echo "</pre>";
-  }
-
-
+  // Need to include files holding import functions.
+  module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
+  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
 
   // Need to include files holding import functions.
   //  include_once 'includes/profiles/articles.inc';
   include_once 'includes/profiles/pages.inc';
   include_once 'includes/profiles/taxonomy_terms.inc';
-
 
   // Here we will loop through the profile files and run the data
   // export if needed.
@@ -335,112 +301,45 @@ function data_export_import_export_form_submit($form, &$form_state) {
     drupal_set_message($dataset_file_name);
   }
 
-
-
-  /*
-  // These need to be brought in from the include files.
-  // Articles.
-  // Case if Articles has been selected.
-  if ($form_state['values']['articles'] == 1) {
-
-    $dataset_file = data_export_import_export_articles();
-    drupal_set_message(check_plain("The Articles dataset was output to the file: " . $dataset_file));
-  }
-  */
-
-  /*
-  // Pages.
-  // Case if Pages has been selected.
-  if ($form_state['values']['pages'] == 1) {
-
-    $dataset_file = data_export_import_export_pages();
-    drupal_set_message(check_plain("The Pages dataset was output to the file: " . $dataset_file));
-  }
-
-  // Taxonomy terms.
-  // Case if Taxonomy terms has been selected.
-  if ($form_state['values']['taxonomy_terms'] == 1) {
-
-    $dataset_file = data_export_import_export_taxonomy_terms();
-    drupal_set_message(check_plain("The Taxonomy terms dataset was output to the file: " . $dataset_file));
-  }
-  */
-
   return TRUE;
 }
 
 /**
  * This is the main function called on the data import form.
  *
- * @param $form
+ * @param array $form
  *   Form items.
  *
- * @param $form_state
+ * @param array &$form_state
  *   Values of form items.
  *
- * @return
+ * @return bool
  *   TRUE if all imports ran without error.
  */
 function data_export_import_import_form_submit($form, &$form_state) {
 
-  //  include_once 'includes/profiles/articles.inc';
-  include_once 'includes/profiles/pages.inc';
-  include_once 'includes/profiles/taxonomy_terms.inc';
+  // This module has not yet been extended to correctly handle datawhich
+  // has localization enabled.
+  if (module_exists('i18n')) {
 
-  $debug = FALSE;
-
-  if ($debug) {
-    echo "form\n";
-    echo "<pre>";
-    var_export($form);
-    echo "</pre>";
+    drupal_set_message(t("The data export functionality is not currently compatible with localization."), 'error');
+    return TRUE;
   }
 
-  if ($debug) {
-    echo "form_state \n";
-    echo "<pre>";
-    var_export($form_state);
-    echo "</pre>";
-  }
+  module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
+  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
 
   // Pages.
-  if ($debug) {
-    echo "<pre>";
-    echo "Pages file to import selected: " . $form_state['clicked_button']['#post']['pages'] . "\n";
-    echo "</pre>";
-  }
-
   if ($form_state['clicked_button']['#post']['pages'] != 'none') {
 
-    if ($debug) {
-      echo "<pre>";
-      echo "File being imported: " . $form_state['clicked_button']['#post']['pages'] . "\n";
-      echo "</pre>";
-    }
-
     $result = data_export_import_import_pages($form_state['clicked_button']['#post']['pages']);
-    drupal_set_message(check_plain("File(s) imported" . $form_state['clicked_button']['#post']['pages']));
+    drupal_set_message(t('The Pages dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['pages'])));
   }
 
   // Taxonomy terms.
-  if ($debug) {
-    echo "<pre>";
-    echo "Taxonomy terms file to import selected: " . $form_state['clicked_button']['#post']['taxonomy_terms'] . "\n";
-    echo "</pre>";
-  }
-
-
   if ($form_state['clicked_button']['#post']['taxonomy_terms'] != 'none') {
 
-    if ($debug) {
-      echo "<pre>";
-      echo "File being imported: " . $form_state['clicked_button']['#post']['taxonomy_terms'] . "\n";
-      echo "</pre>";
-    }
-
     $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
-    drupal_set_message(check_plain("File(s) imported" . $form_state['clicked_button']['#post']['taxonomy_terms']));
+    drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
   }
-
 }
-
