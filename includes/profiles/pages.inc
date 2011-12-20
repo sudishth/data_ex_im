@@ -15,14 +15,14 @@ function _pages_add_fieldset_to_export_form(&$form) {
 
   // Pages.
   $form['pages'] = array(
-                         '#type' => 'fieldset',
-                         '#title' => 'Pages',
-                         '#collapsible' => TRUE,
-                         '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => 'Pages',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   $form['pages']['pages'] = array(
-                                  '#type' => 'checkbox',
-                                  '#title' => 'Export all Pages', );
+    '#type' => 'checkbox',
+    '#title' => 'Export all Pages', );
 }
 
 /**
@@ -31,7 +31,7 @@ function _pages_add_fieldset_to_export_form(&$form) {
  */
 function _pages_export_to_file($form_state, &$dataset_files_created) {
 
-  if ($form_state['values']['pages'] == 1) {
+  if ($form_state['clicked_button']['#post']['pages']['pages'] == 1) {
     $dataset_files_created[] = data_export_import_export_pages();
   }
 }

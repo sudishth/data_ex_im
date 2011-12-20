@@ -238,6 +238,38 @@ function data_export_import_import_form($form_state) {
     '#options' => $options,
   );
 
+  // All content types.
+  $form['all_content_types'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('All content types'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Get the contents of the dataset directory and create a list of
+  // links which can be used to trigger the data import.
+  $directory = drupal_get_path('module', 'data_export_import') . '/includes';
+  $directory = "sites/default/files/data_export_import/all_content_types";
+  $mask = '.dataset';
+  $files = file_scan_directory($directory, $mask);
+
+  // Sort them by the filename which is used as the key.
+  ksort($files);
+
+  $options = array();
+  $options['none'] = "None";
+  foreach ($files as $file) {
+
+    $options[$file->basename] = check_plain($file->basename);
+  }
+
+  $form['all_content_types']['all_content_types'] = array(
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Import dataset files',
@@ -267,7 +299,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
     drupal_set_message(t("The data export functionality is not currently compatible with localization."), 'error');
     return TRUE;
   }
-
+/*
   // Need to include files holding import functions.
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
@@ -276,7 +308,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
   //  include_once 'includes/profiles/articles.inc';
   include_once 'includes/profiles/pages.inc';
   include_once 'includes/profiles/taxonomy_terms.inc';
-
+*/
   // Here we will loop through the profile files and run the data
   // export if needed.
   // The reason we are looping through the profile files is so that
@@ -328,6 +360,7 @@ function data_export_import_import_form_submit($form, &$form_state) {
 
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
 
   // Pages.
   if ($form_state['clicked_button']['#post']['pages'] != 'none') {
@@ -341,5 +374,12 @@ function data_export_import_import_form_submit($form, &$form_state) {
 
     $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
     drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
+  }
+
+  // All content types.
+  if ($form_state['clicked_button']['#post']['all_content_types'] != 'none') {
+
+    $result = data_export_import_import_all_content_types($form_state['clicked_button']['#post']['all_content_types']);
+    drupal_set_message(t('The All Content Types dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['all_content_types'])));
   }
 }
