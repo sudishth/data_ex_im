@@ -105,9 +105,44 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   $results = db_query($query, $content_type);
 
   while ($nid = db_result($results)) {
+
+    // Load the node and then save the node to the array which will be
+    // exported to the file.
     $node = node_load($nid);
     $dataset['nodes'][$node->nid] = $node;
+
+    dvm($node);
+
+//    dvm($node->field_image_field[0]['filepath']);
+
+    foreach($node as $node_field_key => $node_field_value) {
+
+      if (is_array($node_field_value)) {
+
+        foreach($node_field_value as $file_detail_key => $file_details_value) {
+
+          // This looks for the correct type of value and if there is
+          // a setting fid set then we will assume this is a field of
+          // attached files.
+          if (is_array($file_details_value) && isset($file_details_value['fid']) && isset($file_details_value['filename']) &&isset($file_details_value['filepath'])) {
+
+            dvm($file_details_value['filename']);
+            dvm($file_details_value['filepath']);
+          }
+        }
+      }
+    }
   }
+
+// loop through all nodes.
+
+// loop through all fields
+
+// certain fields contain arrays - if the content of the field is an array then loop through it.
+
+// look for the values filename and filepath.
+
+
 
   // Here we will serialize the array to convert it to a string which
   // can then be output to a file.
@@ -182,10 +217,26 @@ function data_export_import_import_all_content_types($file) {
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
+  dvm($file_content_as_array);
+
+  dvm($file_content_as_array['nodes'][1]->field_audio[0]['filepath']);
+
+
+  foreach($file_content_as_array['nodes'] as $node_from_file) {
+
+    $a == 1;
+// loop through all nodes.
+
+// loop through all fields
+
+// certain fields contain arrays - if the content of the field is an array then loop through it.
+
+// look for the values filename and filepath.
+  }
 
   // Here we need to get the content type of the nodes being imported.
-  dvm($file_content_as_array);
   $node_content_type_object = unserialize($file_content_as_array['content_type']);
+  dvm($node_content_type_object);
   $node_content_type = $node_content_type_object->type;
 
   // Check that the content type is an exact match between the sending
