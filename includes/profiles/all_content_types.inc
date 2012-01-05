@@ -109,12 +109,41 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
     // Load the node and then save the node to the array which will be
     // exported to the file.
     $node = node_load($nid);
-    $dataset['nodes'][$node->nid] = $node;
+    //    $dataset['nodes'][$node->nid] = $node;
+
+    // Here we will deal with any files attached to the node if the
+    // upload module is being used.  What we are going to do is to
+    // extract the file, convert it to a character encoding and then
+    // attach it to the files array on the node.
+    if (module_exists('upload')) {
+
+      if (!empty($node->files) && is_array($node->files)) {
+        drupal_set_message('We have some files uploaded.');
+        dvm($node);
+
+        // Loop through the files.
+        foreach ($node->files as $attached_file_key => $attached_file) {
+
+          // Get the file into a safe character based format and then
+          // attach it to the array.
+          $export_data = base64_encode(file_get_contents($attached_file->filepath));
+          $node->files[$attached_file_key]->data_export_import_file_data = $export_data; 
+
+          drupal_set_message($attached_file->filepath);
+          drupal_set_message($export_data);
+        }
+      }
+    }
 
     dvm($node);
+    $dataset['nodes'][$node->nid] = $node;
+
+
 
 //    dvm($node->field_image_field[0]['filepath']);
 
+
+/*
     foreach($node as $node_field_key => $node_field_value) {
 
       if (is_array($node_field_value)) {
@@ -132,6 +161,8 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
         }
       }
     }
+*/
+
   }
 
 // loop through all nodes.
@@ -209,7 +240,6 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
 
 function data_export_import_import_all_content_types($file) {
 
-  // @todo Check that the file exists and can be read.
   // @todo Check that the users exist and match.
   // *
   // Load the dataset file into a variable.
@@ -218,10 +248,9 @@ function data_export_import_import_all_content_types($file) {
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
   dvm($file_content_as_array);
+  // dvm($file_content_as_array['nodes'][1]->field_audio[0]['filepath']);
 
-  dvm($file_content_as_array['nodes'][1]->field_audio[0]['filepath']);
-
-
+  /*
   foreach($file_content_as_array['nodes'] as $node_from_file) {
 
     $a == 1;
@@ -233,6 +262,8 @@ function data_export_import_import_all_content_types($file) {
 
 // look for the values filename and filepath.
   }
+  */
+
 
   // Here we need to get the content type of the nodes being imported.
   $node_content_type_object = unserialize($file_content_as_array['content_type']);
@@ -248,18 +279,14 @@ function data_export_import_import_all_content_types($file) {
   $node_types = node_get_types();
   if (unserialize($file_content_as_array['content_type']) != $node_types[$node_content_type]) {
 
-    drupal_set_message(t("When the dataset was created the page content type was different from this site's page content type. Please compare manually the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
+    drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
     return;
   }
 
   // Loop through all the existing nodes - and if they don't exist in
-  // the dataset then delete them. This is a little redundant - but
-  // was from existing code.  Should be refactored later.
-  $type = $node_content_type;
-
-  // Get the node objects.
+  // the dataset then delete them.
   $query = db_rewrite_sql("SELECT nid FROM {node} n WHERE type = '%s'", 'n');
-  $results = db_query($query, $type);
+  $results = db_query($query, $node_content_type);
 
   while ($nid = db_result($results)) {
 
@@ -308,7 +335,7 @@ function data_export_import_import_all_content_types($file) {
       $existing_node_vid = $existing_node->vid;
 
       // The node may have had new revisions created since the dataset
-      // was created.
+      // was created so we'll unset all the data about revisions.
       unset($dataset_node->vid);
       unset($existing_node->vid);
       unset($dataset_node->log);
@@ -324,14 +351,13 @@ function data_export_import_import_all_content_types($file) {
 
       if ($dataset_node != $existing_node) {
 
-        // Create a new revision.
-        // The dataset node may be from several revisions back - and
-        // we don't want to reset back to a previous revision - and we
-        // don't want to overwrite the current revision - so creating
-        // a new revision is the best option.
-        // The only other option is to delete the node (which would
-        // delete all revisions) and then re-create it - but this
-        // would lose all the revision history.
+        // Create a new revision. The dataset node may be from several
+        // revisions back - and we don't want to reset back to a
+        // previous revision - and we don't want to overwrite the
+        // current revision - so creating a new revision is the best
+        // option. The only other option is to delete the node (which
+        // would delete all revisions) and then re-create it - but
+        // this would lose all the revision history.
         $dataset_node->vid = $existing_node_vid;
         $dataset_node->revision = 1;
         $dataset_node->log = "Imported from dataset file: " . $file;
