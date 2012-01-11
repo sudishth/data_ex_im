@@ -17,16 +17,7 @@
  */
 
 /**
- * Display help and module information
- *
- * @param string $path
- *   Path which path of the site we're displaying help.
- * @param array $arg
- *   Arg array that holds the current path as would be returned from
- *   arg() function.
- *
- * @return string
- *   Help text for the path.
+ * Implements hook_help().
  */
 function data_export_import_help($path, $arg) {
 
@@ -48,36 +39,34 @@ function data_export_import_perm() {
 }
 
 /**
- * This is the hook_menu section.
- *
- * Defines all pages and tabs.
+ * Implements hook_menu().
  */
 function data_export_import_menu() {
 
   $items = array();
 
   $items['admin/content/data_export_import'] = array(
-    'title' => 'Data export import',
+    'title' => t('Data export import'),
     'page callback' => 'data_export_import_callback_export',
     'access arguments' => array('access data export import'),
-    'description' => 'Data export import',
+    'description' => t('Data export import'),
     'type' => MENU_NORMAL_ITEM,
   );
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-    'title' => 'Export',
+    'title' => t('Export'),
     'weight' => 0,
-    'description' => 'Data export import',
+    'description' => t('Data export import'),
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   $items['admin/content/data_export_import/import'] = array(
-    'title' => 'Import',
+    'title' => t('Import'),
     'page callback' => 'data_export_import_callback_import',
     'access arguments' => array('access data export import'),
     'weight' => 1,
-    'description' => 'Import dataset files',
+    'description' => t('Import dataset files'),
     'type' => MENU_LOCAL_TASK,
   );
 
@@ -151,7 +140,7 @@ function data_export_import_export_form($form_state) {
 
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Create dataset files',
+    '#value' => t('Create dataset files'),
   );
 
   return $form;
