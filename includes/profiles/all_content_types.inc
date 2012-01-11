@@ -55,7 +55,7 @@ function _all_content_types_export_to_file($form_state, &$dataset_files_created)
   if (!isset($form_state['clicked_button']['#post']['all_content_types'])) {
     drupal_set_message("No content types selected.");
     return TRUE;
-  } 
+  }
 
   // We can loop through which content types need to be exported.
   // The #post array will only contain values which have been set to
@@ -322,6 +322,10 @@ function data_export_import_import_all_content_types($file) {
       // Use a modified node_save() function which allows the node to
       // be saved with it's existing nid.
       data_export_import_node_insert_with_defined_nid($dataset_node);
+
+      // At this point we need to add in files which have been brought
+      // in as part of the dataset file.
+
     }
 
     else {
