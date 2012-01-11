@@ -46,27 +46,27 @@ function data_export_import_menu() {
   $items = array();
 
   $items['admin/content/data_export_import'] = array(
-    'title' => t('Data export import'),
+    'title' => 'Data export import',
     'page callback' => 'data_export_import_callback_export',
     'access arguments' => array('access data export import'),
-    'description' => t('Data export import'),
+    'description' => 'Data export import',
     'type' => MENU_NORMAL_ITEM,
   );
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
-    'title' => t('Export'),
+    'title' => 'Export',
     'weight' => 0,
-    'description' => t('Data export import'),
+    'description' => 'Data export import',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   $items['admin/content/data_export_import/import'] = array(
-    'title' => t('Import'),
+    'title' => 'Import',
     'page callback' => 'data_export_import_callback_import',
     'access arguments' => array('access data export import'),
     'weight' => 1,
-    'description' => t('Import dataset files'),
+    'description' => 'Import dataset files',
     'type' => MENU_LOCAL_TASK,
   );
 
@@ -295,7 +295,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
  */
 function data_export_import_import_form_submit($form, &$form_state) {
 
-  // This module has not yet been extended to correctly handle data 
+  // This module has not yet been extended to correctly handle data
   // which has internationalization (i18n) enabled.
   if (module_exists('i18n')) {
     drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
@@ -305,35 +305,15 @@ function data_export_import_import_form_submit($form, &$form_state) {
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
 
-//  drupal_set_message('<pre>' . var_export($form_state, true) . '</pre>');
-
-/*
-  // Pages.
-  if ($form_state['clicked_button']['#post']['pages'] != 'none') {
-
-    $result = data_export_import_import_pages($form_state['clicked_button']['#post']['pages']);
-    drupal_set_message(t('The Pages dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['pages'])));
-  }
-
-  // Taxonomy terms.
-  if ($form_state['clicked_button']['#post']['taxonomy_terms'] != 'none') {
-
-    $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
-    drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
-  }
-*/
-  // Pages.
   if ($form_state['values']['pages'] != 'none') {
 
     $result = data_export_import_import_pages($form_state['values']['pages']);
     drupal_set_message(t('The Pages dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['values']['pages'])));
   }
 
-  // Taxonomy terms.
   if ($form_state['values']['taxonomy_terms'] != 'none') {
 
     $result = data_export_import_import_taxonomy_terms($form_state['values']['taxonomy_terms']);
     drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['values']['taxonomy_terms'])));
   }
-
 }
