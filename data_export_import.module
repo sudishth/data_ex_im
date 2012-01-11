@@ -206,8 +206,7 @@ function data_export_import_import_form($form_state) {
 
   // Get the contents of the dataset directory and create a list of
   // links which can be used to trigger the data import.
-  $directory = drupal_get_path('module', 'data_export_import') . '/includes';
-  $directory = "sites/default/files/data_export_import/taxonomy_terms";
+  $directory = file_directory_path() . "/data_export_import/taxonomy_terms";
   $mask = '.dataset';
   $files = file_scan_directory($directory, $mask);
 
