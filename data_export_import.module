@@ -305,6 +305,9 @@ function data_export_import_import_form_submit($form, &$form_state) {
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
 
+//  drupal_set_message('<pre>' . var_export($form_state, true) . '</pre>');
+
+/*
   // Pages.
   if ($form_state['clicked_button']['#post']['pages'] != 'none') {
 
@@ -318,4 +321,19 @@ function data_export_import_import_form_submit($form, &$form_state) {
     $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
     drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
   }
+*/
+  // Pages.
+  if ($form_state['values']['pages'] != 'none') {
+
+    $result = data_export_import_import_pages($form_state['values']['pages']);
+    drupal_set_message(t('The Pages dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['values']['pages'])));
+  }
+
+  // Taxonomy terms.
+  if ($form_state['values']['taxonomy_terms'] != 'none') {
+
+    $result = data_export_import_import_taxonomy_terms($form_state['values']['taxonomy_terms']);
+    drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['values']['taxonomy_terms'])));
+  }
+
 }
