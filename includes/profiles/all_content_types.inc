@@ -119,7 +119,7 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
 
       if (!empty($node->files) && is_array($node->files)) {
         drupal_set_message('We have some files uploaded.');
-        dvm($node);
+//        dvm($node);
 
         // Loop through the files.
         foreach ($node->files as $attached_file_key => $attached_file) {
@@ -135,7 +135,7 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
       }
     }
 
-    dvm($node);
+//    dvm($node);
     $dataset['nodes'][$node->nid] = $node;
 
 
@@ -247,7 +247,7 @@ function data_export_import_import_all_content_types($file) {
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
-  dvm($file_content_as_array);
+//  dvm($file_content_as_array);
   // dvm($file_content_as_array['nodes'][1]->field_audio[0]['filepath']);
 
   /*
@@ -267,7 +267,7 @@ function data_export_import_import_all_content_types($file) {
 
   // Here we need to get the content type of the nodes being imported.
   $node_content_type_object = unserialize($file_content_as_array['content_type']);
-  dvm($node_content_type_object);
+//  dvm($node_content_type_object);
   $node_content_type = $node_content_type_object->type;
 
   // Check that the content type is an exact match between the sending
