@@ -253,6 +253,7 @@ function data_export_import_import_pages($file) {
  * This function is basically an override of the standard node_save()
  * function.
  */
+/*
 function data_export_import_node_insert_with_defined_nid(&$node) {
 
   // Here we will remove the nid from the object to trick the rest of
@@ -323,12 +324,14 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
   // Clear the page and block caches.
   cache_clear_all();
 }
+*/
 
 /**
  * Implements inserting a record with a defined id value.
  *
  * Overrides the standard drupal_write_record() function.
  */
+/*
 function data_export_import_drupal_write_record_via_insert_with_defined_id($table, &$object, $update = array()) {
 
   // Standardize $update to an array.
@@ -394,3 +397,4 @@ function data_export_import_drupal_write_record_via_insert_with_defined_id($tabl
 
   return $return;
 }
+*/

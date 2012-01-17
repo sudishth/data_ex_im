@@ -168,7 +168,7 @@ function data_export_import_export_form($form_state) {
 function data_export_import_import_form($form_state) {
 
   $form = array();
-
+/*
   // Pages.
   $form['pages'] = array(
     '#type' => 'fieldset',
@@ -205,7 +205,7 @@ function data_export_import_import_form($form_state) {
     '#default_value' => 'none',
     '#options' => $options,
   );
-
+*/
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
     '#type' => 'fieldset',
@@ -361,14 +361,14 @@ function data_export_import_import_form_submit($form, &$form_state) {
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
   module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
-
+/*
   // Pages.
   if ($form_state['clicked_button']['#post']['pages'] != 'none') {
 
     $result = data_export_import_import_pages($form_state['clicked_button']['#post']['pages']);
     drupal_set_message(t('The Pages dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['pages'])));
   }
-
+*/
   // Taxonomy terms.
   if ($form_state['clicked_button']['#post']['taxonomy_terms'] != 'none') {
 
