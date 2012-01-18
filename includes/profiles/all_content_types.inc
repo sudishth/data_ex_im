@@ -127,7 +127,8 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
           // Get the file into a safe character based format and then
           // attach it to the array.
           $export_data = base64_encode(file_get_contents($attached_file->filepath));
-          $node->upload_files[$attached_file_key]->data_export_import_file_data = $export_data;
+          // $node->upload_files[$attached_file_key]->data_export_import_file_data = $export_data;
+          $node->files[$attached_file_key]->data_export_import_file_data = $export_data;
 
           drupal_set_message($attached_file->filepath);
           // drupal_set_message($export_data);
@@ -396,12 +397,12 @@ function data_export_import_import_all_content_types($file) {
                     // the node links to the correct file.
                     $dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
 
-
                     $b = 1;
                    }
                 }
 
               }
+
               // dvm($file_details_value['filename']);
               // dvm($file_details_value['filepath']);
             }
@@ -410,7 +411,120 @@ function data_export_import_import_all_content_types($file) {
       }
 
 
+      // Here we need to to deal with the files attached to a node via the
+      // Upload module.  As they will have unusable fid values we will first
+      // move the uploaded files to a separate variable, we'll then create the
+      // node and then create the file and records necessary for the ndoe to see
+      // the file(s) as attached.
+    if (module_exists('upload')) {
+
+      $a = 1;
+        if (isset($dataset_node->files)) {
+
+
+        $uploaded_files = $dataset_node->files;
+        unset($dataset_node->files);
+        }
+      }
+
+
       data_export_import_node_insert_with_defined_nid($dataset_node);
+
+    if (module_exists('upload')) {
+
+              if (!empty($uploaded_files)) {
+
+                foreach($uploaded_files as $uploaded_file) {
+
+                $directory = file_create_path(dirname($uploaded_file->filepath));
+
+                if (file_check_directory($directory, TRUE)) {
+                  if (file_put_contents($uploaded_file->filepath, base64_decode($uploaded_file->data_export_import_file_data))) {
+                    drupal_write_record('files', $uploaded_file);
+
+                    // As we've just saved the file it will probably have been
+                    // given a new fid.  We are not going to force the file to
+                    // be saved with the same ID as in the dataset as there may
+                    // be another file which is using the ID value.  We need to
+                    // get this new ID value and put that into the node data so
+                    // the node links to the correct file.
+                    ////$dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
+
+                    // Need to create the {upload} record.
+                    $upload_record = array();
+                    $upload_record['fid'] = $uploaded_file->fid;
+                    $upload_record['nid'] = $dataset_node->nid;
+                    $upload_record['vid'] = $dataset_node->vid;
+                    $upload_record['description'] = $uploaded_file->filename;
+                    $upload_record['list'] = $uploaded_file->list;
+                    $upload_record['weight'] = $uploaded_file->weight;
+
+                    drupal_write_record('upload', $upload_record);
+
+                    $b = 1;
+                   }
+                }
+                }
+              } // uploaded_files not empty
+    }
+
+
+
+
+
+/*
+    if (module_exists('upload')) {
+
+      if (!empty($uploaded_files) && is_array($uploaded_files)) {
+//        drupal_set_message('We have some files uploaded.');
+//        dvm($node);
+
+        // Loop through the files.
+        foreach ($uploaded_files as $uploaded_file_key => $uploaded_file_value) {
+
+
+
+          $b = 1;
+
+          // Get the file into a safe character based format and then
+          // attach it to the array.
+          // $export_data = base64_encode(file_get_contents($attached_file->filepath));
+          //$node->upload_files[$attached_file_key]->data_export_import_file_data = $export_data;
+
+          // drupal_set_message($attached_file->filepath);
+          // drupal_set_message($export_data);
+        }
+      }
+    }
+
+*/
+
+
+/*
+              if (isset($file_details_value['cck_file_data'])) {
+
+                $directory = file_create_path(dirname($file_details_value['filepath']));
+
+                if (file_check_directory($directory, TRUE)) {
+                  if (file_put_contents($file_details_value['filepath'], base64_decode($file_details_value['cck_file_data']))) {
+                    drupal_write_record('files', $file_details_value);
+
+                    // As we've just saved the file it will probably have been
+                    // given a new fid.  We are not going to force the file to
+                    // be saved with the same ID as in the dataset as there may
+                    // be another file which is using the ID value.  We need to
+                    // get this new ID value and put that into the node data so
+                    // the node links to the correct file.
+                    $dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
+
+                    $b = 1;
+                   }
+                }
+
+              }
+
+
+*/
 
 
       // The CCK fields should have been filled in correctly.  We now need to
@@ -528,8 +642,72 @@ function data_export_import_import_all_content_types($file) {
 
 
 
-        node_save($dataset_node);
+            // Here we need to to deal with the files attached to a node via the
+      // Upload module.  As they will have unusable fid values we will first
+      // move the uploaded files to a separate variable, we'll then create the
+      // node and then create the file and records necessary for the ndoe to see
+      // the file(s) as attached.
+    if (module_exists('upload')) {
+
+      $a = 1;
+        if (isset($dataset_node->files)) {
+
+
+        $uploaded_files = $dataset_node->files;
+        unset($dataset_node->files);
+        }
       }
+
+
+
+
+        node_save($dataset_node);
+
+        // aaaaaaaaaaaaaaaaaa
+    if (module_exists('upload')) {
+
+              if (!empty($uploaded_files)) {
+
+                foreach($uploaded_files as $uploaded_file) {
+
+                $directory = file_create_path(dirname($uploaded_file->filepath));
+
+                if (file_check_directory($directory, TRUE)) {
+                  if (file_put_contents($uploaded_file->filepath, base64_decode($uploaded_file->data_export_import_file_data))) {
+                    drupal_write_record('files', $uploaded_file);
+
+                    // As we've just saved the file it will probably have been
+                    // given a new fid.  We are not going to force the file to
+                    // be saved with the same ID as in the dataset as there may
+                    // be another file which is using the ID value.  We need to
+                    // get this new ID value and put that into the node data so
+                    // the node links to the correct file.
+                    ////$dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
+
+                    // Need to create the {upload} record.
+                    $upload_record = array();
+                    $upload_record['fid'] = $uploaded_file->fid;
+                    $upload_record['nid'] = $dataset_node->nid;
+                    $upload_record['vid'] = $dataset_node->vid;
+                    $upload_record['description'] = $uploaded_file->filename;
+                    $upload_record['list'] = $uploaded_file->list;
+                    $upload_record['weight'] = $uploaded_file->weight;
+
+                    drupal_write_record('upload', $upload_record);
+
+                    $b = 1;
+                   }
+                }
+                }
+              } // uploaded_files not empty
+    }
+
+
+
+        
+
+
+        }
     }
   }
 }
