@@ -362,13 +362,10 @@ function data_export_import_import_all_content_types($file) {
       //
       // Loop through all the CCK fields create the required files/ and {files}
 
-      data_export_import_node_insert_with_defined_nid($dataset_node);
-
-
 
 // Here we will loop through the fields looking for CCK fields which contain
 // file data.
-/*
+
       foreach($dataset_node as $node_field_key => $node_field_value) {
 
         if (is_array($node_field_value)) {
@@ -390,7 +387,18 @@ function data_export_import_import_all_content_types($file) {
                 if (file_check_directory($directory, TRUE)) {
                   if (file_put_contents($file_details_value['filepath'], base64_decode($file_details_value['cck_file_data']))) {
                     drupal_write_record('files', $file_details_value);
-                  }
+
+                    // As we've just saved the file it will probably have been
+                    // given a new fid.  We are not going to force the file to
+                    // be saved with the same ID as in the dataset as there may
+                    // be another file which is using the ID value.  We need to 
+                    // get this new ID value and put that into the node data so
+                    // the node links to the correct file.
+                    $dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
+
+
+                    $b = 1;
+                   }
                 }
 
               }
@@ -400,7 +408,10 @@ function data_export_import_import_all_content_types($file) {
           }
         }
       }
-*/
+
+
+      data_export_import_node_insert_with_defined_nid($dataset_node);
+
 
       // The CCK fields should have been filled in correctly.  We now need to
       // create the actual file from the data in the file and create the
@@ -461,6 +472,61 @@ function data_export_import_import_all_content_types($file) {
         $dataset_node->vid = $existing_node_vid;
         $dataset_node->revision = 1;
         $dataset_node->log = "Imported from dataset file: " . $file;
+
+        // Here we will save the files attached to the node via CCK fields and
+        // update the fid values stored in the $dataset_node.
+
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+      foreach($dataset_node as $node_field_key => $node_field_value) {
+
+        if (is_array($node_field_value)) {
+
+          foreach($node_field_value as $file_detail_key => $file_details_value) {
+
+            // This looks for the correct type of value and if there is
+            // a setting fid/filename/filepath set then we will assume this is a
+            //  field of attached CCK files.
+            if (is_array($file_details_value) && isset($file_details_value['fid']) && isset($file_details_value['filename']) &&isset($file_details_value['filepath'])) {
+
+
+              $a = 1;
+
+              if (isset($file_details_value['cck_file_data'])) {
+
+                $directory = file_create_path(dirname($file_details_value['filepath']));
+
+                if (file_check_directory($directory, TRUE)) {
+                  if (file_put_contents($file_details_value['filepath'], base64_decode($file_details_value['cck_file_data']))) {
+                    drupal_write_record('files', $file_details_value);
+
+                    // As we've just saved the file it will probably have been
+                    // given a new fid.  We are not going to force the file to
+                    // be saved with the same ID as in the dataset as there may
+                    // be another file which is using the ID value.  We need to
+                    // get this new ID value and put that into the node data so
+                    // the node links to the correct file.
+                    $dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
+
+
+                    $b = 1;
+                   }
+                }
+
+              }
+              // dvm($file_details_value['filename']);
+              // dvm($file_details_value['filepath']);
+            }
+          }
+        }
+      }
+
+
+
+// yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+
+
 
         node_save($dataset_node);
       }
