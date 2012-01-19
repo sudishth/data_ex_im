@@ -168,44 +168,7 @@ function data_export_import_export_form($form_state) {
 function data_export_import_import_form($form_state) {
 
   $form = array();
-/*
-  // Pages.
-  $form['pages'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Pages'),
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
 
-  $directory = file_directory_path() . '/data_export_import/pages';
-
-  // NB - This will only produce TRUE if the directory exists and it
-  // is writable - so we need to be aware of this returning false if
-  // the directory was created during testing and it is not writable
-  // by the web server account.
-  if (file_check_directory($directory)) {
-
-    $mask = '.dataset';
-    $files = file_scan_directory($directory, $mask);
-
-    // Sort them by the filename which is used as the key.
-    ksort($files);
-
-    $options = array();
-    $options['none'] = "None";
-    foreach ($files as $file) {
-
-      $options[$file->basename] = check_plain($file->basename);
-    }
-  }
-
-  $form['pages']['pages'] = array(
-    '#type' => 'radios',
-    '#title' => t('Please select file to import'),
-    '#default_value' => 'none',
-    '#options' => $options,
-  );
-*/
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
     '#type' => 'fieldset',
@@ -299,16 +262,7 @@ function data_export_import_export_form_submit($form, &$form_state) {
     drupal_set_message(t("The data export functionality is not currently compatible with localization."), 'error');
     return TRUE;
   }
-/*
-  // Need to include files holding import functions.
-  module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
-  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
 
-  // Need to include files holding import functions.
-  //  include_once 'includes/profiles/articles.inc';
-  include_once 'includes/profiles/pages.inc';
-  include_once 'includes/profiles/taxonomy_terms.inc';
-*/
   // Here we will loop through the profile files and run the data
   // export if needed.
   // The reason we are looping through the profile files is so that
@@ -361,14 +315,7 @@ function data_export_import_import_form_submit($form, &$form_state) {
   module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
   module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
-/*
-  // Pages.
-  if ($form_state['clicked_button']['#post']['pages'] != 'none') {
 
-    $result = data_export_import_import_pages($form_state['clicked_button']['#post']['pages']);
-    drupal_set_message(t('The Pages dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['pages'])));
-  }
-*/
   // Taxonomy terms.
   if ($form_state['clicked_button']['#post']['taxonomy_terms'] != 'none') {
 

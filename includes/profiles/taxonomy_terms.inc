@@ -30,14 +30,14 @@ function _taxonomy_terms_add_fieldset_to_export_form(&$form) {
 
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => t('Taxonomy terms'),
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'checkbox',
-                                                    '#title' => 'Export all Taxonomy terms', );
+    '#type' => 'checkbox',
+    '#title' => 'Export all Taxonomy terms', );
 }
 
 /**
