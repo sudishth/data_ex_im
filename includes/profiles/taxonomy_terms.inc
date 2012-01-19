@@ -423,7 +423,7 @@ function data_export_import_import_taxonomy_terms($file) {
           // function as it handles terms being updated OK.
           $save_term_status = taxonomy_save_term($term_data_array);
           if ($save_term_status != 2) {
-            echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
+            drupal_set_message(t("Term not saved correctly.  Term id:") . $existing_term->tid . "\n", 'error');
           }
 
           // Here we need to update the language field if the translation
@@ -486,7 +486,7 @@ function data_export_import_import_taxonomy_terms($file) {
         $save_term_status = data_export_import_taxonomy_save_term_with_defined_tid($term_data_array);
 
         if ($save_term_status != 1) {
-          echo "Term not saved correctly.  Term id:" . $existing_term->tid . "\n";
+          drupal_set_message(t("Term not saved correctly.  Term id:") . $existing_term->tid . "\n", 'error');
         }
 
         // Here we need to update the language field if the translation
