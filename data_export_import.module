@@ -312,7 +312,7 @@ function data_export_import_import_form_submit($form, &$form_state) {
     return TRUE;
   }
 
-  module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
+  // module_load_include('inc', 'data_export_import', 'includes/profiles/pages');
   module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
   module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
 
