@@ -10,13 +10,13 @@
 /**
  * Add fieldset to the data export form.
  */
-function _all_content_types_add_fieldset_to_export_form(&$form) {
+function data_export_import_all_content_types_add_fieldset_to_export_form(&$form) {
 
   $form['all_content_types'] = array(
-                                     '#type' => 'fieldset',
-                                     '#title' => 'All content types.',
-                                     '#collapsible' => TRUE,
-                                     '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => 'All content types.',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   $node_types = node_get_types();
 
@@ -26,8 +26,8 @@ function _all_content_types_add_fieldset_to_export_form(&$form) {
     $node_type_name = $node_type->name;
 
     $form['all_content_types'][$node_type_type] = array(
-                                                        '#type' => 'checkbox',
-                                                        '#title' => $node_type_name, );
+      '#type' => 'checkbox',
+      '#title' => check_plain($node_type_name), );
   }
 }
 
@@ -43,12 +43,12 @@ function _all_content_types_add_fieldset_to_export_form(&$form) {
  * @return
  *   TRUE if all ran OK.
  */
-function _all_content_types_export_to_file($form_state, &$dataset_files_created) {
+function data_export_import_all_content_types_export_to_file($form_state, &$dataset_files_created) {
 
   // See if any content types were selected - if none then exist out
   // gracefully.
   if (!isset($form_state['clicked_button']['#post']['all_content_types'])) {
-    drupal_set_message("No content types selected.");
+    drupal_set_message(t("No content types selected."));
     return TRUE;
   }
 
@@ -109,7 +109,6 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
     if (module_exists('upload')) {
 
       if (!empty($node->files) && is_array($node->files)) {
-        drupal_set_message('We have some files uploaded.');
 
         // Loop through the files.
         foreach ($node->files as $attached_file_key => $attached_file) {
@@ -117,11 +116,7 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
           // Get the file into a safe character based format and then
           // attach it to the array.
           $export_data = base64_encode(file_get_contents($attached_file->filepath));
-          // $node->upload_files[$attached_file_key]->data_export_import_file_data = $export_data;
           $node->files[$attached_file_key]->data_export_import_file_data = $export_data;
-
-          drupal_set_message($attached_file->filepath);
-          // drupal_set_message($export_data);
         }
       }
     }

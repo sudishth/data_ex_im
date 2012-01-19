@@ -26,7 +26,7 @@
  * Add fieldset to the data export form.
  *
  */
-function _taxonomy_terms_add_fieldset_to_export_form(&$form) {
+function data_export_import_taxonomy_terms_add_fieldset_to_export_form(&$form) {
 
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
@@ -44,7 +44,7 @@ function _taxonomy_terms_add_fieldset_to_export_form(&$form) {
  * Export the required dataset file.
  *
  */
-function _taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
+function data_export_import_taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
 
   if ($form_state['clicked_button']['#post']['taxonomy_terms']['taxonomy_terms'] == 1) {
     $dataset_files_created[] = data_export_import_export_taxonomy_terms();
