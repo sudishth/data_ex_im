@@ -69,10 +69,94 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
  * This function is going to use the API to extract the relevant
  * data. This data is then going to be output to a data file.
  *
+ * The plan is this:
+ *
+ * 1. Create the directories and the filename name which will be used.
+ *
+ * 2. Export the content type data to the dataset file
+ *
+ * 3. Loop through the nodes and write each node's data to the file one line at
+ * a time.
+ *
+ * The batch API will be used to break up the writing of the nodes into separate
+ * function calls.
+ * 
  * @return bool
  *   The filename of the datafile which was created.
  */
 function data_export_import_export_nodes_for_a_content_type($content_type) {
+
+  // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
+  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  // Save the string as a file. This is the dataset data file.
+  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
+  $file_path_and_name = $dataset_directory . "/" . $file_name;
+
+
+  // This will be the main array which will hold the data which will
+  // be output to the dataset file.
+  $dataset = array();
+
+  // Here we are getting all content types and selecting just the one
+  // we need - this seems to give more consistent results than just
+  // extracting the single node object.
+  $node_types = node_get_types();
+
+  // Add the content type details to the array.
+  // We are going to serialize the object here as it can then be
+  // unserialized on the import and checked.  The normal
+  // serialize/unserialize should cover this but the objects would not
+  // be counted as matching.  Possibly related to:
+  // https://bugs.php.net/bug.php?id=48016
+  $content_type_data_serialized = serialize($node_types[$content_type]);
+  file_save_data($content_type_data_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
+
+
+  $query = db_rewrite_sql("SELECT nid FROM {node} n WHERE type = '%s'", 'n');
+  $results = db_query($query, $content_type);
+
+  while ($nid = db_result($results)) {
+
+    $batch = array(
+    'operations' => array(
+      array('batch_example_process', array($nid, $file_path_and_name)),
+      ),
+  );
+
+  }
+
+  // Adding in the extra values to the $batch variable.
+  $batch['finished'] = 'batch_example_finished';
+  $batch['title'] = t('Processing Example batch');
+  $batch['init_message'] = t('Example batch is starting.');
+  $batch['progress_message'] = t('Processed @current out of @total.');
+  $batch['error_message'] = t('Example Batch has encountered an error.');
+  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+
+
+
+  // This is the key function which will set the batch up to be processed.
+  batch_set($batch);
+
+
+
+  // Since we are not calling this batch processing from a form we will need to
+  // request that the batch is processed.
+  // NB - We need to be re-direct to another page otherwise the same page will
+  // be called again.
+  batch_process('admin');
+
+/*
+  return $file_name;
+*/
+
+  
+/*
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
@@ -120,8 +204,6 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
       }
     }
 
-    $dataset['nodes'][$node->nid] = $node;
-
     // Here we are looking for all the file data fields.
     foreach ($node as $node_field_key => $node_field_value) {
 
@@ -145,6 +227,9 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
     }
   }
 
+  // Now the node is fully populated it is attached to the dataset.
+  $dataset['nodes'][$node->nid] = $node;
+
   // Here we will serialize the array to convert it to a string which
   // can then be output to a file.
   $dataset_serialized = serialize($dataset);
@@ -163,7 +248,73 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
 
   return $file_name;
+
+ */
+
+
 }
+
+
+function batch_example_process($options1, $options2, &$context) {
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['current_node'] = 0;
+    $context['sandbox']['max'] = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node}'));
+  }
+
+  // For this example, we decide that we can safely process
+  // 5 nodes at a time without a timeout.
+  $limit = 1;
+
+  // With each pass through the callback, retrieve the next group of nids.
+  $result = db_query_range("SELECT nid FROM {node} WHERE nid > %d ORDER BY nid ASC", $context['sandbox']['current_node'], 0, $limit);
+  while ($row = db_fetch_array($result)) {
+
+    // Here we actually perform our processing on the current node.
+
+    $node = node_load($row['nid'], NULL, TRUE);
+/*
+    $node->value1 = $options1;
+    $node->value2 = $options2;
+    node_save($node);
+*/
+    sleep(4);
+
+    // Store some result for post-processing in the finished callback.
+    $context['results'][] = check_plain($node->title);
+
+    // Update our progress information.
+    $context['sandbox']['progress']++;
+    $context['sandbox']['current_node'] = $node->nid;
+    $context['message'] = t('Now processing %node', array('%node' => $node->title));
+  }
+
+  // Inform the batch engine that we are not finished,
+  // and provide an estimation of the completion level we reached.
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+}
+
+
+/**
+ * Batch 'finished' callback
+ */
+function batch_example_finished($success, $results, $operations) {
+  if ($success) {
+    // Here we do something meaningful with the results.
+    $message = count($results) .' processedxxx.';
+    $message .= theme('item_list', $results);
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
+  }
+  drupal_set_message($message);
+}
+
 
 /**
  * Make current nodes match the nodes from a dataset file.
