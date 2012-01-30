@@ -52,14 +52,35 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
     return TRUE;
   }
 
+
+    // Adding in the extra values to the $batch variable.
+  $batch['finished'] = 'batch_example_finished';
+  $batch['title'] = t('Processing Example batch');
+  $batch['init_message'] = t('Example batch is starting.');
+  $batch['progress_message'] = t('Processed @current out of @total.');
+  $batch['error_message'] = t('Example Batch has encountered an error.');
+  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+
+
+
   // We can loop through which content types need to be exported.
   // The #post array will only contain values which have been set to
   // have a value of '1'.
   // Here we will build up the $batch object with the required operations.
   foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
 
-    $dataset_files_created[] = data_export_import_export_nodes_for_a_content_type($content_type);
+    $dataset_files_created[] = data_export_import_export_nodes_for_a_content_type($content_type, $batch);
   }
+
+  // This is the key function which will set the batch up to be processed.
+  batch_set($batch);
+
+  // Since we are not calling this batch processing from a form we will need to
+  // request that the batch is processed.
+  // NB - We need to be re-direct to another page otherwise the same page will
+  // be called again.
+  batch_process('admin');
+
 
   return TRUE;
 }
@@ -85,7 +106,7 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
  * @return bool
  *   The filename of the datafile which was created.
  */
-function data_export_import_export_nodes_for_a_content_type($content_type) {
+function data_export_import_export_nodes_for_a_content_type($content_type, &$batch) {
 
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
@@ -103,6 +124,8 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   // be output to the dataset file.
   $dataset = array();
 
+
+/*
   // Here we are getting all content types and selecting just the one
   // we need - this seems to give more consistent results than just
   // extracting the single node object.
@@ -116,6 +139,8 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   // https://bugs.php.net/bug.php?id=48016
   $content_type_data_serialized = serialize($node_types[$content_type]);
   file_save_data($content_type_data_serialized . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+*/
+
 
 /*
 
@@ -129,12 +154,17 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   }
 */
 
+  /*
   $batch = array(
     'operations' => array(
       array('batch_export_nodes_to_file', array($content_type, $file_path_and_name)),
     ),
   );
+*/
+  $batch['operations'][] = array('batch_export_content_type_to_file', array($content_type, $file_path_and_name));
+  $batch['operations'][] = array('batch_export_nodes_to_file', array($content_type, $file_path_and_name));
 
+/*
   // Adding in the extra values to the $batch variable.
   $batch['finished'] = 'batch_example_finished';
   $batch['title'] = t('Processing Example batch');
@@ -142,8 +172,9 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   $batch['progress_message'] = t('Processed @current out of @total.');
   $batch['error_message'] = t('Example Batch has encountered an error.');
   $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+*/
 
-
+  /*
   // This is the key function which will set the batch up to be processed.
   batch_set($batch);
 
@@ -152,10 +183,10 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
   // NB - We need to be re-direct to another page otherwise the same page will
   // be called again.
   batch_process('admin');
-
-/*
-  return $file_name;
 */
+
+//  return $file_name;
+
 
   
 /*
@@ -259,12 +290,49 @@ function data_export_import_export_nodes_for_a_content_type($content_type) {
 }
 
 
+function batch_export_content_type_to_file($content_type, $file_path_and_name, &$context) {
+
+    // Here we are getting all content types and selecting just the one
+  // we need - this seems to give more consistent results than just
+  // extracting the single node object.
+  $node_types = node_get_types();
+
+  // Add the content type details to the array.
+  // We are going to serialize the object here as it can then be
+  // unserialized on the import and checked.  The normal
+  // serialize/unserialize should cover this but the objects would not
+  // be counted as matching.  Possibly related to:
+  // https://bugs.php.net/bug.php?id=48016
+  $content_type_data_serialized = serialize($node_types[$content_type]);
+  file_save_data($content_type_data_serialized . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+
+  
+}
+
 function batch_export_nodes_to_file($content_type, $file_path_and_name, &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['current_node'] = 0;
     $context['sandbox']['max'] = db_result(db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = '%s'", $content_type));
   }
+
+/*
+// First put the content type into the file so we can check the receiving
+// instance has a matching data type.
+  // Here we are getting all content types and selecting just the one
+  // we need - this seems to give more consistent results than just
+  // extracting the single node object.
+  $node_types = node_get_types();
+
+  // Add the content type details to the array.
+  // We are going to serialize the object here as it can then be
+  // unserialized on the import and checked.  The normal
+  // serialize/unserialize should cover this but the objects would not
+  // be counted as matching.  Possibly related to:
+  // https://bugs.php.net/bug.php?id=48016
+  $content_type_data_serialized = serialize($node_types[$content_type]);
+  file_save_data($content_type_data_serialized . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+*/
 
 
 //  $context['sandbox']['max'] = db_result(db_query('SELECT COUNT(DISTINCT nid) FROM {node}'));
@@ -366,7 +434,7 @@ function batch_export_nodes_to_file($content_type, $file_path_and_name, &$contex
 //    $node->value2 = $options2;
 //    node_save($node);
 
-//    sleep(1);
+    sleep(1);
 
     // Here we will output the node data to the file by appending a line to the
     // file.
@@ -398,7 +466,7 @@ function batch_export_nodes_to_file($content_type, $file_path_and_name, &$contex
 function batch_example_finished($success, $results, $operations) {
   if ($success) {
     // Here we do something meaningful with the results.
-    $message = count($results) .' processedxxx.';
+    $message = count($results) .' processed.';
     $message .= theme('item_list', $results);
   }
   else {
