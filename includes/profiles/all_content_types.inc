@@ -365,7 +365,7 @@ function batch_export_nodes_to_file($content_type, $file_path_and_name, &$contex
 //    $node->value2 = $options2;
 //    node_save($node);
 
-    sleep(1);
+//    sleep(1);
 
     // Here we will output the node data to the file by appending a line to the
     // file.
