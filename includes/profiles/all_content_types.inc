@@ -55,6 +55,7 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
   // We can loop through which content types need to be exported.
   // The #post array will only contain values which have been set to
   // have a value of '1'.
+  // Here we will build up the $batch object with the required operations.
   foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
 
     $dataset_files_created[] = data_export_import_export_nodes_for_a_content_type($content_type);
