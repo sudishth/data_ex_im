@@ -54,7 +54,7 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
 
 
     // Adding in the extra values to the $batch variable.
-  $batch['finished'] = 'batch_example_finished';
+  $batch['finished'] = 'data_export_import_batch_all_content_types_finished';
   $batch['title'] = t('Processing Example batch');
   $batch['init_message'] = t('Example batch is starting.');
   $batch['progress_message'] = t('Processed @current out of @total.');
@@ -161,8 +161,8 @@ function data_export_import_export_nodes_for_a_content_type($content_type, &$bat
     ),
   );
 */
-  $batch['operations'][] = array('batch_export_content_type_to_file', array($content_type, $file_path_and_name));
-  $batch['operations'][] = array('batch_export_nodes_to_file', array($content_type, $file_path_and_name));
+  $batch['operations'][] = array('data_export_import_batch_export_content_type_to_file', array($content_type, $file_path_and_name));
+  $batch['operations'][] = array('data_export_import_batch_export_nodes_to_file', array($content_type, $file_path_and_name));
 
 /*
   // Adding in the extra values to the $batch variable.
@@ -290,7 +290,7 @@ function data_export_import_export_nodes_for_a_content_type($content_type, &$bat
 }
 
 
-function batch_export_content_type_to_file($content_type, $file_path_and_name, &$context) {
+function data_export_import_batch_export_content_type_to_file($content_type, $file_path_and_name, &$context) {
 
     // Here we are getting all content types and selecting just the one
   // we need - this seems to give more consistent results than just
@@ -309,7 +309,7 @@ function batch_export_content_type_to_file($content_type, $file_path_and_name, &
   
 }
 
-function batch_export_nodes_to_file($content_type, $file_path_and_name, &$context) {
+function data_export_import_batch_export_nodes_to_file($content_type, $file_path_and_name, &$context) {
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['current_node'] = 0;
@@ -463,7 +463,7 @@ function batch_export_nodes_to_file($content_type, $file_path_and_name, &$contex
 /**
  * Batch 'finished' callback
  */
-function batch_example_finished($success, $results, $operations) {
+function data_export_import_batch_all_content_types_finished($success, $results, $operations) {
   if ($success) {
     // Here we do something meaningful with the results.
     $message = count($results) .' processed.';

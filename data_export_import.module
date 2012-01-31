@@ -47,25 +47,74 @@ function data_export_import_menu() {
 
   $items['admin/content/data_export_import'] = array(
     'title' => 'Data export import',
-    'page callback' => 'data_export_import_callback_export',
+    'page callback' => 'data_export_import_callback_overview',
     'access arguments' => array('access data export import'),
     'description' => 'Data export import',
     'type' => MENU_NORMAL_ITEM,
   );
 
   // This 'tab' inherits from MENU_NORMAL_ITEM
+  $items['admin/content/data_export_import/overview'] = array(
+    'title' => 'Overview',
+    'weight' => 0,
+    'description' => 'Data export import introduction',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  // Here we need to loop through the profile files and add in items as
+  // required.  This would be from a function
+  // data_export_import_profile_add_items_to_main_form(&$items)
+  // sort of array.
+
+
+
+  // This 'tab' inherits from MENU_NORMAL_ITEM
+  $items['admin/content/data_export_import/taxonomy_terms'] = array(
+    'title' => 'Taxonomy Terms',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 1,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/taxonomy_terms/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 2,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/taxonomy_terms/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 3,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+
+  
+
+
+  // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
     'title' => 'Export',
-    'weight' => 0,
-    'description' => 'Data export import',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'page callback' => 'data_export_import_callback_export',
+    'access arguments' => array('access data export import'),
+    'weight' => 100,
+    'description' => 'Export dataset files',
+    'type' => MENU_LOCAL_TASK,
   );
 
   $items['admin/content/data_export_import/import'] = array(
     'title' => 'Import',
     'page callback' => 'data_export_import_callback_import',
     'access arguments' => array('access data export import'),
-    'weight' => 1,
+    'weight' => 200,
     'description' => 'Import dataset files',
     'type' => MENU_LOCAL_TASK,
   );
@@ -79,11 +128,250 @@ function data_export_import_menu() {
  * @return string
  *   Form to enable the user to select datasets for exporting.
  */
+function data_export_import_callback_overview() {
+
+  // This form calls the form builder function via the
+  // drupal_get_form() function which takes the name of this form builder
+  // function as an argument. It returns the results to display the form.
+  // return drupal_get_form('data_export_import_export_form');
+  return "Data Export Import overview";
+
+}
+
+
+function data_export_import_callback_export_taxonomy_terms() {
+
+  //return "Export taxonomy terms form here...";
+  return drupal_get_form('data_export_import_export_taxonomy_terms_form');
+}
+
+
+function data_export_import_callback_import_taxonomy_terms() {
+
+  //return "Import taxonomy terms form here...";
+  return drupal_get_form('data_export_import_import_taxonomy_terms_form');
+}
+
+function data_export_import_export_taxonomy_terms_form($form_state) {
+
+
+  $form = array();
+
+  // This stops the values being posted from being flattened into a
+  // single level array - we need it to be a multi layered array
+  // because some profiles may provide for many options - I.e. The
+  // all_content_types profile allows the user to choose to export
+  // nodes of various content types.
+  $form['#tree'] = TRUE;
+
+  /*
+  // Here we will loop through the profile files and add the required
+  // elements to the $form array.
+  // The reason we are looping through the profile files is so that
+  // this module can be extended by the addition of profile .inc files.
+  $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
+  $mask = '.\.inc$';
+  $files = file_scan_directory($directory, $mask);
+
+
+  foreach ($files as $file) {
+
+    module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
+
+    $function_to_run = "data_export_import_" . $file->name . "_add_fieldset_to_export_form";
+    $function_to_run($form);
+  }
+*/
+
+  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+  data_export_import_taxonomy_terms_add_fieldset_to_export_form($form);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create dataset files'),
+  );
+
+  return $form;
+
+
+}
+
+function data_export_import_import_taxonomy_terms_form($form_state) {
+
+
+  $form = array();
+
+  // Taxonomy terms.
+  $form['taxonomy_terms'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Get the contents of the dataset directory and create a list of
+  // links which can be used to trigger the data import.
+  $directory = file_directory_path() . "/data_export_import/taxonomy_terms";
+
+  $mask = '.dataset';
+  $files = file_scan_directory($directory, $mask);
+
+  // Sort them by the filename which is used as the key.
+  ksort($files);
+
+  $options = array();
+  $options['none'] = "None";
+  foreach ($files as $file) {
+    $options[$file->basename] = check_plain($file->basename);
+
+  }
+
+  $form['taxonomy_terms']['taxonomy_terms'] = array(
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
+
+  /*
+  // All content types.
+  $form['all_content_types'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('All content types'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Get the contents of the dataset directory and create a list of
+  // links which can be used to trigger the data import.
+  $directory = file_directory_path() . "/data_export_import/all_content_types";
+
+  $mask = '.dataset';
+  $files = file_scan_directory($directory, $mask);
+
+  // Sort them by the filename which is used as the key.
+  ksort($files);
+
+  $options = array();
+  $options['none'] = "None";
+  foreach ($files as $file) {
+
+    $options[$file->basename] = check_plain($file->basename);
+  }
+
+  $form['all_content_types']['all_content_types'] = array(
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
+*/
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Import dataset files',
+  );
+
+  return $form;
+
+
+}
+
+
+//       data_export_import_export_taxonomy_terms_form
+function data_export_import_export_taxonomy_terms_form_submit($form, &$form_state) {
+
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
+
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
+  // Here we will loop through the profile files and run the data
+  // export if needed.
+  // The reason we are looping through the profile files is so that
+  // this module can be extended by the addition of profile .inc files.
+/*
+  $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
+  $mask = '.\.inc$';
+  $files = file_scan_directory($directory, $mask);
+
+  $dataset_files_created = array();
+  foreach ($files as $file) {
+
+    // Include the file.
+    include_once $file->filename;
+
+    $function_to_run = "data_export_import_" . $file->name . "_export_to_file";
+    $function_to_run($form_state, $dataset_files_created);
+  }
+
+*/
+  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+  data_export_import_taxonomy_terms_export_to_file($form_state, $dataset_files_created);
+  
+  drupal_set_message("The following dataset files were created:");
+
+  foreach ($dataset_files_created as $dataset_file_name) {
+    drupal_set_message($dataset_file_name);
+  }
+
+  return TRUE;
+}
+
+
+
+function data_export_import_import_taxonomy_terms_form_submit($form, &$form_state) {
+
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
+
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
+  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+  //module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
+
+  // Taxonomy terms.
+  if ($form_state['values']['taxonomy_terms'] != 'none') {
+
+    $result = data_export_import_import_taxonomy_terms($form_state['clicked_button']['#post']['taxonomy_terms']);
+    drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
+  }
+
+/*
+  // All content types.
+  if ($form_state['values']['all_content_types'] != 'none') {
+
+    $result = data_export_import_import_all_content_types($form_state['clicked_button']['#post']['all_content_types']);
+    drupal_set_message(t('The All Content Types dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['all_content_types'])));
+  }
+ */
+}
+
+
+
+
+
+
+
+
+
+/**
+ * Callback function for exporting datasets.
+ *
+ * @return string
+ *   Form to enable the user to select datasets for exporting.
+ */
 function data_export_import_callback_export() {
 
   // This form calls the form builder function via the
   // drupal_get_form() function which takes the name of this form builder
   // function as an argument. It returns the results to display the form.
+
   return drupal_get_form('data_export_import_export_form');
 }
 
@@ -129,6 +417,7 @@ function data_export_import_export_form($form_state) {
   $mask = '.\.inc$';
   $files = file_scan_directory($directory, $mask);
 
+
   foreach ($files as $file) {
 
     module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
@@ -136,7 +425,7 @@ function data_export_import_export_form($form_state) {
     $function_to_run = "data_export_import_" . $file->name . "_add_fieldset_to_export_form";
     $function_to_run($form);
   }
-
+  
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Create dataset files'),
