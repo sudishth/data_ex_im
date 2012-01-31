@@ -79,7 +79,7 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
   // request that the batch is processed.
   // NB - We need to be re-direct to another page otherwise the same page will
   // be called again.
-  batch_process('admin');
+  batch_process('admin/content/data_export_import/all_content_types');
 
 
   return TRUE;
@@ -434,7 +434,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 //    $node->value2 = $options2;
 //    node_save($node);
 
-//    sleep(1);
+    sleep(1);
 
     // Here we will output the node data to the file by appending a line to the
     // file.
