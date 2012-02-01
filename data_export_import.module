@@ -38,6 +38,12 @@ function data_export_import_perm() {
   return array('access data export import');
 }
 
+// Here we will include all the profile files.  These files should provide the
+// various functions and callback functions required.
+module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
+
+
 /**
  * Implements hook_menu().
  */
@@ -208,7 +214,7 @@ function data_export_import_export_taxonomy_terms_form($form_state) {
   // nodes of various content types.
   $form['#tree'] = TRUE;
 
-  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+  //module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
   data_export_import_taxonomy_terms_add_fieldset_to_export_form($form);
 
   $form['submit'] = array(
@@ -279,7 +285,7 @@ function data_export_import_export_all_content_types_form($form_state) {
   // nodes of various content types.
   $form['#tree'] = TRUE;
 
-  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
+//  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
   data_export_import_all_content_types_add_fieldset_to_export_form($form);
 
   $form['submit'] = array(
@@ -363,7 +369,7 @@ function data_export_import_export_taxonomy_terms_form_submit($form, &$form_stat
   // The reason we are looping through the profile files is so that
   // this module can be extended by the addition of profile .inc files.
 
-  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+//  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
   data_export_import_taxonomy_terms_export_to_file($form_state, $dataset_files_created);
   
   drupal_set_message("The following dataset files were created:");
@@ -387,7 +393,7 @@ function data_export_import_import_taxonomy_terms_form_submit($form, &$form_stat
     return TRUE;
   }
 
-  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
+//  module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
   //module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
 
   // Taxonomy terms.
@@ -423,7 +429,7 @@ function data_export_import_export_all_content_types_form_submit($form, &$form_s
   // The reason we are looping through the profile files is so that
   // this module can be extended by the addition of profile .inc files.
 
-  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
+//  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
   data_export_import_all_content_types_export_to_file($form_state, $dataset_files_created);
 
   drupal_set_message("The following dataset files were created:");
@@ -446,7 +452,7 @@ function data_export_import_import_all_content_types_form_submit($form, &$form_s
   }
 
   //module_load_include('inc', 'data_export_import', 'includes/profiles/taxonomy_terms');
-  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
+//  module_load_include('inc', 'data_export_import', 'includes/profiles/all_content_types');
 /*
   // Taxonomy terms.
   if ($form_state['values']['taxonomy_terms'] != 'none') {
@@ -473,6 +479,10 @@ function data_export_import_import_all_content_types_form_submit($form, &$form_s
 
 
 
+
+
+// NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB NB
+// FROM HERE IS NO LONGER NEEDED.
 
 
 

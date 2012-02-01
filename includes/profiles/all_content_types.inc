@@ -52,6 +52,14 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
     return TRUE;
   }
 
+  // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
+  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+
+
 
     // Adding in the extra values to the $batch variable.
   $batch['finished'] = 'data_export_import_batch_all_content_types_finished';
@@ -69,7 +77,42 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
   // Here we will build up the $batch object with the required operations.
   foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
 
-    $dataset_files_created[] = data_export_import_export_nodes_for_a_content_type($content_type, $batch);
+
+    // Here we will export the first line to the dataset file which will be the
+    // content type data.
+/*
+  // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
+  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+*/
+
+  // Get the filename we are going to save the data to.
+  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
+  $file_path_and_name = $dataset_directory . "/" . $file_name;
+
+  // And save the content type data to the file.
+  //data_export_import_batch_export_content_type_to_file($content_type, $file_path_and_name);
+
+      // Here we are getting all content types and selecting just the one
+  // we need - this seems to give more consistent results than just
+  // extracting the single node object.
+  $node_types = node_get_types();
+
+  // Add the content type details to the array.
+  // We are going to serialize the object here as it can then be
+  // unserialized on the import and checked.  The normal
+  // serialize/unserialize should cover this but the objects would not
+  // be counted as matching.  Possibly related to:
+  // https://bugs.php.net/bug.php?id=48016
+  $content_type_data_serialized = serialize($node_types[$content_type]);
+  file_save_data($content_type_data_serialized . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+
+// Now we will add an operation to the batch which will export all the nodes to
+  // to the data file.
+    $dataset_files_created[] = data_export_import_export_nodes_for_a_content_type($content_type, $file_path_and_name, $batch);
   }
 
   // This is the key function which will set the batch up to be processed.
@@ -106,8 +149,8 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
  * @return bool
  *   The filename of the datafile which was created.
  */
-function data_export_import_export_nodes_for_a_content_type($content_type, &$batch) {
-
+function data_export_import_export_nodes_for_a_content_type($content_type, $file_path_and_name, &$batch) {
+/*
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
   file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
@@ -118,7 +161,7 @@ function data_export_import_export_nodes_for_a_content_type($content_type, &$bat
   // Save the string as a file. This is the dataset data file.
   $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
   $file_path_and_name = $dataset_directory . "/" . $file_name;
-
+*/
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
@@ -161,7 +204,8 @@ function data_export_import_export_nodes_for_a_content_type($content_type, &$bat
     ),
   );
 */
-  $batch['operations'][] = array('data_export_import_batch_export_content_type_to_file', array($content_type, $file_path_and_name));
+
+  ////$batch['operations'][] = array('data_export_import_batch_export_content_type_to_file', array($content_type, $file_path_and_name));
   $batch['operations'][] = array('data_export_import_batch_export_nodes_to_file', array($content_type, $file_path_and_name));
 
 /*
@@ -289,8 +333,9 @@ function data_export_import_export_nodes_for_a_content_type($content_type, &$bat
 
 }
 
-
-function data_export_import_batch_export_content_type_to_file($content_type, $file_path_and_name, &$context) {
+/*
+//function data_export_import_batch_export_content_type_to_file($content_type, $file_path_and_name, &$context) {
+function data_export_import_batch_export_content_type_to_file($content_type, $file_path_and_name) {
 
     // Here we are getting all content types and selecting just the one
   // we need - this seems to give more consistent results than just
@@ -308,6 +353,7 @@ function data_export_import_batch_export_content_type_to_file($content_type, $fi
 
   
 }
+*/
 
 function data_export_import_batch_export_nodes_to_file($content_type, $file_path_and_name, &$context) {
   if (!isset($context['sandbox']['progress'])) {
@@ -434,7 +480,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 //    $node->value2 = $options2;
 //    node_save($node);
 
-    sleep(1);
+    //sleep(1);
 
     // Here we will output the node data to the file by appending a line to the
     // file.
