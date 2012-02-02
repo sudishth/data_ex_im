@@ -133,7 +133,7 @@ function data_export_import_menu() {
 
 
   
-
+/*
   // This 'tab' inherits from MENU_NORMAL_ITEM
   $items['admin/content/data_export_import/export'] = array(
     'title' => 'Export',
@@ -152,7 +152,7 @@ function data_export_import_menu() {
     'description' => 'Import dataset files',
     'type' => MENU_LOCAL_TASK,
   );
-
+*/
 
   return $items;
 }
