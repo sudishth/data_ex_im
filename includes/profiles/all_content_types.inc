@@ -210,9 +210,9 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 
     file_put_contents($file_path_and_name, $node_serialized_and_base64_encoded . "\n", FILE_APPEND | LOCK_EX);
 
-    // Store some result for post-processing in the finished
-    //callback.  We will use a trick by setting the key to be the file
-    //path so this array value will be set again and again.
+    // Store some result for post-processing in the finished callback.
+    // We will use a trick by setting the key to be the file path so
+    // this array value will be set again and again.
     $context['results'][$file_path_and_name] = basename($file_path_and_name);
 
     // Update our progress information.
