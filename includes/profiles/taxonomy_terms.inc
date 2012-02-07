@@ -23,6 +23,22 @@
  */
 
 /**
+ * Callback function to export taxonomy terms.
+ */
+function data_export_import_callback_export_taxonomy_terms() {
+
+  return drupal_get_form('data_export_import_export_taxonomy_terms_form');
+}
+
+/**
+ * Callback function to import taxonomy terms.
+ */
+function data_export_import_callback_import_taxonomy_terms() {
+
+  return drupal_get_form('data_export_import_import_taxonomy_terms_form');
+}
+
+/**
  * Add fieldset to the data export form.
  *
  */

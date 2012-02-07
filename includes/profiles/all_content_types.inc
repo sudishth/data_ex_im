@@ -8,6 +8,22 @@
  */
 
 /**
+ * Callback function to export all content types.
+ */
+function data_export_import_callback_export_all_content_types() {
+
+  return drupal_get_form('data_export_import_export_all_content_types_form');
+}
+
+/**
+ * Callback function to import all content types.
+ */
+function data_export_import_callback_import_all_content_types() {
+
+  return drupal_get_form('data_export_import_import_all_content_types_form');
+}
+
+/**
  * Add fieldset to the data export form.
  */
 function data_export_import_all_content_types_add_fieldset_to_export_form(&$form) {
