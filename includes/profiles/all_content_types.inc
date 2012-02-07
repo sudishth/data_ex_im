@@ -67,10 +67,10 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
 
   // Adding in the main values to the $batch variable.
   $batch['finished'] = 'data_export_import_batch_export_all_content_types_finished';
-  $batch['title'] = t('Processing Example batch');
-  $batch['init_message'] = t('Example batch is starting.');
+  $batch['title'] = t('Exporting nodes');
+  $batch['init_message'] = t('The exportation of nodes starting.');
   $batch['progress_message'] = t('Processed @current out of @total.');
-  $batch['error_message'] = t('Example Batch has encountered an error.');
+  $batch['error_message'] = t('Exporting nodes has encountered an error.');
   $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
 
   // We can loop through which content types need to be exported.
@@ -169,8 +169,8 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
         foreach ($node_field_value as $file_detail_key => $file_details_value) {
 
           // This looks for the correct type of value and if there is
-          // a setting for fid, filename, filepath set then we will assume this
-          // is a field of file(s) attached via CCK.
+          // a setting for fid, filename, filepath set then we will
+          // assume this is a field of file(s) attached via CCK.
           if (is_array($file_details_value) && isset($file_details_value['fid']) && isset($file_details_value['filename']) &&isset($file_details_value['filepath'])) {
 
             // Get the file data in a serialized format and attach this as data
@@ -194,15 +194,16 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 
     file_put_contents($file_path_and_name, $node_serialized_and_base64_encoded . "\n", FILE_APPEND | LOCK_EX);
 
-    // Store some result for post-processing in the finished callback.
-    $context['results'][] = check_plain($node->title);
+    // Store some result for post-processing in the finished
+    //callback.  We will use a trick by setting the key to be the file
+    //path so this array value will be set again and again.
+    $context['results'][$file_path_and_name] = basename($file_path_and_name);
 
     // Update our progress information.
     $context['sandbox']['progress']++;
     $context['sandbox']['current_node'] = $node->nid;
     $context['message'] = t('Now processing %node', array('%node' => $node->title));
   }
-
 
   // Inform the batch engine that we are not finished, and provide an
   // estimation of the completion level we reached.
@@ -211,7 +212,6 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
   }
 }
 
-
 /**
  * Batch 'finished' callback
  */
@@ -219,13 +219,13 @@ function data_export_import_batch_export_all_content_types_finished($success, $r
   if ($success) {
 
     // Here we do something meaningful with the results.
-    $message = count($results) . ' processed.';
+    $message = "The following dataset files were created:";
     $message .= theme('item_list', $results);
   }
   else {
 
-    // An error occurred.
-    // $operations contains the operations that remained unprocessed.
+    // An error occurred. $operations contains the operations that
+    // remained unprocessed.
     $error_operation = reset($operations);
     $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
   }
@@ -346,7 +346,7 @@ function data_export_import_import_all_content_types($file) {
   // the file.
   $batch = array(
     'operations' => array(
-      array('data_export_import_batch_import_dataset_lines', array($file_path, $options2)),
+      array('data_export_import_batch_import_dataset_lines', array($file_path)),
     ),
     'finished' => 'data_export_import_batch_import_dataset_lines_finished',
     'title' => t('Processing Import of nodes from file Batch'),
@@ -363,7 +363,6 @@ function data_export_import_import_all_content_types($file) {
   batch_process('admin/content/data_export_import/all_content_types/import');
 
   return TRUE;
-
 }
 
 /**
@@ -380,7 +379,7 @@ function data_export_import_import_all_content_types($file) {
  * @return bool
  *   TRUE if the address is in a valid format, and FALSE if it isn't.
  */
-function data_export_import_batch_import_dataset_lines($file_path, $options2, &$context) {
+function data_export_import_batch_import_dataset_lines($file_path, &$context) {
   if (!isset($context['sandbox']['progress'])) {
 
     $context['sandbox']['progress'] = 0;
@@ -662,6 +661,8 @@ function data_export_import_batch_import_dataset_lines($file_path, $options2, &$
 
   $context['sandbox']['progress']++;
 
+  $context['results'][$file_path] = basename($file_path);
+
   // Retain current file pointer position.
   $context['sandbox']['file_pointer_position'] = ftell($file_handle);
 
@@ -677,16 +678,19 @@ function data_export_import_batch_import_dataset_lines($file_path, $options2, &$
  */
 function data_export_import_batch_import_dataset_lines_finished($success, $results, $operations) {
   if ($success) {
+
     // Here we do something meaningful with the results.
-    $message = count($results) . ' processed.';
+    $message = "The following file was imported:";
     $message .= theme('item_list', $results);
   }
   else {
+
     // An error occurred.
     // $operations contains the operations that remained unprocessed.
     $error_operation = reset($operations);
     $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
   }
+
   drupal_set_message($message);
 }
 
