@@ -44,7 +44,7 @@ function data_export_import_all_content_types_add_fieldset_to_export_form(&$form
  *   Current values held in the form.
  *
  * @param array $dataset_files_created
- *  Array to hold the name of the dataset file created by this function.
+ *   Array to hold the name of the dataset file created by this function.
  *
  * @return bool
  *   TRUE if all ran OK.
@@ -130,7 +130,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     $context['sandbox']['current_node'] = 0;
     $context['sandbox']['max'] = db_result(db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = '%s'", $content_type));
   }
-  
+
   // We will set this to make one pass at a time to limit timeouts.
   $limit = 1;
 
@@ -219,7 +219,7 @@ function data_export_import_batch_export_all_content_types_finished($success, $r
   if ($success) {
 
     // Here we do something meaningful with the results.
-    $message = count($results) .' processed.';
+    $message = count($results) . ' processed.';
     $message .= theme('item_list', $results);
   }
   else {
@@ -297,10 +297,6 @@ function data_export_import_import_all_content_types($file) {
     drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
     return;
   }
-  else {
-
-    drupal_set_message('Content types match OK');
-  }
 
   // Loop through all the lines in the file and put the nid's into an array.
   // Then loop through all the current nodes (in the receiving instance)
@@ -310,7 +306,7 @@ function data_export_import_import_all_content_types($file) {
   $line_number = 0;
   $handle = fopen($file_path, "r");
   if ($handle) {
-    while (($buffer = fgets($handle)) !== false) {
+    while (($buffer = fgets($handle)) !== FALSE) {
 
       $line_number++;
       if ($line_number > 1) {
@@ -339,7 +335,6 @@ function data_export_import_import_all_content_types($file) {
 
       // Delete node as it does not exist in the dataset being
       // imported.
-      drupal_set_message("We would delete node:" . $nid);
       node_delete($nid);
     }
   }
@@ -382,7 +377,7 @@ function data_export_import_import_all_content_types($file) {
  * @param string $file_path
  *   File being processed.
  *
- * @return
+ * @return bool
  *   TRUE if the address is in a valid format, and FALSE if it isn't.
  */
 function data_export_import_batch_import_dataset_lines($file_path, $options2, &$context) {
@@ -395,7 +390,7 @@ function data_export_import_batch_import_dataset_lines($file_path, $options2, &$
     $handle = fopen($file_path, "r");
 
     if ($handle) {
-      while (($buffer = fgets($handle)) !== false) {
+      while (($buffer = fgets($handle)) !== FALSE) {
 
         $line_count++;
       }
@@ -422,7 +417,7 @@ function data_export_import_batch_import_dataset_lines($file_path, $options2, &$
 
   // The first line in the dataset file is a the content type data -
   // so we will ignore that line.
-  if($context['sandbox']['progress'] != 0) {
+  if ($context['sandbox']['progress'] != 0) {
 
     $dataset_node = unserialize(base64_decode($line_from_file));
 
@@ -683,7 +678,7 @@ function data_export_import_batch_import_dataset_lines($file_path, $options2, &$
 function data_export_import_batch_import_dataset_lines_finished($success, $results, $operations) {
   if ($success) {
     // Here we do something meaningful with the results.
-    $message = count($results) .' processed.';
+    $message = count($results) . ' processed.';
     $message .= theme('item_list', $results);
   }
   else {
