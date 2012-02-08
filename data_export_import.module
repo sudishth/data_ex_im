@@ -21,9 +21,9 @@
 $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
 $mask = '.\.inc$';
 $files = file_scan_directory($directory, $mask);
- 
+
 foreach ($files as $file) {
- 
+
   module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
 }
 
@@ -77,9 +77,9 @@ function data_export_import_menu() {
   $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
   $mask = '.\.inc$';
   $files = file_scan_directory($directory, $mask);
- 
+
   foreach ($files as $file) {
- 
+
     module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
 
     $function_to_run = "data_export_import_" . $file->name . "_add_items_to_menu";

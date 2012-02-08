@@ -166,10 +166,10 @@ function data_export_import_export_all_content_types_form_submit($form, &$form_s
 
   data_export_import_all_content_types_export_to_file($form_state, $dataset_files_created);
 
-  drupal_set_message("The following dataset files were created:");
+  drupal_set_message(t("The following dataset files were created:"));
 
   foreach ($dataset_files_created as $dataset_file_name) {
-    drupal_set_message($dataset_file_name);
+    drupal_set_message(check_plain($dataset_file_name));
   }
 
   return TRUE;
