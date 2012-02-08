@@ -8,6 +8,40 @@
  */
 
 /**
+ * Function to add items to the main menu.
+ */
+function data_export_import_all_content_types_add_items_to_menu(&$items) {
+
+  // Tabs for all_content_types
+  $items['admin/content/data_export_import/all_content_types'] = array(
+    'title' => 'Content types',
+    'page callback' => 'data_export_import_callback_export_all_content_types',
+    'access arguments' => array('access data export import'),
+    'weight' => 21,
+    'description' => 'Export All Content Types',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/all_content_types/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_all_content_types',
+    'access arguments' => array('access data export import'),
+    'weight' => 22,
+    'description' => 'Export All Content Types',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/all_content_types/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_all_content_types',
+    'access arguments' => array('access data export import'),
+    'weight' => 23,
+    'description' => 'Import Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
+}
+
+/**
  * Callback function to export all content types.
  */
 function data_export_import_callback_export_all_content_types() {
@@ -21,6 +55,76 @@ function data_export_import_callback_export_all_content_types() {
 function data_export_import_callback_import_all_content_types() {
 
   return drupal_get_form('data_export_import_import_all_content_types_form');
+}
+
+/**
+ * Function to create form to export all content types.
+ */
+function data_export_import_export_all_content_types_form($form_state) {
+
+  $form = array();
+
+  // This stops the values being posted from being flattened into a
+  // single level array.  It might be easier to extract the
+  // information from a non-flattened array.
+  $form['#tree'] = TRUE;
+
+  data_export_import_all_content_types_add_fieldset_to_export_form($form);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create dataset files'),
+  );
+
+  return $form;
+}
+
+/**
+ * Function to create form to import all content types.
+ */
+function data_export_import_import_all_content_types_form($form_state) {
+
+  $form = array();
+
+  $form['all_content_types'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('All Content Types'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Get the contents of the dataset directory and create a list of
+  // links to dataset files.
+  $directory = file_directory_path() . "/data_export_import/all_content_types";
+
+  $mask = '.dataset';
+  $files = file_scan_directory($directory, $mask);
+
+  // Sort them by the filename which is used as the key.  Since the
+  // files are named using datetime stamps they will be listed in
+  // date/time order.
+  ksort($files);
+
+  $options = array();
+  $options['none'] = "None";
+  foreach ($files as $file) {
+
+    $options[$file->basename] = check_plain($file->basename);
+  }
+
+  $form['all_content_types']['all_content_types'] = array(
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Import dataset files',
+  );
+
+  return $form;
 }
 
 /**
@@ -44,6 +148,50 @@ function data_export_import_all_content_types_add_fieldset_to_export_form(&$form
     $form['all_content_types'][$node_type_type] = array(
       '#type' => 'checkbox',
       '#title' => check_plain($node_type_name), );
+  }
+}
+
+/**
+ * Function to process form to export all content types.
+ */
+function data_export_import_export_all_content_types_form_submit($form, &$form_state) {
+
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
+
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
+  data_export_import_all_content_types_export_to_file($form_state, $dataset_files_created);
+
+  drupal_set_message("The following dataset files were created:");
+
+  foreach ($dataset_files_created as $dataset_file_name) {
+    drupal_set_message($dataset_file_name);
+  }
+
+  return TRUE;
+}
+
+/**
+ * Function to process form to import all content types.
+ */
+function data_export_import_import_all_content_types_form_submit($form, &$form_state) {
+
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
+
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
+  if ($form_state['values']['all_content_types'] != 'none') {
+
+    $result = data_export_import_import_all_content_types($form_state['clicked_button']['#post']['all_content_types']);
+    drupal_set_message(t('The All Content Types dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['all_content_types'])));
   }
 }
 
