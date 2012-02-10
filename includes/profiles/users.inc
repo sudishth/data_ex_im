@@ -176,8 +176,8 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
   if ($form_state['values']['users'] != 'none') {
 
     drupal_set_message("stub for importing users...");
-    // $result = data_export_import_import_users($form_state['clicked_button']['#post']['users']);
-    // drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
+    $result = data_export_import_import_users($form_state['clicked_button']['#post']['users']);
+    drupal_set_message(t('The Users dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])));
 
     }
 }
@@ -298,16 +298,25 @@ function data_export_import_export_users() {
  * @return bool
  *   TRUE if the import process ran without errors.
  */
-/*
-function data_export_import_import_taxonomy_terms($file) {
 
-  // @todo Need to add a check that the file exists and handle the error.
-  // *
+function data_export_import_import_users($file) {
+
+
+  // @todo - we need to check that the roles on the receiving instance are the
+  // same as the roles on the exporting instance.
+
+  drupal_set_message("in fcuntion to process the file: " . $file);
+  //return;
+
   // Load the dataset file into a variable.
-  $file_content = file_get_contents(file_directory_path() . "/data_export_import/taxonomy_terms/" . $file);
+  $file_content = file_get_contents(file_directory_path() . "/data_export_import/users/" . $file);
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
+
+  $a = 1;
+
+  /* HERE HERE HEREThis should be changed to roles.
 
   // This will check that the vocabularies in the dataset file all
   // exist in the receiving instance and are an exact match.
@@ -349,6 +358,10 @@ function data_export_import_import_taxonomy_terms($file) {
       return;
     }
   }
+  */
+
+  /* HERE HERE HERE we will change this to loop through the existing users.
+
 
   // Here we will loop through the vocabulary terms in the receiving
   // instance.  For each term we will look into the dataset being
@@ -518,13 +531,17 @@ function data_export_import_import_taxonomy_terms($file) {
       }
     }
   }
+  */
 
+  /* HERE HERE HERE Need to check for users
   // Here we will pick up if the file contains no taxonomy terms.
   // if (count($file_content_as_array['vocabulary_terms']) == 0) {
   if (empty($file_content_as_array['vocabulary_terms'])) {
     return;
   }
+  */
 
+  /* HERE HERE HERE we will import/update the users from the datasert file...
   // Loop through the terms in the dataset being imported and if they
   // don't exist in the receiving instance then we will create them.
   foreach ($file_content_as_array['vocabulary_terms'] as $vid => $vocabulary_from_dataset) {
@@ -591,9 +608,9 @@ function data_export_import_import_taxonomy_terms($file) {
   foreach ($vocabularies_array as $vocabulary) {
     data_export_import_reset_taxonomy_vocabulary_hierarchy($vocabulary->vid);
   }
-
+  */
 }
-*/
+
 
 /**
  * This resets the value of the hierarchy field for the vocabulary.
