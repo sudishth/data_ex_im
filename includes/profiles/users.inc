@@ -316,21 +316,11 @@ function data_export_import_import_users($file) {
     }
   }
 
-
   // Here we will loop through the users in the receiving
-  // instance.  For each user we will look into the dataset being
-  // imported.  If the user exists in the imported dataset then we
-  // will check to see if it matches and update it if needed - if it does not
+  // instance.  For each user we will look into the dataset file being
+  // imported.  If the user exists in the dataset file then we
+  // will check to see if it matches and update it if it doesn't - if it does not
   // exist then we will delete it.
-
-  // HERE HERE HERE
-  /*
-  foreach ($user as $thing) {
-
-    $a=1;
-  }
-  */
-
   $result = db_query("SELECT uid FROM {users}");
   while ($user = db_fetch_object($result)) {
 
@@ -358,27 +348,36 @@ function data_export_import_import_users($file) {
 
       // Else if it does see if it is the same and if not then update the current
       // user with the data from the dataset file.
+      $current_user = user_load($user->uid);
+      $user_from_dataset_file = $file_content_as_array['users'][$user->uid];
+      if ($current_user != $user_from_dataset_file) {
 
-
-      // first off put them into separate objects to make them easier to debug.
-      if (user_load($user->uid) != $file_content_as_array['users'][$user->uid]) {
-
-        // HERE HERE HERE Current user needs to be updated from the dataset file
-        // to be updated.
-        $a = 1;
-      }
-
-      $a = 1;
-
+        // Current user needs to be updated from the dataset file.
+        user_save((object) array('uid' => $user_from_dataset_file->uid), (array) $user_from_dataset_file);
+        }
     }
   }
 
-  return;
-
-  // HERE HERE HERE HERE
   // Here we will loop through all of the users in the dataset file and create
   // any users which are in the dataset file but not in the current users.
+  foreach( $file_content_as_array['users'] as $dataset_file_user_value) {
+    
+    if (!user_load($dataset_file_user_value->uid)) {
 
+        
+        // HERE HERE HERE - password needs to be saved correctly.
+        // As the password has been exported in encrypted format we will need to dave the password 
+        // without it being re-encrypted.
+        // $dataset_file_user_value->pass = $dataset_file_user_value->pass;
+        
+        user_save(null, (array) $dataset_file_user_value);
+        
+        // HERE HERE HERE
+        // Possibly we should use SQL to update the database directly with the password as it was exported.
+    }
+  } 
+  
+  
 
 }
 
