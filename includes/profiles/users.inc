@@ -306,7 +306,7 @@ function data_export_import_import_users($file) {
     // Ignore the anonymous and default admin users.
     if ($user->uid == 0 || $user->uid == 1) {
 
-      // Go to the start of the while loop
+      // Go to the start of the while loop.
       continue;
     }
 
@@ -318,10 +318,10 @@ function data_export_import_import_users($file) {
       // match the list in the dataset.  The current user could well be a test
       // user which was created during development.
       user_delete(array(), $user->uid);
-    } 
+    }
     else {
 
-      // Else if it does see if it is the same and if not then update the 
+      // Else if it does see if it is the same and if not then update the
       // current user with the data from the dataset file.
       $current_user = user_load($user->uid);
       $user_from_dataset_file = $file_content_as_array['users'][$user->uid];
@@ -330,7 +330,7 @@ function data_export_import_import_users($file) {
         // Current user needs to be updated from the dataset file.
         user_save((object) array('uid' => $user_from_dataset_file->uid), (array) $user_from_dataset_file);
 
-        // Here we will update the password to match what the was originally 
+        // Here we will update the password to match what the was originally
         // output.
         $sql_statement = "UPDATE {users} SET pass= '" . $user_from_dataset_file->pass . "' WHERE uid = " . $user_from_dataset_file->uid;
         update_sql($sql_statement);
@@ -346,7 +346,7 @@ function data_export_import_import_users($file) {
 
       user_save(NULL, (array) $dataset_file_user_value);
 
-      // Here we will update the password to match what the was originally 
+      // Here we will update the password to match what the was originally
       // output.
       $sql_statement = "UPDATE {users} SET pass= '" . $dataset_file_user_value->pass . "' WHERE uid = " . $dataset_file_user_value->uid;
       update_sql($sql_statement);
