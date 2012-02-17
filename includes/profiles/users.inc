@@ -12,30 +12,30 @@
 function data_export_import_users_add_items_to_menu(&$items) {
 
   $items['admin/content/data_export_import/users'] = array(
-      'title' => 'Users',
-      'page callback' => 'data_export_import_callback_export_users',
-      'access arguments' => array('access data export import'),
-      'weight' => 1,
-      'description' => 'Export Users',
-      'type' => MENU_LOCAL_TASK,
+    'title' => 'Users',
+    'page callback' => 'data_export_import_callback_export_users',
+    'access arguments' => array('access data export import'),
+    'weight' => 1,
+    'description' => 'Export Users',
+    'type' => MENU_LOCAL_TASK,
   );
 
   $items['admin/content/data_export_import/users/export'] = array(
-      'title' => 'Export',
-      'page callback' => 'data_export_import_callback_export_users',
-      'access arguments' => array('access data export import'),
-      'weight' => 2,
-      'description' => 'Export Users',
-      'type' => MENU_DEFAULT_LOCAL_TASK,
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_users',
+    'access arguments' => array('access data export import'),
+    'weight' => 2,
+    'description' => 'Export Users',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   $items['admin/content/data_export_import/users/import'] = array(
-      'title' => 'Import',
-      'page callback' => 'data_export_import_callback_import_users',
-      'access arguments' => array('access data export import'),
-      'weight' => 3,
-      'description' => 'Import Users',
-      'type' => MENU_LOCAL_TASK,
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_users',
+    'access arguments' => array('access data export import'),
+    'weight' => 3,
+    'description' => 'Import Users',
+    'type' => MENU_LOCAL_TASK,
   );
 }
 
@@ -68,18 +68,18 @@ function data_export_import_export_users_form($form_state) {
   $form['#tree'] = TRUE;
 
   $form['users'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Users'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,);
+    '#type' => 'fieldset',
+    '#title' => t('Users'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,);
 
   $form['users']['users'] = array(
-      '#type' => 'checkbox',
-      '#title' => 'Export all Users',);
+    '#type' => 'checkbox',
+    '#title' => 'Export all Users',);
 
   $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Create dataset file'),
+    '#type' => 'submit',
+    '#value' => t('Create dataset file'),
   );
 
   return $form;
@@ -93,10 +93,10 @@ function data_export_import_import_users_form($form_state) {
   $form = array();
 
   $form['users'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Users'),
-      '#collapsible' => TRUE,
-      '#collapsed' => FALSE,
+    '#type' => 'fieldset',
+    '#title' => t('Users'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
   );
 
   // Get the contents of the dataset directory and create a list of
@@ -118,15 +118,15 @@ function data_export_import_import_users_form($form_state) {
   }
 
   $form['users']['users'] = array(
-      '#type' => 'radios',
-      '#title' => t('Please select file to import'),
-      '#default_value' => 'none',
-      '#options' => $options,
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
   );
 
   $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => 'Import dataset files',
+    '#type' => 'submit',
+    '#value' => 'Import dataset files',
   );
 
   return $form;
@@ -138,7 +138,7 @@ function data_export_import_import_users_form($form_state) {
 function data_export_import_export_users_form_submit($form, &$form_state) {
 
   // This is the function which will carry out the exporting of the
-  //users to a dataset file.
+  // users to a dataset file.
   data_export_import_export_users_to_file($form_state, $dataset_files_created);
 
   drupal_set_message(t("The following dataset files were created:"));
@@ -288,18 +288,18 @@ function data_export_import_import_users($file) {
 
       drupal_set_message(t('The receiving instance does not have a role with ID of %id and name of %name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value)));
       return;
-    } elseif ($current_roles[$dataset_role_key] != $dataset_role_value) {
+    }
+    elseif ($current_roles[$dataset_role_key] != $dataset_role_value) {
 
       drupal_set_message(t('The dataset contains a role with ID of %id and name of %name but the current role with that ID has a name of %current_role_name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value, '%current_role_name' => $current_roles[$dataset_role_key])));
       return;
     }
   }
 
-  // Here we will loop through the users in the receiving
-  // instance.  For each user we will look into the dataset file being
-  // imported.  If the user exists in the dataset file then we
-  // will check to see if it matches and update it if it doesn't - if it does not
-  // exist then we will delete it.
+  // Here we will loop through the users in the receiving instance.  For each
+  // user we will look into the dataset file being imported.  If the user exists
+  // in the dataset file then we will check to see if it matches and update it
+  // if it doesn't - if it does not exist then we will delete it.
   $result = db_query("SELECT uid FROM {users}");
   while ($user = db_fetch_object($result)) {
 
@@ -318,10 +318,11 @@ function data_export_import_import_users($file) {
       // match the list in the dataset.  The current user could well be a test
       // user which was created during development.
       user_delete(array(), $user->uid);
-    } else {
+    } 
+    else {
 
-      // Else if it does see if it is the same and if not then update the current
-      // user with the data from the dataset file.
+      // Else if it does see if it is the same and if not then update the 
+      // current user with the data from the dataset file.
       $current_user = user_load($user->uid);
       $user_from_dataset_file = $file_content_as_array['users'][$user->uid];
       if ($current_user != $user_from_dataset_file) {
@@ -329,7 +330,8 @@ function data_export_import_import_users($file) {
         // Current user needs to be updated from the dataset file.
         user_save((object) array('uid' => $user_from_dataset_file->uid), (array) $user_from_dataset_file);
 
-        // Here we will update the password to match what the was originally output.
+        // Here we will update the password to match what the was originally 
+        // output.
         $sql_statement = "UPDATE {users} SET pass= '" . $user_from_dataset_file->pass . "' WHERE uid = " . $user_from_dataset_file->uid;
         update_sql($sql_statement);
       }
@@ -342,9 +344,10 @@ function data_export_import_import_users($file) {
 
     if (!user_load($dataset_file_user_value->uid)) {
 
-      user_save(null, (array) $dataset_file_user_value);
+      user_save(NULL, (array) $dataset_file_user_value);
 
-      // Here we will update the password to match what the was originally output.
+      // Here we will update the password to match what the was originally 
+      // output.
       $sql_statement = "UPDATE {users} SET pass= '" . $dataset_file_user_value->pass . "' WHERE uid = " . $dataset_file_user_value->uid;
       update_sql($sql_statement);
     }
