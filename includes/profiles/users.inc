@@ -354,6 +354,10 @@ function data_export_import_import_users($file) {
 
         // Current user needs to be updated from the dataset file.
         user_save((object) array('uid' => $user_from_dataset_file->uid), (array) $user_from_dataset_file);
+
+        // Here we will update the password to match what the was originally output.
+        $sql_statement = "UPDATE {users} SET pass= '" . $user_from_dataset_file->pass . "' WHERE uid = " . $user_from_dataset_file->uid;
+        update_sql($sql_statement);
         }
     }
   }
@@ -372,13 +376,11 @@ function data_export_import_import_users($file) {
         
         user_save(null, (array) $dataset_file_user_value);
         
-        // HERE HERE HERE
-        // Possibly we should use SQL to update the database directly with the password as it was exported.
+        // Here we will update the password to match what the was originally output.
+        $sql_statement = "UPDATE {users} SET pass= '" . $dataset_file_user_value->pass . "' WHERE uid = " . $dataset_file_user_value->uid;
+        update_sql($sql_statement);
     }
   } 
-  
-  
-
 }
 
 
