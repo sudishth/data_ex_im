@@ -69,7 +69,7 @@ function data_export_import_export_users_form($form_state) {
 
   $form['users'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Users'),
+    '#title' => t('Options'),
     '#collapsible' => TRUE,
     '#collapsed' => FALSE,);
 
@@ -137,15 +137,19 @@ function data_export_import_import_users_form($form_state) {
  */
 function data_export_import_export_users_form_submit($form, &$form_state) {
 
+  // Check that the check box has been ticked.
+  if ($form_state['clicked_button']['#post']['users']['users'] != 1) {
+
+    drupal_set_message(t("No option was selected."));
+    return TRUE;
+  }
+
   // This is the function which will carry out the exporting of the
   // users to a dataset file.
-  data_export_import_export_users_to_file($form_state, $dataset_files_created);
+  $dataset_file_created = data_export_import_export_users_to_file();
 
-  drupal_set_message(t("The following dataset files were created:"));
-
-  foreach ($dataset_files_created as $dataset_file_name) {
-    drupal_set_message(check_plain($dataset_file_name));
-  }
+  drupal_set_message(t("The following dataset file was created:"));
+  drupal_set_message(check_plain($dataset_file_created));
 
   return TRUE;
 }
@@ -166,15 +170,7 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
  * Export the required dataset file.
  *
  */
-function data_export_import_export_users_to_file($form_state, &$dataset_files_created) {
-
-  // Check that the check box has been ticked.
-  if ($form_state['clicked_button']['#post']['users']['users'] != 1) {
-
-    // $dataset_files_created[] = data_export_import_export_users();
-    drupal_set_message(t("Please tick the box to confirm the data export."));
-    return TRUE;
-  }
+function data_export_import_export_users_to_file() {
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
@@ -213,9 +209,7 @@ function data_export_import_export_users_to_file($form_state, &$dataset_files_cr
 
   file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
 
-  $dataset_files_created[] = $file_name;
-
-  return TRUE;
+  return $file_name;
 }
 
 /**

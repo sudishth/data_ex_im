@@ -178,14 +178,17 @@ function drush_dei_export($profile) {
     case 'terms':
       $msg = "terms option was selected.";
   
-      $msg = "The dataset file was created: " . data_export_import_export_taxonomy_terms();
+      $msg = data_export_import_export_taxonomy_terms();
       break;
+
     case 'users':
-      $msg = "users option was selected.";
+      $msg = data_export_import_export_users_to_file();
       break;
+
     case 'all_content_types':
       $msg = "all_content_types option was selected.";
       break;
+
     default:
       $msg = "No valid argument was supplied.";
   }
