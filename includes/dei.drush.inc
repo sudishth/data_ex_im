@@ -2,31 +2,17 @@
 
 /**
  * @file
- *   Example drush command.
+ *   This file defines the Data Export Import module drush commands.
  *
- *   To run this *fun* command, execute `sudo drush --include=./examples mmas`
- *   from within your drush directory.
- *
- *   See `drush topic docs-commands` for more information about command authoring. 
- *
- *   You can copy this file to any of the following
- *     1. A .drush folder in your HOME folder.
- *     2. Anywhere in a folder tree below an active module on your site.
- *     3. /usr/share/drush/commands (configurable)
- *     4. In an arbitrary folder specified with the --include option.
+ *   To find out how to use the command run `drush help dei-export`
+ *   to see the command options.
  */
 
 /**
  * Implementation of hook_drush_command().
  *
- * In this hook, you specify which commands your
- * drush module makes available, what it does and
- * description.
- *
- * Notice how this structure closely resembles how
- * you define menu hooks.
- *
- * See `drush topic docs-commands` for a list of recognized keys.
+ * This function specifies which commands the drush module has made
+ * available. 
  *
  * @return
  *   An associative array describing your command(s).
@@ -34,41 +20,22 @@
 function dei_drush_command() {
   $items = array();
 
-  /*
-  // The 'make-me-a-sandwich' command
-  $items['make-me-a-sandwich'] = array(
-    'description' => "Makes a delicious sandwich.",
-    'arguments' => array(
-      'filling' => 'The type of the sandwich (turkey, cheese, etc.)',
-    ),
-    'options' => array(
-      'spreads' => 'Comma delimited list of spreads (e.g. mayonnaise, mustard)',
-    ),
-    'examples' => array(
-      'drush mmas turkey --spreads=ketchup,mustard' => 'Make a terrible-tasting sandwich that is lacking in pickles.',
-    ),
-    'aliases' => array('mmas'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH, // No bootstrap at all.
-  );
-  */
-
-  // The 'make-me-a-sandwich' command
+  // The 'dei-export' command
   $items['dei-export'] = array(
-    'description' => "Makes a delicious sandwich.",
+    'description' => "Exports Data Export Import profiles.",
     'arguments' => array(
-      'filling' => 'The type of the sandwich (turkey, cheese, etc.)',
+      'profile' => 'The type of dataset profile.',
     ),
     'options' => array(
-      'spreads' => 'Comma delimited list of spreads (e.g. mayonnaise, mustard)',
+      'options' => 'List of comma separated options to supply to the command.',
     ),
     'examples' => array(
-      'drush mmas turkey --spreads=ketchup,mustard' => 'Make a terrible-tasting sandwich that is lacking in pickles.',
+      'drush dei-export terms' => 'Export taxonomy terms to a file.',
     ),
-    'aliases' => array('mmas'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL, // No bootstrap at all.
+    'aliases' => array('dei-ex'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
 
-  
   // Commandfiles may also add topics.  These will appear in
   // the list of topics when `drush topic` is executed.
   // To view this topic, run `drush --include=/full/path/to/examples topic`
@@ -90,7 +57,7 @@ function dei_drush_command() {
  * Implementation of hook_drush_help().
  *
  * This function is called whenever a drush user calls
- * 'drush help <name-of-your-command>'. This hook is optional. If a command
+ * 'drush help '. This hook is optional. If a command
  * does not implement this hook, the command's description is used instead.
  *
  * This hook is also used to look up help metadata, such as help
@@ -103,28 +70,40 @@ function dei_drush_command() {
  *   A string with the help text for your command.
  */
 function dei_drush_help($section) {
+
   switch ($section) {
+
     case 'drush:dei-export':
-      return dt("This command will make you a delicious sandwich, just how you like it.");
-    // The 'title' meta item is used to name a group of
-    // commands in `drush help`.  If a title is not defined,
-    // the default is "All commands in ___", with the
-    // specific name of the commandfile (e.g. sandwich).
-    // Command files with less than four commands will 
-    // be placed in the "Other commands" section, _unless_
-    // they define a title.  It is therefore preferable
-    // to not define a title unless the file defines a lot
-    // of commands.
+ 
+      return dt("This command will export a dataset profile to a data file.");
+
+    case 'drush:dei-import':
+ 
+      return dt("This command will import a dataset file.");
+
+
+      // The 'title' meta item is used to name a group of
+      // commands in `drush help`.  If a title is not defined,
+      // the default is "All commands in ___", with the
+      // specific name of the commandfile (e.g. sandwich).
+      // Command files with less than four commands will 
+      // be placed in the "Other commands" section, _unless_
+      // they define a title.  It is therefore preferable
+      // to not define a title unless the file defines a lot
+      // of commands.
+
     case 'meta:dei:title':
-      return dt("Sandwich commands");
-    // The 'summary' meta item is displayed in `drush help --filter`,
-    // and is used to give a general idea what the commands in this
-    // command file do, and what they have in common.
+
+      return dt("Data Export Import commands");
+      // The 'summary' meta item is displayed in `drush help --filter`,
+      // and is used to give a general idea what the commands in this
+      // command file do, and what they have in common.
+
     case 'meta:dei:summary':
-      return dt("Automates your sandwich-making business workflows.");
+
+      return dt("Drush commands to carry out functions of the Data Export Import module.");
   }
 }
- 
 
 /**
  * Implementation of drush_hook_COMMAND_validate().
@@ -170,23 +149,42 @@ function drush_dei_make_me_a_sandwich_validate() {
  * @see drush_invoke()
  * @see drush.api.php
  */
-//function drush_dei_export($filling = 'ascii') {
 function drush_dei_export($profile) {
 
   // NB - Here we need to get the options from the profile files.
   switch ($profile) {
+
     case 'terms':
-      $msg = "terms option was selected.";
-  
+
       $msg = data_export_import_export_taxonomy_terms();
       break;
 
     case 'users':
+
       $msg = data_export_import_export_users_to_file();
       break;
 
-    case 'all_content_types':
-      $msg = "all_content_types option was selected.";
+    case 'nodes':
+
+      $msg = "nodes option was selected.";
+/*
+      $str_spreads = '';
+      if ($spreads = drush_get_option('content-types')) {
+        $list = implode(' and ', explode(',', $spreads));
+        $str_spreads = ' spreads options ' . $list;
+      }
+
+      $msg = $msg . $str_spreads;
+
+      $spreads = array('page', 'ct1');
+*/
+
+      $list_of_content_types = drush_get_option('content-types');
+      $array_of_content_types = explode(',', $list_of_content_types);
+
+      data_export_import_all_content_types_export_to_file_using_drush($array_of_content_types);
+      $msg = "drush msg";
+
       break;
 
     default:
@@ -195,8 +193,6 @@ function drush_dei_export($profile) {
 
   drush_print($msg);
   return;
-
-
 
   $str_spreads = '';
   if ($spreads = drush_get_option('spreads')) {

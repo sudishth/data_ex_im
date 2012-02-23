@@ -164,14 +164,15 @@ function data_export_import_export_all_content_types_form_submit($form, &$form_s
     return TRUE;
   }
 
-  data_export_import_all_content_types_export_to_file($form_state, $dataset_files_created);
+  data_export_import_all_content_types_export_to_file($form_state);
 
+  /*
   drupal_set_message(t("The following dataset files were created:"));
 
   foreach ($dataset_files_created as $dataset_file_name) {
     drupal_set_message(check_plain($dataset_file_name));
   }
-
+  */
   return TRUE;
 }
 
@@ -213,7 +214,7 @@ function data_export_import_import_all_content_types_form_submit($form, &$form_s
  * @return bool
  *   TRUE if all ran OK.
  */
-function data_export_import_all_content_types_export_to_file($form_state, &$dataset_files_created) {
+function data_export_import_all_content_types_export_to_file($form_state) {
 
   // See if any content types were selected - if none then exit out
   // gracefully.
@@ -230,6 +231,7 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
   file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
   // Adding in the main values to the $batch variable.
+  $batch = array();
   $batch['finished'] = 'data_export_import_batch_export_all_content_types_finished';
   $batch['title'] = t('Exporting nodes');
   $batch['init_message'] = t('The exportation of nodes starting.');
@@ -275,6 +277,85 @@ function data_export_import_all_content_types_export_to_file($form_state, &$data
 
   return TRUE;
 }
+
+
+
+function data_export_import_all_content_types_export_to_file_using_drush($content_types) {
+
+  // See if any content types were selected - if none then exit out
+  // gracefully.
+  if (!isset($content_types)) {
+    //drupal_set_message(t("No content types selected."));
+    return TRUE;
+  }
+
+  // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
+  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  // Adding in the main values to the $batch variable.
+  $batch = array();
+  // $batch['finished'] = 'data_export_import_batch_export_all_content_types_finished';
+/*
+  $batch['title'] = t('Exporting nodes');
+  $batch['init_message'] = t('The exportation of nodes starting.');
+  $batch['progress_message'] = t('Processed @current out of @total.');
+*/
+  $batch['error_message'] = t('Exporting nodes has encountered an error.');
+  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+
+  // We can loop through which content types need to be exported.
+  // The #post array will only contain values which have been set to
+  // have a value of '1'. We will build up the $batch object with the
+  // required operations.
+  //$content_types = array('page' => 'page', 'story' => 'story');
+  foreach ($content_types as $content_type) {
+
+    // Get the filename we are going to save the data to.
+    $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
+    $file_path_and_name = $dataset_directory . "/" . $file_name;
+
+    // Here we are getting all content types and selecting just the one
+    // we need - this seems to give more consistent results than just
+    // extracting the single node object.
+    $node_types = node_get_types();
+
+    // Save the content type variable to the file. By serializing the
+    // variable we will change it to a character based format which is
+    // safe to be output to a file.  This is made safer then by being
+    // base64 encoded to make sure line endings and other characters
+    // do not cause issues on importing the dataset.
+    $content_type_data_serialized = serialize($node_types[$content_type]);
+    //$content_type_data_serialized = serialize($node_types[$value]);
+    $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
+    file_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+
+    // Each content type being exported to a dataset file will be run
+    // as a batch to prevent timeouts.
+    $batch['operations'][] = array('data_export_import_batch_export_nodes_to_file', array($content_type, $file_path_and_name));
+  }
+
+  // This is the key function which will set the batch up to be processed.
+  batch_set($batch);
+  $batch =& batch_get();
+  $batch['progressive'] = FALSE;
+  
+  // Since we are not calling this batch processing from a form we will need to
+  // request that the batch is processed.
+  //batch_process('admin/content/data_export_import/all_content_types');
+  drush_backend_batch_process();
+  
+  return TRUE;
+}
+
+
+
+
+
+
 
 /**
  * Batch function called to export the content type.
@@ -361,13 +442,20 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     // Store some result for post-processing in the finished callback.
     // We will use a trick by setting the key to be the file path so
     // this array value will be set again and again.
-    $context['results'][$file_path_and_name] = basename($file_path_and_name);
+    // $context['results'][$file_path_and_name] = basename($file_path_and_name);
 
     // Update our progress information.
     $context['sandbox']['progress']++;
     $context['sandbox']['current_node'] = $node->nid;
     $context['message'] = t('Now processing %node', array('%node' => $node->title));
   }
+
+    // Store some result for post-processing in the finished callback.
+    // We will use a trick by setting the key to be the file path so
+    // this array value will be set again and again.  This way the results 
+    // array will not get larger and larger for each record which is processed
+    // but will hold a single result for this batch. 
+    $context['results'][$file_path_and_name] = basename($file_path_and_name);
 
   // Inform the batch engine that we are not finished, and provide an
   // estimation of the completion level we reached.
