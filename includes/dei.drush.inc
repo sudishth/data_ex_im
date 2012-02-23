@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  *   This file defines the Data Export Import module drush commands.
@@ -22,7 +21,7 @@ function dei_drush_command() {
 
   // The 'dei-export' command
   $items['dei-export'] = array(
-    'description' => "Exports Data Export Import profiles.",
+    'description' => "Exports Data Export Import dataset profiles.",
     'arguments' => array(
       'profile' => 'The type of dataset profile.',
     ),
@@ -36,11 +35,28 @@ function dei_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
 
-  // Commandfiles may also add topics.  These will appear in
-  // the list of topics when `drush topic` is executed.
-  // To view this topic, run `drush --include=/full/path/to/examples topic`
-  // NB - This still needs the include directive - not sure how to 
-  // run this to get the topic included by default.
+  // The 'dei-import' command
+  $items['dei-import'] = array(
+    'description' => "Imports Data Export Import dataset files.",
+    'arguments' => array(
+      'file' => 'The name of the file being imported.',
+    ),
+    'options' => array(
+      'options' => 'List of comma separated options to supply to the command.',
+    ),
+    'examples' => array(
+      'drush dei-import file options=20120223_170526_all_content_types_page' => 'Import a dataset from a file.',
+    ),
+    'aliases' => array('dei-im'),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+  );
+
+  // Commandfiles may also add topics.  These will appear in the list
+  // of topics when `drush topic` is executed. To view this topic, run
+  // `drush --include=/full/path/to/examples topic` NB - This still
+  // needs the include directive - not sure how to run this to get the
+  // topic included by default.  NB - This has currently be left in
+  // place for reference.
   $items['dei-exposition'] = array(
     'description' => 'Ruminations on the true meaning and philosophy of sandwiches.',
     'hidden' => TRUE,
@@ -81,6 +97,7 @@ function dei_drush_help($section) {
  
       return dt("This command will import a dataset file.");
 
+    case 'meta:dei:title':
 
       // The 'title' meta item is used to name a group of
       // commands in `drush help`.  If a title is not defined,
@@ -91,16 +108,13 @@ function dei_drush_help($section) {
       // they define a title.  It is therefore preferable
       // to not define a title unless the file defines a lot
       // of commands.
-
-    case 'meta:dei:title':
-
       return dt("Data Export Import commands");
-      // The 'summary' meta item is displayed in `drush help --filter`,
-      // and is used to give a general idea what the commands in this
-      // command file do, and what they have in common.
 
     case 'meta:dei:summary':
 
+      // The 'summary' meta item is displayed in `drush help --filter`,
+      // and is used to give a general idea what the commands in this
+      // command file do, and what they have in common.
       return dt("Drush commands to carry out functions of the Data Export Import module.");
   }
 }
@@ -114,7 +128,7 @@ function dei_drush_help($section) {
  * OR returning FALSE is sufficient.  See drush.api.php
  * for more details.
  */
-function drush_dei_make_me_a_sandwich_validate() {
+function drush_dei_export_validate() {
   $name = posix_getpwuid(posix_geteuid());
   // if ($name['name'] !== 'root') {
   if ($name['name'] == 'root') {
@@ -123,31 +137,10 @@ function drush_dei_make_me_a_sandwich_validate() {
 }
 
 /**
- * Example drush command callback. This is where the action takes place.
+ * A drush command callback. This is where the action takes place.
  *
- * The function name should be same as command name but with dashes turned to
- * underscores and 'drush_commandfile_' prepended, where 'commandfile' is
- * taken from the file 'commandfile.drush.inc', which in this case is 'sandwich'.
- * Note also that a simplification step is also done in instances where
- * the commandfile name is the same as the beginning of the command name,
- * "drush_example_example_foo" is simplified to just "drush_example_foo".
- * To also implement a hook that is called before your command, implement
- * "drush_hook_pre_example_foo".  For a list of all available hooks for a
- * given command, run drush in --debug mode.
- *
- * If for some reason you do not want your hook function to be named
- * after your command, you may define a 'callback' item in your command
- * object that specifies the exact name of the function that should be
- * called.  However, the specified callback function must still begin
- * with "drush_commandfile_" (e.g. 'callback' => "drush_example_foo_execute")
- * if you want that all hook functions are still called (e.g.
- * drush_example_pre_foo_execute, and so on).
- *
- * In this function, all of Drupal's API is (usually) available, including
- * any functions you have added in your own modules/themes.
- *
- * @see drush_invoke()
- * @see drush.api.php
+ * This function will handle exporting data profiles to data files -
+ * it can be extended by the addition of further profiles.
  */
 function drush_dei_export($profile) {
 
@@ -167,17 +160,6 @@ function drush_dei_export($profile) {
     case 'nodes':
 
       $msg = "nodes option was selected.";
-/*
-      $str_spreads = '';
-      if ($spreads = drush_get_option('content-types')) {
-        $list = implode(' and ', explode(',', $spreads));
-        $str_spreads = ' spreads options ' . $list;
-      }
-
-      $msg = $msg . $str_spreads;
-
-      $spreads = array('page', 'ct1');
-*/
 
       $list_of_content_types = drush_get_option('content-types');
       $array_of_content_types = explode(',', $list_of_content_types);
@@ -204,4 +186,29 @@ function drush_dei_export($profile) {
            );
   drush_print("\n" . $msg . "\n");
   drush_print(file_get_contents(dirname(__FILE__) . '/sandwich.txt'));
+}
+
+/**
+ * A drush command callback. This is where the action takes place.
+ *
+ * This function will handle exporting data profiles to data files -
+ * it can be extended by the addition of further profiles.
+ */
+function drush_dei_import($dataset_file) {
+
+  // NB - Here we need to get the options from the profile files.
+  switch ($dataset_file) {
+
+    case 'file':
+
+      $msg = "Here we will be importing a dataset file.";
+      break;
+
+    default:
+      $msg = "No valid argument was supplied to the dei-import command.";
+  }
+
+  drush_print($msg);
+  return;
+
 }
