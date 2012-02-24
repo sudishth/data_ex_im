@@ -8,7 +8,7 @@
  */
 
 /**
- * Implementats hook_drush_command().
+ * Implements hook_drush_command().
  *
  * This function specifies which commands the drush module has made
  * available.
@@ -106,7 +106,7 @@ function dei_drush_help($section) {
 }
 
 /**
- * Implementation of drush_hook_COMMAND_validate().
+ * Implements drush_hook_COMMAND_validate().
  *
  * The validate command should exit with
  * `return drush_set_error(...)` to stop execution of

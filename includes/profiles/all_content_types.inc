@@ -286,7 +286,7 @@ function data_export_import_all_content_types_export_to_file($form_state) {
  * all the dataset files which were created so it can be handed back
  * to the calling code for display to the user.
  *
- * @param array $form_state
+ * @param array $content_types
  *   Current values held in the form.
  *
  * @return bool
@@ -310,12 +310,6 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
 
   // Adding in the main values to the $batch variable.
   $batch = array();
-  // $batch['finished'] = 'data_export_import_batch_export_all_content_types_finished';
-/*
-  $batch['title'] = t('Exporting nodes');
-  $batch['init_message'] = t('The exportation of nodes starting.');
-  $batch['progress_message'] = t('Processed @current out of @total.');
-*/
   $batch['error_message'] = t('Exporting nodes has encountered an error.');
   $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
 
@@ -323,7 +317,6 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
   // The #post array will only contain values which have been set to
   // have a value of '1'. We will build up the $batch object with the
   // required operations.
-  //$content_types = array('page' => 'page', 'story' => 'story');
   $files_created = array();
   foreach ($content_types as $content_type) {
 
@@ -346,7 +339,7 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
     // base64 encoded to make sure line endings and other characters
     // do not cause issues on importing the dataset.
     $content_type_data_serialized = serialize($node_types[$content_type]);
-    //$content_type_data_serialized = serialize($node_types[$value]);
+
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
     file_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
 
@@ -362,7 +355,6 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
 
   // Since we are not calling this batch processing from a form we will need to
   // request that the batch is processed.
-  //batch_process('admin/content/data_export_import/all_content_types');
   drush_backend_batch_process();
 
   return implode("\n", $files_created);
