@@ -17,6 +17,7 @@
  *   An associative array describing your command(s).
  */
 function dei_drush_command() {
+
   $items = array();
 
   // The 'dei-export' command
@@ -51,33 +52,18 @@ function dei_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
 
-  // Commandfiles may also add topics.  These will appear in the list
-  // of topics when `drush topic` is executed. To view this topic, run
-  // `drush --include=/full/path/to/examples topic` NB - This still
-  // needs the include directive - not sure how to run this to get the
-  // topic included by default.  NB - This has currently be left in
-  // place for reference.
-  $items['dei-exposition'] = array(
-    'description' => 'Ruminations on the true meaning and philosophy of sandwiches.',
-    'hidden' => TRUE,
-    'topic' => TRUE,
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUSH,
-    'callback' => 'drush_print_file',
-    'callback arguments' => array(dirname(__FILE__) . '/sandwich-topic.txt'),
-  );
-
   return $items;
 }
 
 /**
  * Implementation of hook_drush_help().
  *
- * This function is called whenever a drush user calls
- * 'drush help '. This hook is optional. If a command
- * does not implement this hook, the command's description is used instead.
+ * This function is called when a drush user calls 'drush help'. This
+ * hook is optional. If a command does not implement this hook, the
+ * command's description is used instead.
  *
  * This hook is also used to look up help metadata, such as help
- * category title and summary.  See the comments below for a description.
+ * category title and summary.
  *
  * @param
  *   A string with the help section (prepend with 'drush:')
@@ -129,6 +115,8 @@ function dei_drush_help($section) {
  * for more details.
  */
 function drush_dei_export_validate() {
+
+  // Need to make sure this is not being run by root. 
   $name = posix_getpwuid(posix_geteuid());
   // if ($name['name'] !== 'root') {
   if ($name['name'] == 'root') {
@@ -159,13 +147,11 @@ function drush_dei_export($profile) {
 
     case 'nodes':
 
-      $msg = "nodes option was selected.";
-
+      // Get the list of content types which should be exported.
       $list_of_content_types = drush_get_option('content-types');
       $array_of_content_types = explode(',', $list_of_content_types);
 
-      data_export_import_all_content_types_export_to_file_using_drush($array_of_content_types);
-      $msg = "drush msg";
+      $msg = data_export_import_all_content_types_export_to_file_using_drush($array_of_content_types);
 
       break;
 
@@ -175,17 +161,6 @@ function drush_dei_export($profile) {
 
   drush_print($msg);
   return;
-
-  $str_spreads = '';
-  if ($spreads = drush_get_option('spreads')) {
-    $list = implode(' and ', explode(',', $spreads));
-    $str_spreads = ' with just a dash of ' . $list;
-  }
-  $msg = dt('Okay. xxxyyy Enjoy this !filling sandwich!str_spreads.',
-         array('!filling' => $filling, '!str_spreads' => $str_spreads)
-           );
-  drush_print("\n" . $msg . "\n");
-  drush_print(file_get_contents(dirname(__FILE__) . '/sandwich.txt'));
 }
 
 /**
@@ -196,19 +171,30 @@ function drush_dei_export($profile) {
  */
 function drush_dei_import($dataset_file) {
 
-  // NB - Here we need to get the options from the profile files.
   switch ($dataset_file) {
 
-    case 'file':
+    case 'terms':
 
-      $msg = "Here we will be importing a dataset file.";
+      $filename = drush_get_option('file');
+      data_export_import_import_taxonomy_terms($filename);
+      break;
+
+    case 'users':
+
+      $filename = drush_get_option('file');
+      data_export_import_import_users($filename);
+      break;
+
+    case 'nodes':
+
+      $filename = drush_get_option('file');
+      data_export_import_import_all_content_types_using_drush($filename);
       break;
 
     default:
       $msg = "No valid argument was supplied to the dei-import command.";
+      drush_print($msg);
   }
 
-  drush_print($msg);
   return;
-
 }

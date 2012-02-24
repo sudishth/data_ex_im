@@ -312,11 +312,16 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
   // have a value of '1'. We will build up the $batch object with the
   // required operations.
   //$content_types = array('page' => 'page', 'story' => 'story');
+  $files_created = array();
   foreach ($content_types as $content_type) {
 
     // Get the filename we are going to save the data to.
     $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
     $file_path_and_name = $dataset_directory . "/" . $file_name;
+
+    // Save the filename so it can be displayed when the command has
+    // been called.
+    $files_created[] = $file_name;
 
     // Here we are getting all content types and selecting just the one
     // we need - this seems to give more consistent results than just
@@ -348,12 +353,8 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
   //batch_process('admin/content/data_export_import/all_content_types');
   drush_backend_batch_process();
   
-  return TRUE;
+  return implode("\n", $files_created);
 }
-
-
-
-
 
 
 
@@ -616,6 +617,104 @@ function data_export_import_import_all_content_types($file) {
 
   return TRUE;
 }
+
+// Set up to handle import via drush.
+function data_export_import_import_all_content_types_using_drush($file) {
+
+  // Read the first line - decode the object and check that the content types
+  // are an exact match.
+  $file_path = file_directory_path() . "/data_export_import/all_content_types/" . $file;
+
+  $handle = fopen($file_path, "r");
+  if ($handle) {
+
+    $content_type_line_from_file = fgets($handle);
+    fclose($handle);
+  }
+
+  $node_content_type_object_from_file = unserialize(base64_decode($content_type_line_from_file));
+
+  // Check that the content types match.
+  $node_content_type = $node_content_type_object_from_file->type;
+  $node_types = node_get_types();
+
+  if ($node_content_type_object_from_file != $node_types[$node_content_type]) {
+
+    drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
+    return;
+  }
+
+  // Loop through all the lines in the file and put the nid's into an array.
+  // Then loop through all the current nodes (in the receiving instance)
+  // and check the nid value.  If it doesn't match an nid from the dataset file
+  // then delete the existing node in the receiving instance.  This will delete
+  // test nodes which have been created.
+  $line_number = 0;
+  $handle = fopen($file_path, "r");
+  if ($handle) {
+    while (($buffer = fgets($handle)) !== FALSE) {
+
+      $line_number++;
+      if ($line_number > 1) {
+
+        // @todo Here we will need to unencode the line extracted.
+        $node_from_file = unserialize(base64_decode($buffer));
+        $nids_from_file[] = $node_from_file->nid;
+      }
+    }
+
+    if (!feof($handle)) {
+      echo "Error: unexpected fgets() fail\n";
+    }
+    fclose($handle);
+
+  }
+
+  // Loop through the existing nodes (for that content type) and if
+  // they don't exist in the dataset then delete them.
+  $query = db_rewrite_sql("SELECT nid FROM {node} n WHERE type = '%s'", 'n');
+  $results = db_query($query, $node_content_type);
+
+  while ($nid = db_result($results)) {
+
+    if (!in_array($nid, $nids_from_file)) {
+
+      // Delete node as it does not exist in the dataset being
+      // imported.
+      node_delete($nid);
+    }
+  }
+
+  // Loop through all the lines in the dataset file and extract each
+  // node line. If the receiving instance has a node with a matching
+  // nid then update it - or if not then create a new node with the
+  // same nid. We will use a batch function to process the lines from
+  // the file.
+  $batch = array(
+    'operations' => array(
+      array('data_export_import_batch_import_dataset_lines', array($file_path)),
+    ),
+    //// 'finished' => 'data_export_import_batch_import_dataset_lines_finished',
+    ////'title' => t('Processing Import of nodes from file Batch'),
+    ////'init_message' => t('Batch of node importing starting.'),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
+    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc',
+  );
+
+  batch_set($batch);
+  $batch =& batch_get();
+  $batch['progressive'] = FALSE;
+
+  // Since this is not called from a file then we need to call the
+  // batch process function.
+  drush_backend_batch_process();
+  //batch_process('admin/content/data_export_import/all_content_types/import');
+
+  return TRUE;
+}
+
+
 
 /**
  * Batch function to process lines from a dataset.
