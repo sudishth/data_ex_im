@@ -106,7 +106,7 @@ function dei_drush_help($section) {
 }
 
 /**
- * Implements drush_hook_COMMAND_validate().
+ * Implements drush_hook_dei_export_validate().
  *
  * The validate command should exit with
  * `return drush_set_error(...)` to stop execution of
