@@ -208,9 +208,6 @@ function data_export_import_import_all_content_types_form_submit($form, &$form_s
  * @param array $form_state
  *   Current values held in the form.
  *
- * @param array $dataset_files_created
- *   Array to hold the name of the dataset file created by this function.
- *
  * @return bool
  *   TRUE if all ran OK.
  */
@@ -278,14 +275,29 @@ function data_export_import_all_content_types_export_to_file($form_state) {
   return TRUE;
 }
 
-
-
+/**
+ * Export the required dataset files via drush.
+ *
+ * This function is set up to specifically be called by drush.
+ *
+ * This function will look at which content types have been selected
+ * for exporting to file and call a function to export thoese content
+ * types.  The $dataset_files_created variable will hold the names of
+ * all the dataset files which were created so it can be handed back
+ * to the calling code for display to the user.
+ *
+ * @param array $form_state
+ *   Current values held in the form.
+ *
+ * @return bool
+ *   TRUE if all ran OK.
+ */
 function data_export_import_all_content_types_export_to_file_using_drush($content_types) {
 
   // See if any content types were selected - if none then exit out
   // gracefully.
   if (!isset($content_types)) {
-    //drupal_set_message(t("No content types selected."));
+
     return TRUE;
   }
 
@@ -347,12 +359,12 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
   batch_set($batch);
   $batch =& batch_get();
   $batch['progressive'] = FALSE;
-  
+
   // Since we are not calling this batch processing from a form we will need to
   // request that the batch is processed.
   //batch_process('admin/content/data_export_import/all_content_types');
   drush_backend_batch_process();
-  
+
   return implode("\n", $files_created);
 }
 
@@ -453,9 +465,9 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 
     // Store some result for post-processing in the finished callback.
     // We will use a trick by setting the key to be the file path so
-    // this array value will be set again and again.  This way the results 
+    // this array value will be set again and again.  This way the results
     // array will not get larger and larger for each record which is processed
-    // but will hold a single result for this batch. 
+    // but will hold a single result for this batch.
     $context['results'][$file_path_and_name] = basename($file_path_and_name);
 
   // Inform the batch engine that we are not finished, and provide an

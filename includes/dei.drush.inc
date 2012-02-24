@@ -8,19 +8,19 @@
  */
 
 /**
- * Implementation of hook_drush_command().
+ * Implementats hook_drush_command().
  *
  * This function specifies which commands the drush module has made
- * available. 
+ * available.
  *
- * @return
+ * @return array
  *   An associative array describing your command(s).
  */
 function dei_drush_command() {
 
   $items = array();
 
-  // The 'dei-export' command
+  // The 'dei-export' command.
   $items['dei-export'] = array(
     'description' => "Exports Data Export Import dataset profiles.",
     'arguments' => array(
@@ -36,7 +36,7 @@ function dei_drush_command() {
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
   );
 
-  // The 'dei-import' command
+  // The 'dei-import' command.
   $items['dei-import'] = array(
     'description' => "Imports Data Export Import dataset files.",
     'arguments' => array(
@@ -56,7 +56,7 @@ function dei_drush_command() {
 }
 
 /**
- * Implementation of hook_drush_help().
+ * Implements hook_drush_help().
  *
  * This function is called when a drush user calls 'drush help'. This
  * hook is optional. If a command does not implement this hook, the
@@ -65,10 +65,10 @@ function dei_drush_command() {
  * This hook is also used to look up help metadata, such as help
  * category title and summary.
  *
- * @param
+ * @section string
  *   A string with the help section (prepend with 'drush:')
  *
- * @return
+ * @return string
  *   A string with the help text for your command.
  */
 function dei_drush_help($section) {
@@ -76,11 +76,11 @@ function dei_drush_help($section) {
   switch ($section) {
 
     case 'drush:dei-export':
- 
+
       return dt("This command will export a dataset profile to a data file.");
 
     case 'drush:dei-import':
- 
+
       return dt("This command will import a dataset file.");
 
     case 'meta:dei:title':
@@ -89,7 +89,7 @@ function dei_drush_help($section) {
       // commands in `drush help`.  If a title is not defined,
       // the default is "All commands in ___", with the
       // specific name of the commandfile (e.g. sandwich).
-      // Command files with less than four commands will 
+      // Command files with less than four commands will
       // be placed in the "Other commands" section, _unless_
       // they define a title.  It is therefore preferable
       // to not define a title unless the file defines a lot
@@ -116,12 +116,9 @@ function dei_drush_help($section) {
  */
 function drush_dei_export_validate() {
 
-  // Need to make sure this is not being run by root. 
-  $name = posix_getpwuid(posix_geteuid());
-  // if ($name['name'] !== 'root') {
-  if ($name['name'] == 'root') {
-    return drush_set_error('MAKE_IT_YOUSELF', dt('What? Make your own sandwich.'));
-  }
+  // This function is not currently used and could possibly be
+  // removed.
+  $placeholder = 1;
 }
 
 /**
