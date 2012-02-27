@@ -360,8 +360,6 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
   return implode("\n", $files_created);
 }
 
-
-
 /**
  * Batch function called to export the content type.
  *
@@ -443,11 +441,6 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     $node_serialized_and_base64_encoded = base64_encode($node_serialized);
 
     file_put_contents($file_path_and_name, $node_serialized_and_base64_encoded . "\n", FILE_APPEND | LOCK_EX);
-
-    // Store some result for post-processing in the finished callback.
-    // We will use a trick by setting the key to be the file path so
-    // this array value will be set again and again.
-    // $context['results'][$file_path_and_name] = basename($file_path_and_name);
 
     // Update our progress information.
     $context['sandbox']['progress']++;
@@ -622,7 +615,17 @@ function data_export_import_import_all_content_types($file) {
   return TRUE;
 }
 
-// Set up to handle import via drush.
+/**
+ * Will import a dataset file.
+ *
+ * This function is specifically set up to be called by drush.
+ *
+ * @param string $file
+ *   The dataset file which is being imported.
+ *
+ * @return bool
+ *   TRUE if the import process ran without errors.
+ */
 function data_export_import_import_all_content_types_using_drush($file) {
 
   // Read the first line - decode the object and check that the content types
@@ -698,9 +701,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
     'operations' => array(
       array('data_export_import_batch_import_dataset_lines', array($file_path)),
     ),
-    //// 'finished' => 'data_export_import_batch_import_dataset_lines_finished',
-    ////'title' => t('Processing Import of nodes from file Batch'),
-    ////'init_message' => t('Batch of node importing starting.'),
     'progress_message' => t('Processed @current out of @total.'),
     'error_message' => t('Batch importing of nodes from file has encountered an error.'),
     'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc',
@@ -713,7 +713,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // Since this is not called from a file then we need to call the
   // batch process function.
   drush_backend_batch_process();
-  //batch_process('admin/content/data_export_import/all_content_types/import');
 
   return TRUE;
 }

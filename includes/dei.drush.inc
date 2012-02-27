@@ -106,30 +106,20 @@ function dei_drush_help($section) {
 }
 
 /**
- * Implements drush_hook_dei_export_validate().
- *
- * The validate command should exit with
- * `return drush_set_error(...)` to stop execution of
- * the command.  In practice, calling drush_set_error
- * OR returning FALSE is sufficient.  See drush.api.php
- * for more details.
- */
-function drush_dei_export_validate() {
-
-  // This function is not currently used and could possibly be
-  // removed.
-  $placeholder = 1;
-}
-
-/**
  * A drush command callback. This is where the action takes place.
  *
  * This function will handle exporting data profiles to data files -
  * it can be extended by the addition of further profiles.
+ *
+ * @profile string
+ *   Which dataset profile to export.
+ *
+ * @return bool
+ *   Set as TRUE if the function ran OK.
  */
 function drush_dei_export($profile) {
 
-  // NB - Here we need to get the options from the profile files.
+  // @todo These options should be pulled in from the profile files.
   switch ($profile) {
 
     case 'terms':
@@ -157,7 +147,7 @@ function drush_dei_export($profile) {
   }
 
   drush_print($msg);
-  return;
+  return TRUE;
 }
 
 /**
@@ -165,6 +155,12 @@ function drush_dei_export($profile) {
  *
  * This function will handle exporting data profiles to data files -
  * it can be extended by the addition of further profiles.
+ *
+ * @dataset_file string
+ *   The dataset file which will be imported.
+ *
+ * @return bool
+ *   Set as TRUE if the function ran OK.
  */
 function drush_dei_import($dataset_file) {
 
@@ -193,5 +189,5 @@ function drush_dei_import($dataset_file) {
       drush_print($msg);
   }
 
-  return;
+  return TRUE;
 }
