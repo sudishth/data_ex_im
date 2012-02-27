@@ -349,9 +349,8 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
   }
 
   // This is the key function which will set the batch up to be processed.
-  batch_set($batch);
-  $batch =& batch_get();
   $batch['progressive'] = FALSE;
+  batch_set($batch);
 
   // Since we are not calling this batch processing from a form we will need to
   // request that the batch is processed.
@@ -706,9 +705,8 @@ function data_export_import_import_all_content_types_using_drush($file) {
     'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc',
   );
 
-  batch_set($batch);
-  $batch =& batch_get();
   $batch['progressive'] = FALSE;
+  batch_set($batch);
 
   // Since this is not called from a file then we need to call the
   // batch process function.
@@ -716,8 +714,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
 
   return TRUE;
 }
-
-
 
 /**
  * Batch function to process lines from a dataset.
