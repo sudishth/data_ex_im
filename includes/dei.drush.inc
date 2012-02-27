@@ -27,7 +27,7 @@ function dei_drush_command() {
       'profile' => 'The type of dataset profile.',
     ),
     'options' => array(
-      'options' => 'List of comma separated options to supply to the command.',
+      'content-types' => 'List of comma separated content types to supply to the nodes export command.',
     ),
     'examples' => array(
       'drush dei-export terms' => 'Export taxonomy terms to a file.',
