@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Enables users to be exported and imported.
@@ -162,7 +161,18 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
   if ($form_state['values']['users'] != 'none') {
 
     $result = data_export_import_import_users($form_state['clicked_button']['#post']['users']);
-    drupal_set_message(t('The Users dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])));
+
+    if ($result) {
+      drupal_set_message(t('The Users dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])));
+      drupal_set_message(t('Any required role settings for the users will now have to be set by using the users administration screen.'));
+    }
+    else {
+      drupal_set_message(t('The Users dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])),error);
+    }
+
+
+
+
   }
 }
 
@@ -264,7 +274,7 @@ function data_export_import_import_users($file) {
   // Here we will pick up if the file contains no users.
   if (empty($file_content_as_array['users'])) {
     drupal_set_message(t("There are no users in the dataset file"), 'error');
-    return;
+    return TRUE;
   }
 
   // This will check that the roles in the dataset file all
@@ -281,12 +291,12 @@ function data_export_import_import_users($file) {
     if (!isset($current_roles[$dataset_role_key])) {
 
       drupal_set_message(t('The receiving instance does not have a role with ID of %id and name of %name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value)));
-      return;
+      ////      return FALSE;
     }
     elseif ($current_roles[$dataset_role_key] != $dataset_role_value) {
 
       drupal_set_message(t('The dataset contains a role with ID of %id and name of %name but the current role with that ID has a name of %current_role_name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value, '%current_role_name' => $current_roles[$dataset_role_key])));
-      return;
+      ////      return FALSE;
     }
   }
 
@@ -319,6 +329,26 @@ function data_export_import_import_users($file) {
       // current user with the data from the dataset file.
       $current_user = user_load($user->uid);
       $user_from_dataset_file = $file_content_as_array['users'][$user->uid];
+
+      /*
+       drupal_set_message("Current user:" . var_export($current_user, TRUE));
+       drupal_set_message("User from dataset file:" . var_export($user_from_dataset_file, TRUE));
+       drupal_set_message("ID FROM CONST:" . DRUPAL_AUTHENTICATED_RID);
+      */
+
+      // Here we are going to set the roles back to the basic 
+      // value of having the authenticated user role only.  This 
+      // allows for the receiving instance to have different roles
+      // and these may be used for different purposes.
+      $current_user->roles = array(DRUPAL_AUTHENTICATED_RID => 'authenticated user');
+      $user_from_dataset_file->roles = array(DRUPAL_AUTHENTICATED_RID => 'authenticated user');
+
+      /*
+       drupal_set_message("Current user:" . var_export($current_user, TRUE));
+       drupal_set_message("User from dataset file:" . var_export($user_from_dataset_file, TRUE));
+       drupal_set_message("AFTER RESET");
+      */
+
       if ($current_user != $user_from_dataset_file) {
 
         // Current user needs to be updated from the dataset file.
@@ -346,4 +376,5 @@ function data_export_import_import_users($file) {
       update_sql($sql_statement);
     }
   }
+  return TRUE;
 }
