@@ -2,7 +2,6 @@
 /**
  * @file
  * Enables users to be exported and imported.
- *
  */
 
 /**
@@ -174,7 +173,6 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
 
 /**
  * Export the required dataset file.
- *
  */
 function data_export_import_export_users_to_file() {
 
@@ -337,7 +335,6 @@ function data_export_import_import_users($file) {
       // having the authenticated user role only.  This allows for the
       // receiving instance to have different roles and these may be
       // used for different purposes.
-
       $current_user->roles = array(DRUPAL_AUTHENTICATED_RID => 'authenticated user');
       $user_from_dataset_file->roles = array(DRUPAL_AUTHENTICATED_RID => 'authenticated user');
 

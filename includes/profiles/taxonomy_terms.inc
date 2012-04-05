@@ -145,7 +145,6 @@ function data_export_import_import_taxonomy_terms_form($form_state) {
 
 /**
  * Add fieldset to the data export form.
- *
  */
 function data_export_import_taxonomy_terms_add_fieldset_to_export_form(&$form) {
 
@@ -154,11 +153,11 @@ function data_export_import_taxonomy_terms_add_fieldset_to_export_form(&$form) {
     '#type' => 'fieldset',
     '#title' => t('Taxonomy terms'),
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE, );
+    '#collapsed' => FALSE,);
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
     '#type' => 'checkbox',
-    '#title' => 'Export all Taxonomy terms', );
+    '#title' => 'Export all Taxonomy terms',);
 }
 
 /**
@@ -206,12 +205,9 @@ function data_export_import_import_taxonomy_terms_form_submit($form, &$form_stat
       drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])));
     }
     else {
-      drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file failed to import.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])),'error');
+      drupal_set_message(t('The Taxonomy Terms dataset file %dataset_file failed to import.', array('%dataset_file' => $form_state['clicked_button']['#post']['taxonomy_terms'])), 'error');
 
     }
-
-
-
   }
 }
 
@@ -457,10 +453,7 @@ function data_export_import_import_taxonomy_terms($file) {
 
       drupal_set_message(t('There is a mismatch between the vocabularies in the dataset file and the currentvocabularies - vocabulary name: %vocabular_name', array('%vocabular_name' => $vocabulary_from_file->name)), 'error');
 
-      drupal_set_message(t("Vocabulary from file:") . check_plain(var_export($vocabulary_from_file, true)));
-      drupal_set_message(t("Existing vocabulary:") . check_plain(var_export($existing_vocabulary, true)));
-
-      return false;
+      return FALSE;
     }
   }
 
@@ -636,7 +629,7 @@ function data_export_import_import_taxonomy_terms($file) {
   // Here we will pick up if the file contains no taxonomy terms.
   // if (count($file_content_as_array['vocabulary_terms']) == 0) {
   if (empty($file_content_as_array['vocabulary_terms'])) {
-    return true;
+    return TRUE;
   }
 
   // Loop through the terms in the dataset being imported and if they
@@ -706,7 +699,7 @@ function data_export_import_import_taxonomy_terms($file) {
     data_export_import_reset_taxonomy_vocabulary_hierarchy($vocabulary->vid);
   }
 
-  return true;
+  return TRUE;
 
 }
 

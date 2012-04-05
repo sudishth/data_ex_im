@@ -270,10 +270,11 @@ function data_export_import_all_content_types_export_to_file($form_state) {
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
     $batch['operations'][] = array(
-      'data_export_import_batch_export_nodes_to_file', 
-      array($content_type, 
+      'data_export_import_batch_export_nodes_to_file',
+      array(
+        $content_type,
         $file_path_and_name,
-           ),
+      ),
     );
   }
 
@@ -357,15 +358,22 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
 
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
-    $batch['operations'][] = array('data_export_import_batch_export_nodes_to_file', array($content_type, $file_path_and_name));
+    $batch['operations'][] = array(
+      'data_export_import_batch_export_nodes_to_file', 
+      array(
+        $content_type, 
+        $file_path_and_name,
+      ),
+    );
   }
 
-  // This is the key function which will set the batch up to be processed.
+  // This is the key function which will set the batch up to be
+  // processed.
   $batch['progressive'] = FALSE;
   batch_set($batch);
 
-  // Since we are not calling this batch processing from a form we will need to
-  // request that the batch is processed.
+  // Since we are not calling this batch processing from a form we
+  // will need to request that the batch is processed.
   drush_backend_batch_process();
 
   return implode("\n", $files_created);
@@ -572,9 +580,6 @@ function data_export_import_import_all_content_types($file) {
 
     drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $node_content_type)), 'error');
 
-    drupal_set_message(t("The node_content_type_object_from_file value:") . check_plain(var_export($node_content_type_object_from_file, true)));
-    drupal_set_message(t("The node_types[node_content_type] value:") . check_plain(var_export($node_types[$node_content_type], true)));
-
     return FALSE;
   }
 
@@ -678,9 +683,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
   if ($node_content_type_object_from_file != $node_types[$node_content_type]) {
 
     drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
-
-    drupal_set_message(t("node_content_type_object_from_file value:") . check_plain(var_export($node_content_type_object_from_file, true)));
-    drupal_set_message(t("node_types[node_content_type] value:") . check_plain(var_export($node_types[$node_content_type], true)));
 
     return;
   }
