@@ -304,7 +304,7 @@ function data_export_import_import_users($file) {
             '%current_role_name' => $current_roles[$dataset_role_key],
           ),
         ),
-        'warning',
+        'warning'
       );
     }
   }
