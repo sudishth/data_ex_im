@@ -213,7 +213,6 @@ function data_export_import_import_taxonomy_terms_form_submit($form, &$form_stat
 
 /**
  * Export the required dataset file.
- *
  */
 function data_export_import_taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
 

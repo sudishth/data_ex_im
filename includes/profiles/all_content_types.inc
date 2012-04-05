@@ -359,9 +359,9 @@ function data_export_import_all_content_types_export_to_file_using_drush($conten
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
     $batch['operations'][] = array(
-      'data_export_import_batch_export_nodes_to_file', 
+      'data_export_import_batch_export_nodes_to_file',
       array(
-        $content_type, 
+        $content_type,
         $file_path_and_name,
       ),
     );
