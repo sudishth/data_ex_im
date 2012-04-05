@@ -1077,8 +1077,8 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
   }
   else {
 
-    // An error occurred.
-    // $operations contains the operations that remained unprocessed.
+    // An error occurred. NB that $operations contains the operations
+    // that remained unprocessed.
     $error_operation = reset($operations);
     $message = t(
       'An error occurred while processing %error_operation with arguments: @arguments',
