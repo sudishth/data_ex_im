@@ -301,7 +301,7 @@ function data_export_import_import_users($file) {
           array(
             '%id' => $dataset_role_key,
             '%name' => $dataset_role_value,
-            '%current_role_name' => $current_roles[$dataset_role_key]
+            '%current_role_name' => $current_roles[$dataset_role_key],
           )
         ),
         'warning');
