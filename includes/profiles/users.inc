@@ -295,8 +295,17 @@ function data_export_import_import_users($file) {
     }
     elseif ($current_roles[$dataset_role_key] != $dataset_role_value) {
 
-      drupal_set_message(t('The dataset contains a role with ID of %id and name of %name but the current role with that ID has a name of %current_role_name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value, '%current_role_name' => $current_roles[$dataset_role_key])), 'warning');
-
+      drupal_set_message(
+        t(
+          'The dataset contains a role with ID of %id and name of %name but the current role with that ID has a name of %current_role_name.',
+          array(
+            '%id' => $dataset_role_key,
+            '%name' => $dataset_role_value,
+            '%current_role_name' => $current_roles[$dataset_role_key],
+          ),
+        ),
+        'warning',
+      );
     }
   }
 
