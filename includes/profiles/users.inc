@@ -167,12 +167,8 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
       drupal_set_message(t('Any required role settings for the users will now have to be set by using the users administration screen.'));
     }
     else {
-      drupal_set_message(t('The Users dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])),error);
+      drupal_set_message(t('The Users dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])), 'error');
     }
-
-
-
-
   }
 }
 
@@ -277,11 +273,17 @@ function data_export_import_import_users($file) {
     return TRUE;
   }
 
-  // This will check that the roles in the dataset file all
-  // exist in the receiving instance. NB - The receiving instance may have extra
-  // roles which have been created.  This is OK because even though there is not
-  // an exact match at least the roles which are needed to enable the users to
-  // be imported all exist.
+  // This will check for differences between the roles which were in
+  // the exporting instance and the roles in the receiving instance.
+  // Currently the import will not set roles for the users imported
+  // and the roles will have to be manually set after the import.  An
+  // enhancement will be to put a tick box in the options box to say
+  // to set the roles to be the same as the roles which were
+  // exported. This would require a strict check to be in place RE
+  // the roles. This check would have to check that the roles needed
+  // exist on the receiving instance and that they have the same ID
+  // numbers. If the ID numbers do not match then importing the users
+  // will mean that users would be assigned to the wrong roles.
   $current_roles = user_roles();
 
   // Loop through the roles from the dataset and check there is a corresponding
@@ -290,20 +292,21 @@ function data_export_import_import_users($file) {
 
     if (!isset($current_roles[$dataset_role_key])) {
 
-      drupal_set_message(t('The receiving instance does not have a role with ID of %id and name of %name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value)));
-      ////      return FALSE;
+      drupal_set_message(t('The receiving instance does not have a role with ID of %id and name of %name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value)), 'warning');
+
     }
     elseif ($current_roles[$dataset_role_key] != $dataset_role_value) {
 
-      drupal_set_message(t('The dataset contains a role with ID of %id and name of %name but the current role with that ID has a name of %current_role_name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value, '%current_role_name' => $current_roles[$dataset_role_key])));
-      ////      return FALSE;
+      drupal_set_message(t('The dataset contains a role with ID of %id and name of %name but the current role with that ID has a name of %current_role_name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value, '%current_role_name' => $current_roles[$dataset_role_key])), 'warning');
+
     }
   }
 
-  // Here we will loop through the users in the receiving instance.  For each
-  // user we will look into the dataset file being imported.  If the user exists
-  // in the dataset file then we will check to see if it matches and update it
-  // if it doesn't - if it does not exist then we will delete it.
+  // Here we will loop through the users in the receiving instance.
+  // For each user we will look into the dataset file being imported.
+  // If the user exists in the dataset file then we will check to see
+  // if it matches and update it if it doesn't - if it does not exist
+  // then we will delete it.
   $result = db_query("SELECT uid FROM {users}");
   while ($user = db_fetch_object($result)) {
 
@@ -325,53 +328,43 @@ function data_export_import_import_users($file) {
     }
     else {
 
-      // Else if it does see if it is the same and if not then update the
-      // current user with the data from the dataset file.
+      // Else if it does see if it is the same and if not then update
+      // the current user with the data from the dataset file.
       $current_user = user_load($user->uid);
       $user_from_dataset_file = $file_content_as_array['users'][$user->uid];
 
-      /*
-       drupal_set_message("Current user:" . var_export($current_user, TRUE));
-       drupal_set_message("User from dataset file:" . var_export($user_from_dataset_file, TRUE));
-       drupal_set_message("ID FROM CONST:" . DRUPAL_AUTHENTICATED_RID);
-      */
+      // Here we are going to set the roles back to the basic value of
+      // having the authenticated user role only.  This allows for the
+      // receiving instance to have different roles and these may be
+      // used for different purposes.
 
-      // Here we are going to set the roles back to the basic 
-      // value of having the authenticated user role only.  This 
-      // allows for the receiving instance to have different roles
-      // and these may be used for different purposes.
       $current_user->roles = array(DRUPAL_AUTHENTICATED_RID => 'authenticated user');
       $user_from_dataset_file->roles = array(DRUPAL_AUTHENTICATED_RID => 'authenticated user');
-
-      /*
-       drupal_set_message("Current user:" . var_export($current_user, TRUE));
-       drupal_set_message("User from dataset file:" . var_export($user_from_dataset_file, TRUE));
-       drupal_set_message("AFTER RESET");
-      */
 
       if ($current_user != $user_from_dataset_file) {
 
         // Current user needs to be updated from the dataset file.
         user_save((object) array('uid' => $user_from_dataset_file->uid), (array) $user_from_dataset_file);
 
-        // Here we will update the password to match what the was originally
-        // output.
+        // Here we will update the password to match what the was
+        // originally output.
         $sql_statement = "UPDATE {users} SET pass= '" . $user_from_dataset_file->pass . "' WHERE uid = " . $user_from_dataset_file->uid;
         update_sql($sql_statement);
       }
     }
   }
 
-  // Here we will loop through all of the users in the dataset file and create
-  // any users which are in the dataset file but not in the current users.
+  // Here we will loop through all of the users in the dataset file
+  // and create any users which are in the dataset file but not in the
+  // current users.
   foreach ($file_content_as_array['users'] as $dataset_file_user_value) {
 
     if (!user_load($dataset_file_user_value->uid)) {
 
       user_save(NULL, (array) $dataset_file_user_value);
 
-      // Here we will update the password to match what the was originally
-      // output.
+      // Here we will update the password to match what the was
+      // originally output.
       $sql_statement = "UPDATE {users} SET pass= '" . $dataset_file_user_value->pass . "' WHERE uid = " . $dataset_file_user_value->uid;
       update_sql($sql_statement);
     }

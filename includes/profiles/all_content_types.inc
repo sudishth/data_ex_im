@@ -136,7 +136,7 @@ function data_export_import_all_content_types_add_fieldset_to_export_form(&$form
     '#type' => 'fieldset',
     '#title' => 'All content types.',
     '#collapsible' => TRUE,
-    '#collapsed' => FALSE, );
+    '#collapsed' => FALSE,);
 
   $node_types = node_get_types();
 
@@ -147,7 +147,7 @@ function data_export_import_all_content_types_add_fieldset_to_export_form(&$form
 
     $form['all_content_types'][$node_type_type] = array(
       '#type' => 'checkbox',
-      '#title' => check_plain($node_type_name), );
+      '#title' => check_plain($node_type_name),);
   }
 }
 
@@ -269,7 +269,12 @@ function data_export_import_all_content_types_export_to_file($form_state) {
 
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
-    $batch['operations'][] = array('data_export_import_batch_export_nodes_to_file', array($content_type, $file_path_and_name));
+    $batch['operations'][] = array(
+      'data_export_import_batch_export_nodes_to_file', 
+      array($content_type, 
+        $file_path_and_name,
+           ),
+    );
   }
 
   // This is the key function which will set the batch up to be processed.
@@ -567,8 +572,8 @@ function data_export_import_import_all_content_types($file) {
 
     drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $node_content_type)), 'error');
 
-    drupal_set_message(t("The node_content_type_object_from_file value:") . var_export($node_content_type_object_from_file, true));
-    drupal_set_message(t("The node_types[node_content_type] value:") . var_export($node_types[$node_content_type], true));
+    drupal_set_message(t("The node_content_type_object_from_file value:") . check_plain(var_export($node_content_type_object_from_file, true)));
+    drupal_set_message(t("The node_types[node_content_type] value:") . check_plain(var_export($node_types[$node_content_type], true)));
 
     return FALSE;
   }
@@ -674,8 +679,8 @@ function data_export_import_import_all_content_types_using_drush($file) {
 
     drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
 
-    drupal_set_message("node_content_type_object_from_file value:" . var_export($node_content_type_object_from_file, true));
-    drupal_set_message("node_types[node_content_type] value:" . var_export($node_types[$node_content_type], true));
+    drupal_set_message(t("node_content_type_object_from_file value:") . check_plain(var_export($node_content_type_object_from_file, true)));
+    drupal_set_message(t("node_types[node_content_type] value:") . check_plain(var_export($node_types[$node_content_type], true)));
 
     return;
   }

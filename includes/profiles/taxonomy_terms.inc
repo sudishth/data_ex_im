@@ -31,31 +31,31 @@ function data_export_import_taxonomy_terms_add_items_to_menu(&$items) {
   // data_export_import_profile_add_items_to_main_form(&$items)
   // sort of array.  First of all the taxonomy terms.
   $items['admin/content/data_export_import/taxonomy_terms'] = array(
-                                                                    'title' => 'Taxonomy Terms',
-                                                                    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
-                                                                    'access arguments' => array('access data export import'),
-                                                                    'weight' => 1,
-                                                                    'description' => 'Export Taxonomy Terms',
-                                                                    'type' => MENU_LOCAL_TASK,
-                                                                    );
+    'title' => 'Taxonomy Terms',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 1,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
 
   $items['admin/content/data_export_import/taxonomy_terms/export'] = array(
-                                                                           'title' => 'Export',
-                                                                           'page callback' => 'data_export_import_callback_export_taxonomy_terms',
-                                                                           'access arguments' => array('access data export import'),
-                                                                           'weight' => 2,
-                                                                           'description' => 'Export Taxonomy Terms',
-                                                                           'type' => MENU_DEFAULT_LOCAL_TASK,
-                                                                           );
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 2,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
 
   $items['admin/content/data_export_import/taxonomy_terms/import'] = array(
-                                                                           'title' => 'Import',
-                                                                           'page callback' => 'data_export_import_callback_import_taxonomy_terms',
-                                                                           'access arguments' => array('access data export import'),
-                                                                           'weight' => 3,
-                                                                           'description' => 'Import Taxonomy Terms',
-                                                                           'type' => MENU_LOCAL_TASK,
-                                                                           );
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 3,
+    'description' => 'Import Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
 }
 
 /**
@@ -89,9 +89,9 @@ function data_export_import_export_taxonomy_terms_form($form_state) {
   data_export_import_taxonomy_terms_add_fieldset_to_export_form($form);
 
   $form['submit'] = array(
-                          '#type' => 'submit',
-                          '#value' => t('Create dataset files'),
-                          );
+    '#type' => 'submit',
+    '#value' => t('Create dataset files'),
+  );
 
   return $form;
 }
@@ -104,11 +104,11 @@ function data_export_import_import_taxonomy_terms_form($form_state) {
   $form = array();
 
   $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => t('Taxonomy terms'),
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE,
-                                  );
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
 
   // Get the contents of the dataset directory and create a list of
   // links to dataset files.
@@ -129,16 +129,16 @@ function data_export_import_import_taxonomy_terms_form($form_state) {
   }
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'radios',
-                                                    '#title' => t('Please select file to import'),
-                                                    '#default_value' => 'none',
-                                                    '#options' => $options,
-                                                    );
+    '#type' => 'radios',
+    '#title' => t('Please select file to import'),
+    '#default_value' => 'none',
+    '#options' => $options,
+  );
 
   $form['submit'] = array(
-                          '#type' => 'submit',
-                          '#value' => 'Import dataset files',
-                          );
+    '#type' => 'submit',
+    '#value' => 'Import dataset files',
+  );
 
   return $form;
 }
@@ -151,14 +151,14 @@ function data_export_import_taxonomy_terms_add_fieldset_to_export_form(&$form) {
 
   // Taxonomy terms.
   $form['taxonomy_terms'] = array(
-                                  '#type' => 'fieldset',
-                                  '#title' => t('Taxonomy terms'),
-                                  '#collapsible' => TRUE,
-                                  '#collapsed' => FALSE, );
+    '#type' => 'fieldset',
+    '#title' => t('Taxonomy terms'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE, );
 
   $form['taxonomy_terms']['taxonomy_terms'] = array(
-                                                    '#type' => 'checkbox',
-                                                    '#title' => 'Export all Taxonomy terms', );
+    '#type' => 'checkbox',
+    '#title' => 'Export all Taxonomy terms', );
 }
 
 /**
@@ -457,8 +457,8 @@ function data_export_import_import_taxonomy_terms($file) {
 
       drupal_set_message(t('There is a mismatch between the vocabularies in the dataset file and the currentvocabularies - vocabulary name: %vocabular_name', array('%vocabular_name' => $vocabulary_from_file->name)), 'error');
 
-      drupal_set_message("Vocabulary from file:" . var_export($vocabulary_from_file, true));
-      drupal_set_message("Existing vocabulary:" . var_export($existing_vocabulary, true));
+      drupal_set_message(t("Vocabulary from file:") . check_plain(var_export($vocabulary_from_file, true)));
+      drupal_set_message(t("Existing vocabulary:") . check_plain(var_export($existing_vocabulary, true)));
 
       return false;
     }
@@ -595,15 +595,15 @@ function data_export_import_import_taxonomy_terms($file) {
 
           // Update the term with data from the dataset.
           $term_data_array = array(
-                                   'tid' => $existing_term->tid,
-                                   'vid' => $existing_vocabulary_id,
-                                   'name' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->name,
-                                   'description' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->description,
-                                   'weight' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->weight,
-                                   'parent' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->parents,
-                                   'synonyms' => $synonym_list,
-                                   'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations,
-                                   );
+            'tid' => $existing_term->tid,
+            'vid' => $existing_vocabulary_id,
+            'name' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->name,
+            'description' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->description,
+            'weight' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->weight,
+            'parent' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->parents,
+            'synonyms' => $synonym_list,
+            'relations' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->relations,
+          );
 
           // Here we are using the standard taxonomy_save_term() API
           // function as it handles terms being updated OK.
@@ -659,15 +659,15 @@ function data_export_import_import_taxonomy_terms($file) {
 
         // Update the term with data from the dataset.
         $term_data_array = array(
-                                 'tid' => $term_from_dataset->tid,
-                                 'vid' => $term_from_dataset->vid,
-                                 'name' => $term_from_dataset->name,
-                                 'description' => $term_from_dataset->description,
-                                 'weight' => $term_from_dataset->weight,
-                                 'parent' => $term_from_dataset->parents,
-                                 'synonyms' => $synonym_list,
-                                 'relations' => $term_from_dataset->relations,
-                                 );
+          'tid' => $term_from_dataset->tid,
+          'vid' => $term_from_dataset->vid,
+          'name' => $term_from_dataset->name,
+          'description' => $term_from_dataset->description,
+          'weight' => $term_from_dataset->weight,
+          'parent' => $term_from_dataset->parents,
+          'synonyms' => $synonym_list,
+          'relations' => $term_from_dataset->relations,
+        );
 
         $save_term_status = data_export_import_taxonomy_save_term_with_defined_tid($term_data_array);
 
@@ -863,9 +863,9 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
   // I think this has the effect of making sure these values exist on
   // the array but not overwrite any existing values.
   $form_values += array(
-                        'description' => '',
-                        'weight' => 0,
-                        );
+    'description' => '',
+    'weight' => 0,
+  );
 
   // Insert the record into the term_data table.
   // We're using a direct insertion as the drupal_write_record

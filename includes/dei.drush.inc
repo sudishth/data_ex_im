@@ -1,10 +1,10 @@
 <?php
 /**
  * @file
- *   This file defines the Data Export Import module drush commands.
+ * This file defines the Data Export Import module drush commands.
  *
- *   To find out how to use the command run `drush help dei-export`
- *   to see the command options.
+ * To find out how to use the command run `drush help dei-export`
+ * to see the command options.
  */
 
 /**
@@ -76,15 +76,12 @@ function dei_drush_help($section) {
   switch ($section) {
 
     case 'drush:dei-export':
-
       return dt("This command will export a dataset profile to a data file.");
 
     case 'drush:dei-import':
-
       return dt("This command will import a dataset file.");
 
     case 'meta:dei:title':
-
       // The 'title' meta item is used to name a group of
       // commands in `drush help`.  If a title is not defined,
       // the default is "All commands in ___", with the
@@ -97,7 +94,6 @@ function dei_drush_help($section) {
       return dt("Data Export Import commands");
 
     case 'meta:dei:summary':
-
       // The 'summary' meta item is displayed in `drush help --filter`,
       // and is used to give a general idea what the commands in this
       // command file do, and what they have in common.
@@ -123,17 +119,14 @@ function drush_dei_export($profile) {
   switch ($profile) {
 
     case 'terms':
-
       $msg = data_export_import_export_taxonomy_terms();
       break;
 
     case 'users':
-
       $msg = data_export_import_export_users_to_file();
       break;
 
     case 'nodes':
-
       // Get the list of content types which should be exported.
       $list_of_content_types = drush_get_option('content-types');
       $array_of_content_types = explode(',', $list_of_content_types);
@@ -167,19 +160,16 @@ function drush_dei_import($dataset_file) {
   switch ($dataset_file) {
 
     case 'terms':
-
       $filename = drush_get_option('file');
       data_export_import_import_taxonomy_terms($filename);
       break;
 
     case 'users':
-
       $filename = drush_get_option('file');
       data_export_import_import_users($filename);
       break;
 
     case 'nodes':
-
       $filename = drush_get_option('file');
       data_export_import_import_all_content_types_using_drush($filename);
       break;
