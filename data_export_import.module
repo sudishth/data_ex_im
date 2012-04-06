@@ -83,7 +83,7 @@ function data_export_import_menu() {
     module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
 
     $function_to_run = "data_export_import_" . $file->name . "_add_items_to_menu";
-    $function_to_run(&$items);
+    $function_to_run($items);
   }
 
   return $items;

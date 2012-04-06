@@ -117,7 +117,7 @@ function data_export_import_import_users_form($form_state) {
 
   $form['users']['users'] = array(
     '#type' => 'radios',
-    '#title' => t('Please select file to import'),
+    '#title' => t('Please select file to import - NB You might want to switch off account activation email notification under the user settings'),
     '#default_value' => 'none',
     '#options' => $options,
   );
