@@ -166,13 +166,6 @@ function data_export_import_export_all_content_types_form_submit($form, &$form_s
 
   data_export_import_all_content_types_export_to_file($form_state);
 
-  /*
-   drupal_set_message(t("The following dataset files were created:"));
-
-   foreach ($dataset_files_created as $dataset_file_name) {
-   drupal_set_message(check_plain($dataset_file_name));
-   }
-  */
   return TRUE;
 }
 
@@ -199,7 +192,6 @@ function data_export_import_import_all_content_types_form_submit($form, &$form_s
       drupal_set_message(t('The All Content Types dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['all_content_types'])), 'error');
 
     }
-
   }
 }
 
@@ -496,12 +488,13 @@ function data_export_import_batch_export_all_content_types_finished($success, $r
     // An error occurred. $operations contains the operations that
     // remained unprocessed.
     $error_operation = reset($operations);
-    $message = t('An error occurred while processing %error_operation with arguments: @arguments',
-               array(
-                 '%error_operation' => $error_operation[0],
-                 '@arguments' => print_r($error_operation[1], TRUE),
-               )
-                );
+    $message = t(
+      'An error occurred while processing %error_operation with arguments: @arguments',
+      array(
+        '%error_operation' => $error_operation[0],
+        '@arguments' => print_r($error_operation[1], TRUE),
+      )
+    );
   }
 
   drupal_set_message($message);

@@ -46,7 +46,7 @@ function dei_drush_command() {
       'options' => 'List of comma separated options to supply to the command.',
     ),
     'examples' => array(
-      'drush dei-import file options=20120223_170526_all_content_types_page' => 'Import a dataset from a file.',
+      'drush dei-import terms file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
     ),
     'aliases' => array('dei-im'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
@@ -146,8 +146,7 @@ function drush_dei_export($profile) {
 /**
  * A drush command callback. This is where the action takes place.
  *
- * This function will handle exporting data profiles to data files -
- * it can be extended by the addition of further profiles.
+ * This function will handle the importing of dataset files.
  *
  * @dataset_file string
  *   The dataset file which will be imported.
