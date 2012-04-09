@@ -33,7 +33,7 @@ function dei_drush_command() {
       'drush dei-export terms' => 'Export taxonomy terms to a file.',
     ),
     'aliases' => array('dei-ex'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
   );
 
   // The 'dei-import' command.
@@ -49,7 +49,7 @@ function dei_drush_command() {
       'drush dei-import terms file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
     ),
     'aliases' => array('dei-im'),
-    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_FULL,
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
   );
 
   return $items;

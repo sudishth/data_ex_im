@@ -712,8 +712,11 @@ function data_export_import_import_all_content_types_using_drush($file) {
   }
 
   // Loop through the existing nodes (for that content type) and if
-  // they don't exist in the dataset then delete them.
-  $query = db_rewrite_sql("SELECT nid FROM {node} n WHERE type = '%s'", 'n');
+  // they don't exist in the dataset then delete them. NB - We've
+  // used n.nid here as the db_rewrite_sql function will call a 
+  // link to access/grants tables and this could result in an 
+  // ambiguous field called 'nid'.
+  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
   $results = db_query($query, $node_content_type);
 
   while ($nid = db_result($results)) {
