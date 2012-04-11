@@ -674,13 +674,28 @@ function data_export_import_import_all_content_types_using_drush($file) {
 
   $node_content_type_object_from_file = unserialize(base64_decode($content_type_line_from_file));
 
-  // Check that the content types match.
+  // Check that the content types exist and match.
   $node_content_type = $node_content_type_object_from_file->type;
   $node_types = node_get_types();
 
+  // Check that the content type exists in the receiving instance.
+  if (is_null($node_types[$node_content_type])) {
+
+    drupal_set_message(t("The content type of the content being imported does not exist in the receiving site for content type of: %content_type", array('%content_type' => $node_content_type)), 'error');
+
+    return FALSE;
+  }
+
+  // Here we are going to unset the description fields.  If the
+  // description has been changed but everything else about the
+  // content type is the same then we will assume that this is just an
+  // edit to the description.
+  unset($node_content_type_object_from_file->description);
+  unset($node_types[$node_content_type]->description);
+
   if ($node_content_type_object_from_file != $node_types[$node_content_type]) {
 
-    drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $dataset->content_type)), 'error');
+    drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $node_content_type)), 'error');
 
     return;
   }
