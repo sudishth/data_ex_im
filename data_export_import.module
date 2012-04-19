@@ -100,5 +100,5 @@ function data_export_import_callback_overview() {
   // This is a simple display of some instructions.  The main point of
   // having this standard initial tab is to have a default tab - the
   // tabs provided by the profiles are then added as extra tabs.
-  return "Please click on one of the profile tabs to export or import data.";
+  return t("Please click on one of the profile tabs to export or import data.");
 }

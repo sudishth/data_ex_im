@@ -16,12 +16,12 @@
  * @return array
  *   An associative array describing your command(s).
  */
-function dei_drush_command() {
+function data_export_import_drush_command() {
 
   $items = array();
 
-  // The 'dei-export' command.
-  $items['dei-export'] = array(
+  // The 'data_export_import-export' command.
+  $items['data_export_import-export'] = array(
     'description' => "Exports Data Export Import dataset profiles.",
     'arguments' => array(
       'profile' => 'The type of dataset profile.',
@@ -30,14 +30,14 @@ function dei_drush_command() {
       'content-types' => 'List of comma separated content types to supply to the nodes export command.',
     ),
     'examples' => array(
-      'drush dei-export terms' => 'Export taxonomy terms to a file.',
+      'drush data_export_import-export terms' => 'Export taxonomy terms to a file.',
     ),
     'aliases' => array('dei-ex'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
   );
 
-  // The 'dei-import' command.
-  $items['dei-import'] = array(
+  // The 'data_export_import-import' command.
+  $items['data_export_import-import'] = array(
     'description' => "Imports Data Export Import dataset files.",
     'arguments' => array(
       'file' => 'The name of the file being imported.',
@@ -46,7 +46,7 @@ function dei_drush_command() {
       'options' => 'List of comma separated options to supply to the command.',
     ),
     'examples' => array(
-      'drush dei-import terms file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
+      'drush data_export_import-import terms file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
     ),
     'aliases' => array('dei-im'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
@@ -71,17 +71,17 @@ function dei_drush_command() {
  * @return string
  *   A string with the help text for your command.
  */
-function dei_drush_help($section) {
+function data_export_import_drush_help($section) {
 
   switch ($section) {
 
-    case 'drush:dei-export':
+    case 'drush:data_export_import-export':
       return dt("This command will export a dataset profile to a data file.");
 
-    case 'drush:dei-import':
+    case 'drush:data_export_import-import':
       return dt("This command will import a dataset file.");
 
-    case 'meta:dei:title':
+    case 'meta:data_export_import:title':
       // The 'title' meta item is used to name a group of
       // commands in `drush help`.  If a title is not defined,
       // the default is "All commands in ___", with the
@@ -93,7 +93,7 @@ function dei_drush_help($section) {
       // of commands.
       return dt("Data Export Import commands");
 
-    case 'meta:dei:summary':
+    case 'meta:data_export_import:summary':
       // The 'summary' meta item is displayed in `drush help --filter`,
       // and is used to give a general idea what the commands in this
       // command file do, and what they have in common.
@@ -113,7 +113,7 @@ function dei_drush_help($section) {
  * @return bool
  *   Set as TRUE if the function ran OK.
  */
-function drush_dei_export($profile) {
+function drush_data_export_import_export($profile) {
 
   // @todo These options should be pulled in from the profile files.
   switch ($profile) {
@@ -154,7 +154,7 @@ function drush_dei_export($profile) {
  * @return bool
  *   Set as TRUE if the function ran OK.
  */
-function drush_dei_import($dataset_file) {
+function drush_data_export_import_import($dataset_file) {
 
   switch ($dataset_file) {
 
