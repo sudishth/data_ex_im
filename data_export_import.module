@@ -1,52 +1,17 @@
 <?php
+
 /**
  * @file
- * This module can export and import datasets.
- *
- * It will have several clearly defined sections and will be
- * extended by  plugins or include files.
- *
- * The sections are:
- * Help
- * Permissions
- * hook_menu
- * calbacks
- * forms
- * submit
- * validation
+ * A module to enable content data to be exported and imported.
  */
-
-// Here we will loop through the profile files and include them so
-// their functions are available.
-$directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
-$mask = '.\.inc$';
-$files = file_scan_directory($directory, $mask);
-
-foreach ($files as $file) {
-
-  module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
-}
 
 /**
  * Implements hook_help().
  */
 function data_export_import_help($path, $arg) {
-
-  $output = '';
-
-  switch ($path) {
-    case "admin/help#data_export_import":
-      $output = '<p>' . t("Exports datasets as files which can then imported into other Drupal instances.") . '</p>';
-      break;
+  if ($path == 'admin/help#data_export_import') {
+    return t('Exports datasets as files which can then imported into other Drupal instances.');
   }
-  return $output;
-}
-
-/**
- * Implements hook_perm().
- */
-function data_export_import_perm() {
-  return array('access data export import');
 }
 
 /**
@@ -72,19 +37,97 @@ function data_export_import_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-  // Here we will loop through the profile files and call funtions
-  // which will add the items to the menu.
-  $directory = drupal_get_path('module', 'data_export_import') . '/includes/profiles';
-  $mask = '.\.inc$';
-  $files = file_scan_directory($directory, $mask);
 
-  foreach ($files as $file) {
+  // Tabs for nodes
+  $items['admin/content/data_export_import/nodes'] = array(
+    'title' => 'Nodes',
+    'page callback' => 'data_export_import_callback_export_nodes',
+    'access arguments' => array('access data export import'),
+    'weight' => 1,
+    'description' => 'Export Nodes',
+    'type' => MENU_LOCAL_TASK,
+  );
 
-    module_load_include('inc', 'data_export_import', 'includes/profiles/' . $file->name);
+  $items['admin/content/data_export_import/nodes/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_nodes',
+    'access arguments' => array('access data export import'),
+    'weight' => 2,
+    'description' => 'Export Nodes',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
 
-    $function_to_run = "data_export_import_" . $file->name . "_add_items_to_menu";
-    $function_to_run($items);
-  }
+  $items['admin/content/data_export_import/nodes/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_nodes',
+    'access arguments' => array('access data export import'),
+    'weight' => 3,
+    'description' => 'Import Nodes',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+
+
+
+  $items['admin/content/data_export_import/taxonomy_terms'] = array(
+    'title' => 'Taxonomy Terms',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 4,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/taxonomy_terms/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 5,
+    'description' => 'Export Taxonomy Terms',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/taxonomy_terms/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'weight' => 6,
+    'description' => 'Import Taxonomy Terms',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+
+
+
+
+  $items['admin/content/data_export_import/users'] = array(
+    'title' => 'Users',
+    'page callback' => 'data_export_import_callback_export_users',
+    'access arguments' => array('access data export import'),
+    'weight' => 7,
+    'description' => 'Export Users',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/users/export'] = array(
+    'title' => 'Export',
+    'page callback' => 'data_export_import_callback_export_users',
+    'access arguments' => array('access data export import'),
+    'weight' => 8,
+    'description' => 'Export Users',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/content/data_export_import/users/import'] = array(
+    'title' => 'Import',
+    'page callback' => 'data_export_import_callback_import_users',
+    'access arguments' => array('access data export import'),
+    'weight' => 9,
+    'description' => 'Import Users',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+
 
   return $items;
 }
@@ -97,8 +140,42 @@ function data_export_import_menu() {
  */
 function data_export_import_callback_overview() {
 
-  // This is a simple display of some instructions.  The main point of
-  // having this standard initial tab is to have a default tab - the
-  // tabs provided by the profiles are then added as extra tabs.
+  // This is a simple display of some instructions and warnings.
   return t("Please click on one of the profile tabs to export or import data.");
+}
+
+function data_export_import_callback_export_users() {
+
+  // This is a simple display of some instructions and warnings.
+  return t("EXPORT USERS.");
+}
+
+function data_export_import_callback_import_users() {
+
+  // This is a simple display of some instructions and warnings.
+  return t("IMPORT USERS.");
+}
+
+function data_export_import_callback_export_taxonomy_terms() {
+
+  // This is a simple display of some instructions and warnings.
+  return t("EXPORT TERMS.");
+}
+
+function data_export_import_callback_import_taxonomy_terms() {
+
+  // This is a simple display of some instructions and warnings.
+  return t("IMPORT TERMS.");
+}
+
+function data_export_import_callback_export_nodes() {
+
+  // This is a simple display of some instructions and warnings.
+  return t("EXPORT NODES.");
+}
+
+function data_export_import_callback_import_nodes() {
+
+  // This is a simple display of some instructions and warnings.
+  return t("IMPORT NODES.");
 }
