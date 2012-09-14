@@ -24,7 +24,6 @@ function data_export_import_export_users_form($form_state) {
     '#collapsed' => FALSE,
   );
 
-
   $form['export_users']['description'] = array(
     '#type' => 'item', 
     '#title' => t('Export all users to a dataset file'),
@@ -36,6 +35,7 @@ function data_export_import_export_users_form($form_state) {
     '#type' => 'submit', 
     '#value' => 'Create dataset file',
   );
+
   return $form;
 }
 
@@ -139,6 +139,7 @@ function data_export_import_import_users_form($form_state) {
 
   $options = array();
   $options['none'] = "None";
+
   foreach ($files as $file) {
 
     $options[$file->filename] = check_plain($file->filename);
@@ -175,7 +176,6 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
     else {
       drupal_set_message(t('The Users dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['values']['dataset_file'])), 'error');
     }
-
   }
 }
 
@@ -272,7 +272,6 @@ function data_export_import_import_users($file) {
     if (!isset($current_roles[$dataset_role_key])) {
 
       drupal_set_message(t('The receiving instance does not have a role with ID of %id and name of %name.', array('%id' => $dataset_role_key, '%name' => $dataset_role_value)), 'warning');
-
     }
 
     elseif ($current_roles[$dataset_role_key] != $dataset_role_value) {
@@ -284,7 +283,7 @@ function data_export_import_import_users($file) {
             '%name' => $dataset_role_value,
             '%current_role_name' => $current_roles[$dataset_role_key],
           )
-        ),
+         ),
         'warning');
     }
   }
@@ -373,5 +372,6 @@ function data_export_import_import_users($file) {
         ->execute();
     }
   }
+
   return TRUE;
 }
