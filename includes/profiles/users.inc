@@ -353,9 +353,9 @@ function data_export_import_import_users($file) {
       // update_sql($sql_statement);
       $num_updated = db_update('users')
         ->fields(array(
-            'pass' => $user_from_dataset_file->pass,
+            'pass' => $dataset_file_user_value->pass,
           ))
-        ->condition('uid', $user_from_dataset_file->uid, '=')
+        ->condition('uid', $dataset_file_user_value->uid, '=')
         ->execute();
     }
   }
