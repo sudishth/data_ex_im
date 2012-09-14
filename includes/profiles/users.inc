@@ -223,7 +223,7 @@ function data_export_import_import_users_form_submit($form, &$form_state) {
 function data_export_import_import_users($file) {
 
   // Load the dataset file into a variable.
-  $file_content = file_get_contents(file_directory_path() . "/data_export_import/users/" . $file);
+  $file_content = file_get_contents(variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/users/" . $file);
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
@@ -233,11 +233,10 @@ function data_export_import_import_users($file) {
     drupal_set_message(t("There are no users in the dataset file"), 'error');
 
     // Here we need to delete all the users apart from the admin user
-    // account and the anonymous account.
-    // The logic is a bit complicated - but as we are going to remove
-    // any users which are not in the dataset file it will be simpler
-    // here to catch this special case where the dataset file contains
-    // no users.
+    // account and the anonymous account.  The logic is a bit
+    // complicated - but as we are going to remove any users which are
+    // not in the dataset file it will be simpler here to catch this
+    // special case where the dataset file contains no users.
     $result = db_query("SELECT uid FROM {users}");
 
     foreach ($result as $user) {
