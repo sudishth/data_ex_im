@@ -155,13 +155,19 @@ function data_export_import_import_users_form($form_state) {
  */
 function data_export_import_import_users_form_submit($form, &$form_state) {
 
+
+
+  drupal_set_message('<pre>' . var_export($form_state, TRUE) . '</pre>');
+
+
   if ($form_state['values']['users'] != 'none') {
 
 
 
     //    $result = data_export_import_import_users($form_state['clicked_button']['#post']['users']);
 
-    drupal_set_message($form_state['clicked_button']['#post']['users']);
+    //    drupal_set_message($form_state['clicked_button']['#post']['users']);
+    drupal_set_message(var_dump($form_state));
 
 
     /*    
