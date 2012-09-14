@@ -17,14 +17,22 @@ function data_export_import_callback_export_users() {
  */
 function data_export_import_export_users_form($form_state) {
 
-  $form['description'] = array(
+  $form['export_users'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Export users'),
+    '#collapsible' => FALSE,
+    '#collapsed' => FALSE,
+  );
+
+
+  $form['export_users']['description'] = array(
     '#type' => 'item', 
     '#title' => t('Export all users to a dataset file'),
   );
 
   // Adds a simple submit button that refreshes the form and clears its
   // contents. This is the default behavior for forms.
-  $form['submit'] = array(
+  $form['export_users']['submit'] = array(
     '#type' => 'submit', 
     '#value' => 'Create dataset file',
   );
@@ -107,10 +115,10 @@ function data_export_import_import_users_form($form_state) {
 
   $form = array();
 
-  $form['users'] = array(
+  $form['import_users'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Users'),
-    '#collapsible' => TRUE,
+    '#title' => t('Import users'),
+    '#collapsible' => FALSE,
     '#collapsed' => FALSE,
   );
 
@@ -135,14 +143,14 @@ function data_export_import_import_users_form($form_state) {
     $options[$file->filename] = check_plain($file->filename);
   }
 
-  $form['users']['users'] = array(
+  $form['import_users']['dataset_file'] = array(
     '#type' => 'radios',
-    '#title' => t('Please select file to import - NB You might want to switch off account activation email notification under the user settings'),
+    '#title' => t('Select file to import - NB You might want to switch off account activation email notification at /admin/config/people/accounts.'),
     '#default_value' => 'none',
     '#options' => $options,
   );
 
-  $form['submit'] = array(
+  $form['import_users']['submit'] = array(
     '#type' => 'submit',
     '#value' => 'Import dataset files',
   );
@@ -155,30 +163,21 @@ function data_export_import_import_users_form($form_state) {
  */
 function data_export_import_import_users_form_submit($form, &$form_state) {
 
+  if ($form_state['values']['dataset_file'] != 'none') {
+
+    drupal_set_message('<pre>' . var_export($form_state, TRUE) . '</pre>');
 
 
-  drupal_set_message('<pre>' . var_export($form_state, TRUE) . '</pre>');
+    $result = data_export_import_import_users($form_state['values']['dataset_file']);
 
 
-  if ($form_state['values']['users'] != 'none') {
-
-
-
-    //    $result = data_export_import_import_users($form_state['clicked_button']['#post']['users']);
-
-    //    drupal_set_message($form_state['clicked_button']['#post']['users']);
-    drupal_set_message(var_dump($form_state));
-
-
-    /*    
     if ($result) {
-      drupal_set_message(t('The Users dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])));
+      drupal_set_message(t('The Users dataset file %dataset_file was imported.', array('%dataset_file' => $form_state['values']['dataset_file'])));
       drupal_set_message(t('Any required role settings for the users will now have to be set by using the users administration screen.'));
     }
     else {
-      drupal_set_message(t('The Users dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['clicked_button']['#post']['users'])), 'error');
+      drupal_set_message(t('The Users dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['values']['dataset_file'])), 'error');
     }
-*/
 
   }
 }
