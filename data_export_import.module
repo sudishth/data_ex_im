@@ -21,7 +21,10 @@ function data_export_import_menu() {
 
   $items = array();
 
-  $items['admin/content/data_export_import'] = array(
+  // This will lay out the various tabs used to export and import
+  // data.  Tabs will also use the 'file' option to include the file
+  // containing the callback function and other functions.
+  $items['admin/config/system/data_export_import'] = array(
     'title' => 'Data export import',
     'page callback' => 'data_export_import_callback_overview',
     'access arguments' => array('access data export import'),
@@ -29,17 +32,14 @@ function data_export_import_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
-  // This 'tab' inherits from MENU_NORMAL_ITEM
-  $items['admin/content/data_export_import/overview'] = array(
+  $items['admin/config/system/data_export_import/overview'] = array(
     'title' => 'Overview',
     'weight' => 0,
     'description' => 'Data export import introduction',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-
-  // Tabs for nodes
-  $items['admin/content/data_export_import/nodes'] = array(
+  $items['admin/config/system/data_export_import/nodes'] = array(
     'title' => 'Nodes',
     'page callback' => 'data_export_import_callback_export_nodes',
     'access arguments' => array('access data export import'),
@@ -48,7 +48,7 @@ function data_export_import_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
-  $items['admin/content/data_export_import/nodes/export'] = array(
+  $items['admin/config/system/data_export_import/nodes/export'] = array(
     'title' => 'Export',
     'page callback' => 'data_export_import_callback_export_nodes',
     'access arguments' => array('access data export import'),
@@ -57,7 +57,7 @@ function data_export_import_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-  $items['admin/content/data_export_import/nodes/import'] = array(
+  $items['admin/config/system/data_export_import/nodes/import'] = array(
     'title' => 'Import',
     'page callback' => 'data_export_import_callback_import_nodes',
     'access arguments' => array('access data export import'),
@@ -66,10 +66,7 @@ function data_export_import_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
-
-
-
-  $items['admin/content/data_export_import/taxonomy_terms'] = array(
+  $items['admin/config/system/data_export_import/taxonomy_terms'] = array(
     'title' => 'Taxonomy Terms',
     'page callback' => 'data_export_import_callback_export_taxonomy_terms',
     'access arguments' => array('access data export import'),
@@ -78,7 +75,7 @@ function data_export_import_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
-  $items['admin/content/data_export_import/taxonomy_terms/export'] = array(
+  $items['admin/config/system/data_export_import/taxonomy_terms/export'] = array(
     'title' => 'Export',
     'page callback' => 'data_export_import_callback_export_taxonomy_terms',
     'access arguments' => array('access data export import'),
@@ -87,7 +84,7 @@ function data_export_import_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-  $items['admin/content/data_export_import/taxonomy_terms/import'] = array(
+  $items['admin/config/system/data_export_import/taxonomy_terms/import'] = array(
     'title' => 'Import',
     'page callback' => 'data_export_import_callback_import_taxonomy_terms',
     'access arguments' => array('access data export import'),
@@ -96,38 +93,31 @@ function data_export_import_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
-
-
-
-
-  $items['admin/content/data_export_import/users'] = array(
+  $items['admin/config/system/data_export_import/users'] = array(
     'title' => 'Users',
+    'description' => 'Export Users',
     'page callback' => 'data_export_import_callback_export_users',
     'access arguments' => array('access data export import'),
+    'file' => 'includes/profiles/users.inc',
     'weight' => 7,
-    'description' => 'Export Users',
     'type' => MENU_LOCAL_TASK,
   );
 
-  $items['admin/content/data_export_import/users/export'] = array(
+  $items['admin/config/system/data_export_import/users/export'] = array(
     'title' => 'Export',
-    'page callback' => 'data_export_import_callback_export_users',
-    'access arguments' => array('access data export import'),
     'weight' => 8,
-    'description' => 'Export Users',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-  $items['admin/content/data_export_import/users/import'] = array(
+  $items['admin/config/system/data_export_import/users/import'] = array(
     'title' => 'Import',
+    'description' => 'Import Users',
     'page callback' => 'data_export_import_callback_import_users',
     'access arguments' => array('access data export import'),
+    'file' => 'includes/profiles/users.inc',
     'weight' => 9,
-    'description' => 'Import Users',
     'type' => MENU_LOCAL_TASK,
   );
-
-
 
   return $items;
 }
@@ -144,16 +134,16 @@ function data_export_import_callback_overview() {
   return t("Please click on one of the profile tabs to export or import data.");
 }
 
-function data_export_import_callback_export_users() {
+function data_export_import_callback_export_nodes() {
 
   // This is a simple display of some instructions and warnings.
-  return t("EXPORT USERS.");
+  return t("EXPORT NODES.");
 }
 
-function data_export_import_callback_import_users() {
+function data_export_import_callback_import_nodes() {
 
   // This is a simple display of some instructions and warnings.
-  return t("IMPORT USERS.");
+  return t("IMPORT NODES.");
 }
 
 function data_export_import_callback_export_taxonomy_terms() {
@@ -168,14 +158,14 @@ function data_export_import_callback_import_taxonomy_terms() {
   return t("IMPORT TERMS.");
 }
 
-function data_export_import_callback_export_nodes() {
+//function data_export_import_callback_export_users() {
 
   // This is a simple display of some instructions and warnings.
-  return t("EXPORT NODES.");
-}
+//  return t("EXPORT USERS INIT.");
+//}
 
-function data_export_import_callback_import_nodes() {
+//function data_export_import_callback_import_users() {
 
   // This is a simple display of some instructions and warnings.
-  return t("IMPORT NODES.");
-}
+//  return t("IMPORT USERS.");
+//}
