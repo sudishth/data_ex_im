@@ -231,6 +231,25 @@ function data_export_import_import_users($file) {
   // Here we will pick up if the file contains no users.
   if (empty($file_content_as_array['users'])) {
     drupal_set_message(t("There are no users in the dataset file"), 'error');
+
+    // Here we need to delete all the users apart from the admin user
+    // account and the anonymous account.
+    // The logic is a bit complicated - but as we are going to remove
+    // any users which are not in the dataset file it will be simpler
+    // here to catch this special case where the dataset file contains
+    // no users.
+    $result = db_query("SELECT uid FROM {users}");
+
+    foreach ($result as $user) {
+
+      // Ignore the anonymous and default admin users.
+      if ($user->uid != 0 && $user->uid != 1) {
+
+        // Here we will delete the user account and delete all content
+        // owned by that user.
+        user_cancel(array(), $user->uid, 'user_cancel_delete');
+      }
+    }
     return TRUE;
   }
 
@@ -278,12 +297,8 @@ function data_export_import_import_users($file) {
   // then we will delete it.
   $result = db_query("SELECT uid FROM {users}");
 
-
-
   //  while ($user = db_fetch_object($result)) {
   foreach ($result as $user) {
-
-
 
     // Ignore the anonymous and default admin users.
     if ($user->uid == 0 || $user->uid == 1) {
