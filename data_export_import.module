@@ -66,6 +66,7 @@ function data_export_import_menu() {
     'type' => MENU_LOCAL_TASK,
   );
 
+/*
   $items['admin/config/system/data_export_import/taxonomy_terms'] = array(
     'title' => 'Taxonomy Terms',
     'page callback' => 'data_export_import_callback_export_taxonomy_terms',
@@ -92,6 +93,40 @@ function data_export_import_menu() {
     'description' => 'Import Taxonomy Terms',
     'type' => MENU_LOCAL_TASK,
   );
+*/
+
+
+  $items['admin/config/system/data_export_import/taxonomy_terms'] = array(
+    'title' => 'Taxonomy terms',
+    'description' => 'Export taxonomy terms',
+    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'file' => 'includes/profiles/taxonomy_terms.inc',
+    'weight' => 4,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  $items['admin/config/system/data_export_import/taxonomy_terms/export'] = array(
+    'title' => 'Export',
+    'weight' => 5,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['admin/config/system/data_export_import/taxonomy_terms/import'] = array(
+    'title' => 'Import',
+    'description' => 'Import taxonomy terms',
+    'page callback' => 'data_export_import_callback_import_taxonomy_terms',
+    'access arguments' => array('access data export import'),
+    'file' => 'includes/profiles/taxonomy_terms.inc',
+    'weight' => 6,
+    'type' => MENU_LOCAL_TASK,
+  );
+
+
+
+
+
+
 
   $items['admin/config/system/data_export_import/users'] = array(
     'title' => 'Users',
@@ -145,7 +180,7 @@ function data_export_import_callback_import_nodes() {
   // This is a simple display of some instructions and warnings.
   return t("IMPORT NODES.");
 }
-
+/*
 function data_export_import_callback_export_taxonomy_terms() {
 
   // This is a simple display of some instructions and warnings.
@@ -157,7 +192,7 @@ function data_export_import_callback_import_taxonomy_terms() {
   // This is a simple display of some instructions and warnings.
   return t("IMPORT TERMS.");
 }
-
+*/
 //function data_export_import_callback_export_users() {
 
   // This is a simple display of some instructions and warnings.
