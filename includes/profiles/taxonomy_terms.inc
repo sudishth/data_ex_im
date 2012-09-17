@@ -62,6 +62,14 @@ function data_export_import_export_taxonomy_terms_form($form_state) {
  */
 function data_export_import_export_taxonomy_terms_form_submit($form, &$form_state) {
 
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
+
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
   // This is the function which will carry out the exporting of the
   // taxonomy terms to a dataset file.
   $dataset_file_created = data_export_import_export_taxonomy_terms_to_file();
@@ -70,20 +78,46 @@ function data_export_import_export_taxonomy_terms_form_submit($form, &$form_stat
   drupal_set_message(check_plain($dataset_file_created));
 
   return TRUE;
+
+  /* Original code.
+
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
+
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
+  data_export_import_taxonomy_terms_export_to_file($form_state, $dataset_files_created);
+
+  drupal_set_message(t("The following dataset files were created:"));
+
+  foreach ($dataset_files_created as $dataset_file_name) {
+    drupal_set_message(check_plain($dataset_file_name));
+  }
+
+  return TRUE;
+  */
+
+
 }
 
 
 // function to export terms needed
 
+
 /**
  * Export the required dataset file.
  */
+/*
 function data_export_import_taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
 
   if ($form_state['clicked_button']['#post']['taxonomy_terms']['taxonomy_terms'] == 1) {
     $dataset_files_created[] = data_export_import_export_taxonomy_terms();
   }
 }
+*/
 
 /**
  * Exports detailed data about the vocabularies and its terms.
@@ -104,7 +138,7 @@ function data_export_import_taxonomy_terms_export_to_file($form_state, &$dataset
  * @return string
  *   The filename of the datafile which was created.
  */
-function data_export_import_export_taxonomy_terms() {
+function data_export_import_export_taxonomy_terms_to_file() {
 
   // This will be the main array which will hold the data which will
   // be output to the dataset file.
@@ -200,7 +234,9 @@ function data_export_import_export_taxonomy_terms() {
   file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
   // Save the string as a file. This is the dataset data file.
-  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
+
+  //  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
+  $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
   $file_path_and_name = $dataset_directory . "/" . $file_name;
 
   file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
