@@ -22,6 +22,7 @@ function data_export_import_export_nodes_form($form_state) {
     '#title' => t('Export nodes'),
     '#collapsible' => FALSE,
     '#collapsed' => FALSE,
+    '#tree' => TRUE,
   );
 
   $form['export_nodes']['description'] = array(
@@ -37,7 +38,8 @@ function data_export_import_export_nodes_form($form_state) {
     $node_type_type = $node_type->type;
     $node_type_name = $node_type->name;
 
-    $form['export_nodes'][$node_type_type] = array(
+    //    $form['export_nodes'][$node_type_type] = array(
+    $form['export_nodes']['content_types'][$node_type_type] = array(
       '#type' => 'checkbox',
       '#title' => check_plain($node_type_name),);
   }
@@ -59,6 +61,9 @@ function data_export_import_export_nodes_form_submit($form, &$form_state) {
 
   // This is the function which will carry out the exporting of the
   // nodes to a dataset file.
+
+  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
+
 
   $dataset_file_created = data_export_import_export_nodes_to_file($form_state);
 
@@ -97,17 +102,33 @@ function data_export_import_export_nodes_to_file($form_state) {
 
   // See if any content types were selected - if none then exit out
   // gracefully.
+
+  //NB - HERE WE NEED TO CHECK AT LEAST ON VALUE OF ['values']['content_types'] has a value of '1'.
+  /*
   if (!isset($form_state['clicked_button']['#post']['all_content_types'])) {
     drupal_set_message(t("No content types selected."));
     return TRUE;
   }
+  */
 
+  /*
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
   file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
 
   $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
   file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+  */
+
+  // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
+  file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/";
+  file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+
+
+
 
   // Adding in the main values to the $batch variable.
   $batch = array();
@@ -122,16 +143,27 @@ function data_export_import_export_nodes_to_file($form_state) {
   // The #post array will only contain values which have been set to
   // have a value of '1'. We will build up the $batch object with the
   // required operations.
-  foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
+
+  //  foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
+//  foreach ($form_state['values']['content_types'] as $content_type => $value) {
+  foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
+
+    // NB - HERE HERE HERE - TEST THIS WORKS OK.
+    if ($value == 0) {
+      continue;
+    }
 
     // Get the filename we are going to save the data to.
-    $file_name = format_date(time(), 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
+    $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
     $file_path_and_name = $dataset_directory . "/" . $file_name;
 
     // Here we are getting all content types and selecting just the one
     // we need - this seems to give more consistent results than just
     // extracting the single node object.
-    $node_types = node_get_types();
+
+    // $node_types = node_get_types();
+    node_types_rebuild();
+    $node_types = node_type_get_types();
 
     // Save the content type variable to the file. By serializing the
     // variable we will change it to a character based format which is
@@ -140,7 +172,7 @@ function data_export_import_export_nodes_to_file($form_state) {
     // do not cause issues on importing the dataset.
     $content_type_data_serialized = serialize($node_types[$content_type]);
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
-    file_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+    file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
 
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
