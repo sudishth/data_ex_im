@@ -62,7 +62,7 @@ function data_export_import_export_nodes_form_submit($form, &$form_state) {
   // This is the function which will carry out the exporting of the
   // nodes to a dataset file.
 
-  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
+////  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
 
 
   $dataset_file_created = data_export_import_export_nodes_to_file($form_state);
@@ -137,7 +137,9 @@ function data_export_import_export_nodes_to_file($form_state) {
   $batch['init_message'] = t('The exportation of nodes starting.');
   $batch['progress_message'] = t('Processed @current out of @total.');
   $batch['error_message'] = t('Exporting nodes has encountered an error.');
-  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+
+////  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc';
 
   // We can loop through which content types need to be exported.
   // The #post array will only contain values which have been set to
@@ -154,7 +156,8 @@ function data_export_import_export_nodes_to_file($form_state) {
     }
 
     // Get the filename we are going to save the data to.
-    $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
+////    $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
+    $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
     $file_path_and_name = $dataset_directory . "/" . $file_name;
 
     // Here we are getting all content types and selecting just the one
@@ -190,7 +193,8 @@ function data_export_import_export_nodes_to_file($form_state) {
 
   // Since we are not calling this batch processing from a form we will need to
   // request that the batch is processed.
-  batch_process('admin/content/data_export_import/all_content_types');
+////  batch_process('admin/content/data_export_import/all_content_types');
+  batch_process('admin/content/data_export_import/nodes');
 
   return TRUE;
 }
@@ -212,18 +216,27 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['current_node'] = 0;
-    $context['sandbox']['max'] = db_result(db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = '%s'", $content_type));
+////    $context['sandbox']['max'] = db_result(db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = '%s'", $content_type));
+    $context['sandbox']['max'] = db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = :content_type", array(':content_type' => $content_type))->fetchField();
+
   }
 
   // We will set this to make one pass at a time to limit timeouts.
   $limit = 1;
 
-  $result = db_query_range("SELECT nid FROM {node} WHERE nid > %d AND type = '%s' ORDER BY nid ASC", array($context['sandbox']['current_node'], $content_type), 0, $limit);
+//  $result = db_query_range("SELECT nid FROM {node} WHERE nid > %d AND type = '%s' ORDER BY nid ASC", array($context['sandbox']['current_node'], $content_type), 0, $limit);
+  $result = db_query_range("SELECT nid FROM {node} WHERE nid > :current_node AND type = :content_type ORDER BY nid ASC", 0, $limit, array(':current_node' => $context['sandbox']['current_node'], ':content_type' => $content_type));
 
-  while ($row = db_fetch_array($result)) {
+
+// Changing two things here - the new D7 syntax returns an object not
+// an array.
+
+////  while ($row = db_fetch_array($result)) {
+  foreach ($result as $row) {
 
     // Output one node to the file.
-    $node = node_load($row['nid'], NULL, TRUE);
+////    $node = node_load($row['nid'], NULL, TRUE);
+    $node = node_load($row->nid, NULL, TRUE);
 
     // Here we will deal with any files attached to the node if the
     // upload module is being used.  What we are going to do is to
