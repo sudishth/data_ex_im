@@ -492,11 +492,11 @@ function data_export_import_import_nodes($file) {
  * @return bool
  *   TRUE if the import process ran without errors.
  */
-function data_export_import_import_all_content_types($file) {
+function data_export_import_import_nodes($file) {
 
   // Read the first line - decode the object and check that the content types
   // are an exact match.
-  $file_path = file_directory_path() . "/data_export_import/all_content_types/" . $file;
+  $file_path = file_directory_path() . "/data_export_import/nodes/" . $file;
 
   $handle = fopen($file_path, "r");
   if ($handle) {
@@ -509,7 +509,10 @@ function data_export_import_import_all_content_types($file) {
 
   // Check that the content types match.
   $node_content_type = $node_content_type_object_from_file->type;
-  $node_types = node_get_types();
+
+  node_types_rebuild();
+  $node_types = node_type_get_types();
+////  $node_types = node_get_types();
 
   // Check that the content type exists in the receiving instance.
   if (is_null($node_types[$node_content_type])) {
@@ -561,10 +564,20 @@ function data_export_import_import_all_content_types($file) {
 
   // Loop through the existing nodes (for that content type) and if
   // they don't exist in the dataset then delete them.
-  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
-  $results = db_query($query, $node_content_type);
 
-  while ($nid = db_result($results)) {
+// Here we are going to be a bit simpler but harsher.  If a node of
+// *any* content type extists with the matching ID then delete it.
+
+// And we're going to alow the user running the import to be able to
+// delete any nodes so that the data keeps consistent.
+
+////  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
+////  $results = db_query($query, $node_content_type);
+
+  $results = db_query("SELECT nid FROM {node}");
+
+////  while ($nid = db_result($results)) {
+  foreach ($result as $nid) {
 
     if (!in_array($nid, $nids_from_file)) {
 
@@ -588,14 +601,14 @@ function data_export_import_import_all_content_types($file) {
     'init_message' => t('Batch of node importing starting.'),
     'progress_message' => t('Processed @current out of @total.'),
     'error_message' => t('Batch importing of nodes from file has encountered an error.'),
-    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc',
+    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
   );
 
   batch_set($batch);
 
   // Since this is not called from a file then we need to call the
   // batch process function.
-  batch_process('admin/content/data_export_import/all_content_types/import');
+  batch_process('admin/content/data_export_import/nodes/import');
 
   return TRUE;
 }
@@ -950,7 +963,10 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
   unset($node->nid);
 
   // Let modules modify the node before it is saved to the database.
-  node_invoke_nodeapi($node, 'presave');
+
+////  node_invoke_nodeapi($node, 'presave');
+module_invoke_all('node_' . 'presave', $node);
+
   global $user;
 
   // Insert a new node.
@@ -976,7 +992,10 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
     $node->body = '';
   }
 
-  $time = time();
+////  $time = time();
+  $time = REQUEST_TIME;
+
+
   if (empty($node->created)) {
     $node->created = $time;
   }
@@ -997,13 +1016,16 @@ function data_export_import_node_insert_with_defined_nid(&$node) {
     $node->nid = $defined_nid;
     data_export_import_drupal_write_record_via_insert_with_defined_id('node', $node);
 
-    db_query('UPDATE {node_revisions} SET nid = %d WHERE vid = %d', $node->nid, $node->vid);
+////    db_query('UPDATE {node_revisions} SET nid = %d WHERE vid = %d', $node->nid, $node->vid);
+    db_query('UPDATE {node_revision} SET nid = %d WHERE vid = %d', $node->nid, $node->vid);
     $op = 'insert';
   }
 
   // Call the node specific callback (if any).
   node_invoke($node, $op);
-  node_invoke_nodeapi($node, $op);
+
+////  node_invoke_nodeapi($node, $op);
+  module_invoke_all('node_' . $op, $node);
 
   // Update the node access table for this node.
   node_access_acquire_grants($node);
