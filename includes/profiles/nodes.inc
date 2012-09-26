@@ -1014,6 +1014,12 @@ module_invoke_all('node_' . 'presave', $node);
     // Call our modified function after putting the nid back into the
     // object.
     $node->nid = $defined_nid;
+
+
+//// HERE HERE HERE.
+/// Hopefully we should be able to replace this function call with the
+/// Drupal db_merge function.
+
     data_export_import_drupal_write_record_via_insert_with_defined_id('node', $node);
 
 ////    db_query('UPDATE {node_revisions} SET nid = %d WHERE vid = %d', $node->nid, $node->vid);
