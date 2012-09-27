@@ -968,7 +968,8 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
 
     // Here we do something meaningful with the results.
     $message = "The following file was imported:";
-    $message .= theme('item_list', $results);
+////    $message .= theme('item_list', $results);
+    $message .= theme('item_list', array('items' => $results));
   }
   else {
 
