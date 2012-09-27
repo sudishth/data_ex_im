@@ -781,8 +781,8 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
 // set a field first to prevent the node being saved as a new file
 // which would presumably be issued a new ID number.
       //// data_export_import_node_insert_with_defined_nid($dataset_node);
-      $dataset_node->is_new = FALSE;
-      node_save($dataset_node);
+      ////$dataset_node->is_new = FALSE;
+      node_save_with_defined_id($dataset_node);
 
       if (module_exists('upload')) {
 
@@ -988,3 +988,146 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
   drupal_set_message($message);
 }
 
+
+
+function node_save_with_defined_id($node) {
+  
+      // Here we will remove the nid from the object to trick the rest of
+  // the function into thinking it is dealing with a normal insert.
+  // We will then re-introduce the nid when needed.
+  $defined_nid = $node->nid;
+  unset($node->nid);
+    
+    $transaction = db_transaction();
+
+  try {
+    // Load the stored entity, if any.
+    if (!empty($node->nid) && !isset($node->original)) {
+      $node->original = entity_load_unchanged('node', $node->nid);
+    }
+
+    field_attach_presave('node', $node);
+    global $user;
+
+    // Determine if we will be inserting a new node.
+    if (!isset($node->is_new)) {
+      $node->is_new = empty($node->nid);
+    }
+
+    // Set the timestamp fields.
+    if (empty($node->created)) {
+      $node->created = REQUEST_TIME;
+    }
+    // The changed timestamp is always updated for bookkeeping purposes,
+    // for example: revisions, searching, etc.
+    $node->changed = REQUEST_TIME;
+
+    $node->timestamp = REQUEST_TIME;
+    $update_node = TRUE;
+
+    // Let modules modify the node before it is saved to the database.
+    module_invoke_all('node_presave', $node);
+    module_invoke_all('entity_presave', $node, 'node');
+
+    if ($node->is_new || !empty($node->revision)) {
+      // When inserting either a new node or a new node revision, $node->log
+      // must be set because {node_revision}.log is a text column and therefore
+      // cannot have a default value. However, it might not be set at this
+      // point (for example, if the user submitting a node form does not have
+      // permission to create revisions), so we ensure that it is at least an
+      // empty string in that case.
+      // @todo: Make the {node_revision}.log column nullable so that we can
+      // remove this check.
+      if (!isset($node->log)) {
+        $node->log = '';
+      }
+    }
+    elseif (!isset($node->log) || $node->log === '') {
+      // If we are updating an existing node without adding a new revision, we
+      // need to make sure $node->log is unset whenever it is empty. As long as
+      // $node->log is unset, drupal_write_record() will not attempt to update
+      // the existing database column when re-saving the revision; therefore,
+      // this code allows us to avoid clobbering an existing log entry with an
+      // empty one.
+      unset($node->log);
+    }
+
+    // When saving a new node revision, unset any existing $node->vid so as to
+    // ensure that a new revision will actually be created, then store the old
+    // revision ID in a separate property for use by node hook implementations.
+    if (!$node->is_new && !empty($node->revision) && $node->vid) {
+      $node->old_vid = $node->vid;
+      unset($node->vid);
+    }
+
+    // Save the node and node revision.
+    if ($node->is_new) {
+      // For new nodes, save new records for both the node itself and the node
+      // revision.
+      
+        // Just before we save the record we are going to reset the nid - 
+        // currently drupal_write_record() looks like it respects an nid
+        // which has been sent in to it.
+        
+        $node->nid = $defined_nid;
+        
+        drupal_write_record('node', $node);
+      _node_save_revision($node, $user->uid);
+      $op = 'insert';
+    }
+    else {
+      // For existing nodes, update the node record which matches the value of
+      // $node->nid.
+      drupal_write_record('node', $node, 'nid');
+      // Then, if a new node revision was requested, save a new record for
+      // that; otherwise, update the node revision record which matches the
+      // value of $node->vid.
+      if (!empty($node->revision)) {
+        _node_save_revision($node, $user->uid);
+      }
+      else {
+        _node_save_revision($node, $user->uid, 'vid');
+        $update_node = FALSE;
+      }
+      $op = 'update';
+    }
+    if ($update_node) {
+      db_update('node')
+        ->fields(array('vid' => $node->vid))
+        ->condition('nid', $node->nid)
+        ->execute();
+    }
+
+    // Call the node specific callback (if any). This can be
+    // node_invoke($node, 'insert') or
+    // node_invoke($node, 'update').
+    node_invoke($node, $op);
+
+    // Save fields.
+    $function = "field_attach_$op";
+    $function('node', $node);
+
+    module_invoke_all('node_' . $op, $node);
+    module_invoke_all('entity_' . $op, $node, 'node');
+
+    // Update the node access table for this node. There's no need to delete
+    // existing records if the node is new.
+    $delete = $op == 'update';
+    node_access_acquire_grants($node, $delete);
+
+    // Clear internal properties.
+    unset($node->is_new);
+    unset($node->original);
+    // Clear the static loading cache.
+    entity_get_controller('node')->resetCache(array($node->nid));
+
+    // Ignore slave server temporarily to give time for the
+    // saved node to be propagated to the slave.
+    db_ignore_slave();
+  }
+  catch (Exception $e) {
+    $transaction->rollback();
+    watchdog_exception('node', $e);
+    throw $e;
+  }
+}
