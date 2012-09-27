@@ -419,7 +419,7 @@ function data_export_import_import_nodes_form($form_state) {
 function data_export_import_import_nodes_form_submit($form, &$form_state) {
 
 // DEBUG
-  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
+////  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
 
   if ($form_state['values']['dataset_file'] != 'none') {
 
@@ -566,9 +566,9 @@ function data_export_import_import_nodes($file) {
   // they don't exist in the dataset then delete them.
 
 // Here we are going to be a bit simpler but harsher.  If a node of
-// *any* content type extists with the matching ID then delete it.
+// *any* content type exists with the matching ID then delete it.
 
-// And we're going to alow the user running the import to be able to
+// And we're going to allow the user running the import to be able to
 // delete any nodes so that the data keeps consistent.
 
 ////  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
@@ -577,13 +577,14 @@ function data_export_import_import_nodes($file) {
   $results = db_query("SELECT nid FROM {node}");
 
 ////  while ($nid = db_result($results)) {
-  foreach ($result as $nid) {
+  foreach ($results as $row) {
 
-    if (!in_array($nid, $nids_from_file)) {
+    if (!in_array($row->nid, $nids_from_file)) {
 
       // Delete node as it does not exist in the dataset being
       // imported.
-      node_delete($nid);
+      ////node_delete($nid);
+      node_delete($row->nid);
     }
   }
 
@@ -743,7 +744,15 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
       // this node we will be able to use the correct revision vid to
       // link the node to the Upload module files which we will be
       // saving next.
-      data_export_import_node_insert_with_defined_nid($dataset_node);
+
+
+// Here will try to use the new node_save() function in D7 which may
+// allow us to save the file with its current ID.  One thing, we will
+// set a field first to prevent the node being saved as a new file
+// which would presumably be issued a new ID number.
+      //// data_export_import_node_insert_with_defined_nid($dataset_node);
+      $dataset_node->is_new = FALSE;
+      node_save($dataset_node);
 
       if (module_exists('upload')) {
 
@@ -948,168 +957,3 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
   drupal_set_message($message);
 }
 
-/**
- * Implements saving a node with a defined nid value.
- *
- * This function is basically an override of the standard node_save()
- * function.
- */
-function data_export_import_node_insert_with_defined_nid(&$node) {
-
-  // Here we will remove the nid from the object to trick the rest of
-  // the function into thinking it is dealing with a normal insert.
-  // We will then re-introduce the nid when needed.
-  $defined_nid = $node->nid;
-  unset($node->nid);
-
-  // Let modules modify the node before it is saved to the database.
-
-////  node_invoke_nodeapi($node, 'presave');
-module_invoke_all('node_' . 'presave', $node);
-
-  global $user;
-
-  // Insert a new node.
-  $node->is_new = empty($node->nid);
-
-  if ($node->is_new || !empty($node->revision)) {
-    // When inserting a node, $node->log must be set because
-    // {node_revisions}.log does not (and cannot) have a default
-    // value.  If the user does not have permission to create
-    // revisions, however, the form will not contain an element for
-    // log so $node->log will be unset at this point.
-    if (!isset($node->log)) {
-      $node->log = '';
-    }
-  }
-
-  // For the same reasons, make sure we have $node->teaser and
-  // $node->body set.
-  if (!isset($node->teaser)) {
-    $node->teaser = '';
-  }
-  if (!isset($node->body)) {
-    $node->body = '';
-  }
-
-////  $time = time();
-  $time = REQUEST_TIME;
-
-
-  if (empty($node->created)) {
-    $node->created = $time;
-  }
-
-  // The changed timestamp is always updated for bookkeeping purposes
-  // (revisions, searching, ...)
-  $node->changed = $time;
-
-  $node->timestamp = $time;
-  $node->format = isset($node->format) ? $node->format : FILTER_FORMAT_DEFAULT;
-
-  // Generate the node table query and the node_revisions table query.
-  if ($node->is_new) {
-    _node_save_revision($node, $user->uid);
-
-    // Call our modified function after putting the nid back into the
-    // object.
-    $node->nid = $defined_nid;
-
-
-//// HERE HERE HERE.
-/// Hopefully we should be able to replace this function call with the
-/// Drupal db_merge function.
-
-    data_export_import_drupal_write_record_via_insert_with_defined_id('node', $node);
-
-////    db_query('UPDATE {node_revisions} SET nid = %d WHERE vid = %d', $node->nid, $node->vid);
-    db_query('UPDATE {node_revision} SET nid = %d WHERE vid = %d', $node->nid, $node->vid);
-    $op = 'insert';
-  }
-
-  // Call the node specific callback (if any).
-  node_invoke($node, $op);
-
-////  node_invoke_nodeapi($node, $op);
-  module_invoke_all('node_' . $op, $node);
-
-  // Update the node access table for this node.
-  node_access_acquire_grants($node);
-
-  // Clear the page and block caches.
-  cache_clear_all();
-}
-
-/**
- * Implements inserting a record with a defined id value.
- *
- * Overrides the standard drupal_write_record() function.
- */
-function data_export_import_drupal_write_record_via_insert_with_defined_id($table, &$object, $update = array()) {
-
-  // Standardize $update to an array.
-  if (is_string($update)) {
-    $update = array($update);
-  }
-
-  $schema = drupal_get_schema($table);
-  if (empty($schema)) {
-    return FALSE;
-  }
-
-  // Convert to an object if needed.
-  if (is_array($object)) {
-    $object = (object) $object;
-    $array = TRUE;
-  }
-  else {
-    $array = FALSE;
-  }
-
-  $fields = $defs = $values = $serials = $placeholders = array();
-
-  // Go through our schema, build SQL, and when inserting, fill in
-  // defaults for fields that are not set.
-  foreach ($schema['fields'] as $field => $info) {
-
-    // For inserts, populate defaults from Schema if not already
-    // provided.
-    if (!isset($object->$field) && !count($update) && isset($info['default'])) {
-      $object->$field = $info['default'];
-    }
-
-    // Build arrays for the fields, placeholders, and values in our
-    // query.
-    if (isset($object->$field)) {
-      $fields[] = $field;
-      $placeholders[] = db_type_placeholder($info['type']);
-
-      if (empty($info['serialize'])) {
-        $values[] = $object->$field;
-      }
-      else {
-        $values[] = serialize($object->$field);
-      }
-    }
-  }
-
-  // Build the SQL.
-  $query = '';
-  if (!count($update)) {
-    $query = "INSERT INTO {" . $table . "} (" . implode(', ', $fields) . ') VALUES (' . implode(', ', $placeholders) . ')';
-    $return = SAVED_NEW;
-  }
-
-  // Execute the SQL.
-  if (!db_query($query, $values)) {
-    $return = FALSE;
-  }
-
-  // If we began with an array, convert back so we don't surprise the
-  // caller.
-  if ($array) {
-    $object = (array) $object;
-  }
-
-  return $return;
-}
