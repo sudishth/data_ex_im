@@ -65,10 +65,18 @@ function data_export_import_export_nodes_form_submit($form, &$form_state) {
 ////  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
 
 
-  $dataset_file_created = data_export_import_export_nodes_to_file($form_state);
+  // This module has not yet been extended to correctly handle data
+  // which has internationalization (i18n) enabled.
+  if (module_exists('i18n')) {
 
-  drupal_set_message(t("The following dataset file was created:"));
-  drupal_set_message(check_plain($dataset_file_created));
+    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
+    return TRUE;
+  }
+
+
+
+  data_export_import_export_nodes_to_file($form_state);
+
 
   return TRUE;
 }
@@ -110,7 +118,23 @@ function data_export_import_export_nodes_to_file($form_state) {
     return TRUE;
   }
   */
+    
+$at_least_one_content_type_is_selected_flag = FALSE;
+  foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
+      if ($value == 1) {
+          
+          $at_least_one_content_type_is_selected_flag = TRUE;
+      }
+  }
+    
+    if (!$at_least_one_content_type_is_selected_flag) {
+    drupal_set_message(t("No content types selected."));
+    return TRUE;
+  }
 
+  
+  
+    
   /*
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
@@ -151,6 +175,8 @@ function data_export_import_export_nodes_to_file($form_state) {
   foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
 
     // NB - HERE HERE HERE - TEST THIS WORKS OK.
+      // This should mean that the rest of this loop will not be called if the 
+      // content_type was not selected.
     if ($value == 0) {
       continue;
     }
@@ -291,6 +317,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 
     file_put_contents($file_path_and_name, $node_serialized_and_base64_encoded . "\n", FILE_APPEND | LOCK_EX);
 
+
     // Update our progress information.
     $context['sandbox']['progress']++;
     $context['sandbox']['current_node'] = $node->nid;
@@ -319,7 +346,8 @@ function data_export_import_batch_export_nodes_finished($success, $results, $ope
 
     // Here we do something meaningful with the results.
     $message = "The following dataset files were created:";
-    $message .= theme('item_list', $results);
+////    $message .= theme('item_list', $results);
+    $message .= theme('item_list', array('items' => $results));
   }
   else {
 
