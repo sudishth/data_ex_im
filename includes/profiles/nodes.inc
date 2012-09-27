@@ -220,7 +220,8 @@ $at_least_one_content_type_is_selected_flag = FALSE;
   // Since we are not calling this batch processing from a form we will need to
   // request that the batch is processed.
 ////  batch_process('admin/content/data_export_import/all_content_types');
-  batch_process('admin/content/data_export_import/nodes');
+///  batch_process('admin/content/data_export_import/nodes');
+  batch_process('admin/config/system/data_export_import/nodes');
 
   return TRUE;
 }
@@ -637,7 +638,8 @@ function data_export_import_import_nodes($file) {
 
   // Since this is not called from a file then we need to call the
   // batch process function.
-  batch_process('admin/content/data_export_import/nodes/import');
+////  batch_process('admin/content/data_export_import/nodes/import');
+  batch_process('admin/config/system/data_export_import/nodes/import');
 
   return TRUE;
 }
