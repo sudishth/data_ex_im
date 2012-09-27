@@ -638,7 +638,7 @@ function data_export_import_import_nodes($file) {
 
   // Since this is not called from a file then we need to call the
   // batch process function.
-////  batch_process('admin/content/data_export_import/nodes/import');
+/////  batch_process('admin/content/data_export_import/nodes/import');
   batch_process('admin/config/system/data_export_import/nodes/import');
 
   return TRUE;
