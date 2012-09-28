@@ -992,7 +992,7 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
 
 function node_save_with_defined_id($node) {
   
-      // Here we will remove the nid from the object to trick the rest of
+  // Here we will remove the nid from the object to trick the rest of
   // the function into thinking it is dealing with a normal insert.
   // We will then re-introduce the nid when needed.
   $defined_nid = $node->nid;
@@ -1068,7 +1068,6 @@ function node_save_with_defined_id($node) {
         // Just before we save the record we are going to reset the nid - 
         // currently drupal_write_record() looks like it respects an nid
         // which has been sent in to it.
-        
         $node->nid = $defined_nid;
         
         drupal_write_record('node', $node);
