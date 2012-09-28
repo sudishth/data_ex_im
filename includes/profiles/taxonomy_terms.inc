@@ -455,8 +455,8 @@ function data_export_import_import_taxonomy_terms($file) {
   ////  $file_content = file_get_contents(file_directory_path() . "/data_export_import/taxonomy_terms/" . $file);
   $file_content = file_get_contents(variable_get('file_public_path', conf_path() . '/files')  . "/data_export_import/taxonomy_terms/" . $file);
 
-  drupal_set_message(variable_get('file_public_path', conf_path() . '/files')  . "/data_export_import/taxonomy_terms/" . $file);
-  drupal_set_message(var_export($file_content, TRUE));
+  ////  drupal_set_message(variable_get('file_public_path', conf_path() . '/files')  . "/data_export_import/taxonomy_terms/" . $file);
+  ////drupal_set_message(var_export($file_content, TRUE));
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);

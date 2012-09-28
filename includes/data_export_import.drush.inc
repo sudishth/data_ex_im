@@ -47,10 +47,11 @@ function data_export_import_drush_command() {
       'file' => 'The name of the file being imported.',
     ),
     'options' => array(
-      'options' => 'List of comma separated options to supply to the command.',
+		       ////'options' => 'List of comma separated options to supply to the command.',
+      'file' => 'List of comma separated options to supply to the command.',
     ),
     'examples' => array(
-      'drush data_export_import-import terms file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
+      'drush data_export_import-import terms --file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
     ),
     'aliases' => array('dei-im'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
@@ -166,7 +167,7 @@ function drush_data_export_import_import($dataset_file) {
     case 'terms':
       $filename = drush_get_option('file');
 
-      echo $filename;
+      //      echo $filename;
 
       data_export_import_import_taxonomy_terms($filename);
       ////data_export_import_import_taxonomy_terms("20120928_150416_taxonomy_terms.dataset");
@@ -177,7 +178,7 @@ function drush_data_export_import_import($dataset_file) {
 
 
       $filename = drush_get_option('file');
-
+      //      $filename = "asdf";
 
       var_export($filename);
 
