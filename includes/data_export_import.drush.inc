@@ -7,6 +7,10 @@
  * to see the command options.
  */
 
+require_once("profiles/nodes.inc");
+require_once("profiles/taxonomy_terms.inc");
+require_once("profiles/users.inc");
+
 /**
  * Implements hook_drush_command().
  *
@@ -119,7 +123,8 @@ function drush_data_export_import_export($profile) {
   switch ($profile) {
 
     case 'terms':
-      $msg = data_export_import_export_taxonomy_terms();
+      ////      $msg = data_export_import_export_taxonomy_terms();
+      $msg = data_export_import_export_taxonomy_terms_to_file();
       break;
 
     case 'users':
@@ -160,11 +165,23 @@ function drush_data_export_import_import($dataset_file) {
 
     case 'terms':
       $filename = drush_get_option('file');
+
+      echo $filename;
+
       data_export_import_import_taxonomy_terms($filename);
+      ////data_export_import_import_taxonomy_terms("20120928_150416_taxonomy_terms.dataset");
       break;
 
     case 'users':
+
+
+
       $filename = drush_get_option('file');
+
+
+      var_export($filename);
+
+
       data_export_import_import_users($filename);
       break;
 
