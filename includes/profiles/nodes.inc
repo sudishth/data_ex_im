@@ -632,7 +632,11 @@ function data_export_import_import_nodes($file) {
 
   // Read the first line - decode the object and check that the content types
   // are an exact match.
-  $file_path = file_directory_path() . "/data_export_import/nodes/" . $file;
+  ////  $file_path = file_directory_path() . "/data_export_import/nodes/" . $file;
+  $file_path = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/" . $file;
+
+
+
 
   $handle = fopen($file_path, "r");
   if ($handle) {
@@ -750,6 +754,141 @@ function data_export_import_import_nodes($file) {
 
   return TRUE;
 }
+
+/**
+ * Will import a dataset file.
+ *
+ * This function is specifically set up to be called by drush.
+ *
+ * @param string $file
+ *   The dataset file which is being imported.
+ *
+ * @return bool
+ *   TRUE if the import process ran without errors.
+ */
+function data_export_import_import_all_content_types_using_drush($file) {
+
+  // Read the first line - decode the object and check that the content types
+  // are an exact match.
+  ////  $file_path = file_directory_path() . "/data_export_import/all_content_types/" . $file;
+  $file_path = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/" . $file;
+
+  $handle = fopen($file_path, "r");
+  if ($handle) {
+
+    $content_type_line_from_file = fgets($handle);
+    fclose($handle);
+  }
+
+  $node_content_type_object_from_file = unserialize(base64_decode($content_type_line_from_file));
+
+  // Check that the content types exist and match.
+  $node_content_type = $node_content_type_object_from_file->type;
+  ////  $node_types = node_get_types();
+  node_types_rebuild();
+  $node_types = node_type_get_types();
+
+  // Check that the content type exists in the receiving instance.
+  if (is_null($node_types[$node_content_type])) {
+
+    drupal_set_message(t("The content type of the content being imported does not exist in the receiving site for content type of: %content_type", array('%content_type' => $node_content_type)), 'error');
+
+    return FALSE;
+  }
+
+  // Here we are going to unset the description fields.  If the
+  // description has been changed but everything else about the
+  // content type is the same then we will assume that this is just an
+  // edit to the description.
+  unset($node_content_type_object_from_file->description);
+  unset($node_types[$node_content_type]->description);
+
+  if ($node_content_type_object_from_file != $node_types[$node_content_type]) {
+
+    drupal_set_message(t("When the dataset was created the node content type was different from this site's node content type. Please manually compare the content type: %content_type", array('%content_type' => $node_content_type)), 'error');
+
+    return;
+  }
+
+  // Loop through all the lines in the file and put the nid's into an array.
+  // Then loop through all the current nodes (in the receiving instance)
+  // and check the nid value.  If it doesn't match an nid from the dataset file
+  // then delete the existing node in the receiving instance.  This will delete
+  // test nodes which have been created.
+  $line_number = 0;
+  $handle = fopen($file_path, "r");
+  if ($handle) {
+    while (($buffer = fgets($handle)) !== FALSE) {
+
+      $line_number++;
+      if ($line_number > 1) {
+
+        // @todo Here we will need to unencode the line extracted.
+        $node_from_file = unserialize(base64_decode($buffer));
+        $nids_from_file[] = $node_from_file->nid;
+      }
+    }
+
+    if (!feof($handle)) {
+      echo "Error: unexpected fgets() fail\n";
+    }
+    fclose($handle);
+
+  }
+
+  // Loop through the existing nodes (for that content type) and if
+  // they don't exist in the dataset then delete them. NB - We've
+  // used n.nid here as the db_rewrite_sql function will call a
+  // link to access/grants tables and this could result in an
+  // ambiguous field called 'nid'.
+
+
+  ////  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
+  ////  $results = db_query($query, $node_content_type);
+
+  $results = db_query("SELECT nid FROM {node}");
+
+
+  ////  while ($nid = db_result($results)) {
+  foreach ($results as $row) {
+
+    ////    if (!in_array($nid, $nids_from_file)) {
+    if (!in_array($row->nid, $nids_from_file)) {
+
+      // Delete node as it does not exist in the dataset being
+      // imported.
+      ////      node_delete($nid);
+      node_delete($row->nid);
+    }
+  }
+
+  // Loop through all the lines in the dataset file and extract each
+  // node line. If the receiving instance has a node with a matching
+  // nid then update it - or if not then create a new node with the
+  // same nid. We will use a batch function to process the lines from
+  // the file.
+  $batch = array(
+    'operations' => array(
+      array('data_export_import_batch_import_dataset_lines', array($file_path)),
+    ),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
+    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
+  );
+
+  $batch['progressive'] = FALSE;
+  batch_set($batch);
+
+  // Since this is not called from a file then we need to call the
+  // batch process function.
+  drush_backend_batch_process();
+
+  return TRUE;
+}
+
+
+
+
 
 /**
  * Batch function to process lines from a dataset.
