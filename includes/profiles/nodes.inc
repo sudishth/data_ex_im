@@ -429,7 +429,9 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     // Update our progress information.
     $context['sandbox']['progress']++;
     $context['sandbox']['current_node'] = $node->nid;
-    $context['message'] = t('Now processing %node', array('%node' => $node->title));
+
+    // Taken out as this was being output when this function was called by drush.
+    //// $context['message'] = t('Now processing %node', array('%node' => $node->title));
   }
 
   // Store some result for post-processing in the finished callback.
@@ -1098,7 +1100,8 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
         // this would lose all the revision history.
         $dataset_node->vid = $existing_node_vid;
         $dataset_node->revision = 1;
-        $dataset_node->log = "Imported from dataset file: " . $file;
+	////        $dataset_node->log = "Imported from dataset file: " . $file;
+        $dataset_node->log = "Imported from dataset file: " . $file_path;
 
         // Here we will save the files attached to the node via CCK
         // fields and update the fid values stored in the
