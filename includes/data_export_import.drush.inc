@@ -26,15 +26,16 @@ function data_export_import_drush_command() {
 
   // The 'data_export_import-export' command.
   $items['data_export_import-export'] = array(
-    'description' => "Exports Data Export Import dataset profiles.",
+    'description' => "Exports datasets to file(s).",
     'arguments' => array(
-      'profile' => 'The type of dataset profile.',
+      'dataset_profile' => 'The type of dataset to create; users, terms or nodes.',
     ),
     'options' => array(
-      'content-types' => 'List of comma separated content types to supply to the nodes export command.',
+      'content-types' => 'List of comma separated content types required when exporting nodes.',
     ),
     'examples' => array(
       'drush data_export_import-export terms' => 'Export taxonomy terms to a file.',
+      'drush data_export_import-export nodes --content-types=page,article' => 'Export pages and articles to separate files.',
     ),
     'aliases' => array('dei-ex'),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
@@ -44,11 +45,11 @@ function data_export_import_drush_command() {
   $items['data_export_import-import'] = array(
     'description' => "Imports Data Export Import dataset files.",
     'arguments' => array(
-      'file' => 'The name of the file being imported.',
+      'dataset_type' => 'Required - the type of dataset being imported; users, terms or nodes.',
     ),
     'options' => array(
 		       ////'options' => 'List of comma separated options to supply to the command.',
-      'file' => 'List of comma separated options to supply to the command.',
+      'file' => 'Required - filename of the file being imported (without the path).',
     ),
     'examples' => array(
       'drush data_export_import-import terms --file=20120223_170526_taxonomy_terms.dataset' => 'Import a dataset from a file.',
@@ -81,7 +82,7 @@ function data_export_import_drush_help($section) {
   switch ($section) {
 
     case 'drush:data_export_import-export':
-      return dt("This command will export a dataset profile to a data file.");
+      return dt("This command will export a dataset to a file.");
 
     case 'drush:data_export_import-import':
       return dt("This command will import a dataset file.");
@@ -118,10 +119,10 @@ function data_export_import_drush_help($section) {
  * @return bool
  *   Set as TRUE if the function ran OK.
  */
-function drush_data_export_import_export($profile) {
+function drush_data_export_import_export($dataset_profile) {
 
   // @todo These options should be pulled in from the profile files.
-  switch ($profile) {
+  switch ($dataset_profile) {
 
     case 'terms':
       ////      $msg = data_export_import_export_taxonomy_terms();
@@ -167,9 +168,9 @@ function drush_data_export_import_export($profile) {
  * @return bool
  *   Set as TRUE if the function ran OK.
  */
-function drush_data_export_import_import($dataset_file) {
+function drush_data_export_import_import($dataset_type) {
 
-  switch ($dataset_file) {
+  switch ($dataset_type) {
 
     case 'terms':
       $filename = drush_get_option('file');
