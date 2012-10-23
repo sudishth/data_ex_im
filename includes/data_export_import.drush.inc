@@ -135,9 +135,16 @@ function drush_data_export_import_export($profile) {
     case 'nodes':
       // Get the list of content types which should be exported.
       $list_of_content_types = drush_get_option('content-types');
+
+      // Provide clean warning if content-types argument is not supplied.
+      if (empty($list_of_content_types)) {
+	drupal_set_message("No content types supplied.", 'warning');
+	break;
+      }
+
       $array_of_content_types = explode(',', $list_of_content_types);
 
-      $msg = data_export_import_all_content_types_export_to_file_using_drush($array_of_content_types);
+      $msg = data_export_import_export_nodes_to_file_using_drush($array_of_content_types);
 
       break;
 
@@ -180,7 +187,7 @@ function drush_data_export_import_import($dataset_file) {
       $filename = drush_get_option('file');
       //      $filename = "asdf";
 
-      var_export($filename);
+      //// var_export($filename);
 
 
       data_export_import_import_users($filename);

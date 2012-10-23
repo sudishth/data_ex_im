@@ -73,23 +73,10 @@ function data_export_import_export_nodes_form_submit($form, &$form_state) {
     return TRUE;
   }
 
-
-
   data_export_import_export_nodes_to_file($form_state);
-
 
   return TRUE;
 }
-
-/**
- * Export the required dataset file.
- */
-/*
-function data_export_import_export_nodes_to_file() {
-
-  return "DUMMY export.";
-}
-*/
 
 /**
  * Export the required dataset files.
@@ -190,7 +177,7 @@ $at_least_one_content_type_is_selected_flag = FALSE;
     // we need - this seems to give more consistent results than just
     // extracting the single node object.
 
-    // $node_types = node_get_types();
+    ////    // $node_types = node_get_types();
     node_types_rebuild();
     $node_types = node_type_get_types();
 
@@ -225,6 +212,126 @@ $at_least_one_content_type_is_selected_flag = FALSE;
 
   return TRUE;
 }
+
+
+
+/**
+ * Export the required dataset files via drush.
+ *
+ * This function is set up to specifically be called by drush.
+ *
+ * This function will look at which content types have been selected
+ * for exporting to file and call a function to export thoese content
+ * types.  The $dataset_files_created variable will hold the names of
+ * all the dataset files which were created so it can be handed back
+ * to the calling code for display to the user.
+ *
+ * @param array $content_types
+ *   Current values held in the form.
+ *
+ * @return bool
+ *   TRUE if all ran OK.
+ */
+function data_export_import_export_nodes_to_file_using_drush($content_types) {
+
+  // See if any content types were selected - if none then exit out
+  // gracefully.
+  if (!isset($content_types)) {
+
+    return TRUE;
+  }
+
+  // Create the default directory to hold the datasets.
+  /*
+  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
+  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = file_directory_path() . "/data_export_import/nodes";
+  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+  */
+
+  // Create the default directory to hold the datasets.
+  $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
+  file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+
+  $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/";
+  file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+
+
+
+  // Adding in the main values to the $batch variable.
+  $batch = array();
+  $batch['error_message'] = t('Exporting nodes has encountered an error.');
+
+  //  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
+  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc';
+
+  // We can loop through which content types need to be exported.
+  // The #post array will only contain values which have been set to
+  // have a value of '1'. We will build up the $batch object with the
+  // required operations.
+  $files_created = array();
+  foreach ($content_types as $content_type) {
+
+    // Get the filename we are going to save the data to.
+
+
+  ////    $file_name = format_date(time(), 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
+    $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
+    $file_path_and_name = $dataset_directory . "/" . $file_name;
+
+    // Save the filename so it can be displayed when the command has
+    // been called.
+    $files_created[] = $file_name;
+
+    // Here we are getting all content types and selecting just the one
+    // we need - this seems to give more consistent results than just
+    // extracting the single node object.
+    ////    $node_types = node_get_types();
+    node_types_rebuild();
+    $node_types = node_type_get_types();
+
+    // Save the content type variable to the file. By serializing the
+    // variable we will change it to a character based format which is
+    // safe to be output to a file.  This is made safer then by being
+    // base64 encoded to make sure line endings and other characters
+    // do not cause issues on importing the dataset.
+    $content_type_data_serialized = serialize($node_types[$content_type]);
+
+    $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
+    ////file_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+    file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
+
+    // Each content type being exported to a dataset file will be run
+    // as a batch to prevent timeouts.
+    $batch['operations'][] = array(
+      'data_export_import_batch_export_nodes_to_file',
+      array(
+        $content_type,
+        $file_path_and_name,
+      ),
+    );
+  }
+
+  // This is the key function which will set the batch up to be
+  // processed.
+  $batch['progressive'] = FALSE;
+  batch_set($batch);
+
+  // Since we are not calling this batch processing from a form we
+  // will need to request that the batch is processed.
+  drush_backend_batch_process();
+
+  return implode("\n", $files_created);
+
+
+
+}
+
+
+
+
+
 
 
 /**
