@@ -557,8 +557,6 @@ function data_export_import_import_taxonomy_terms($file) {
         // function.
         if (module_exists('i18ntaxonomy')) {
 
-          // $query_result = db_query("UPDATE {taxonomy_term_data} SET language = '%s' WHERE tid = %d", $term_from_dataset->language, $term_from_dataset->tid);
-
           db_update('taxonomy_term_data')
             ->fields(array('language' => $term_from_dataset->language))
             ->condition('tid', $term_from_dataset->tid)
@@ -607,12 +605,16 @@ function data_export_import_import_taxonomy_terms($file) {
  *   The term ID under which to generate the tree. If 0, generate the
  *   tree for the entire vocabulary.
  *
- * @param int $depth
- *   Internal use only.
- *
  * @param int $max_depth
  *   The number of levels of the tree to return. Leave NULL to return
  *   all levels.
+ *
+ * @param int $load_entities
+ *   If TRUE, a full entity load will occur on the term
+ *   objects. Otherwise they are partial objects queried directly from
+ *   the {taxonomy_term_data} table to save execution time and memory
+ *   consumption when listing large numbers of terms. Defaults to
+ *   FALSE.
  *
  * @param bool $reset
  *   Whether or not to clear the static variables to force this

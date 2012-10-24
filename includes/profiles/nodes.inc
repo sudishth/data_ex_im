@@ -367,7 +367,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 }
 
 /**
- * Batch 'finished' callback
+ * Batch 'finished' callback.
  */
 function data_export_import_batch_export_nodes_finished($success, $results, $operations) {
   if ($success) {
@@ -712,7 +712,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
 
       // Delete node as it does not exist in the dataset being
       // imported.
-      ////      node_delete($nid);
       node_delete($row->nid);
     }
   }
@@ -1055,7 +1054,7 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
 }
 
 /**
- * Batch 'finished' callback
+ * Batch 'finished' callback.
  */
 function data_export_import_batch_import_dataset_lines_finished($success, $results, $operations) {
   if ($success) {
@@ -1081,13 +1080,23 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
   drupal_set_message($message);
 }
 
-
-
+/**
+ * Batch function to save node with a defined id.
+ *
+ * This function is a modified version of the standard node save
+ * function which allows for the id to be defined.
+ *
+ * @param object $node
+ *   Node being saved.
+ *
+ * @return bool
+ *   TRUE if function runs OK.
+ */
 function data_export_import_node_save_with_defined_id($node) {
 
   // Here we will remove the nid from the object to trick the rest of
-  // the function into thinking it is dealing with a normal insert.
-  // We will then re-introduce the nid when needed.
+  // the function into thinking it is dealing with a normal insert. We
+  // will then re-introduce the nid when needed.
   $defined_nid = $node->nid;
   unset($node->nid);
 
@@ -1129,8 +1138,6 @@ function data_export_import_node_save_with_defined_id($node) {
       // point (for example, if the user submitting a node form does not have
       // permission to create revisions), so we ensure that it is at least an
       // empty string in that case.
-      // @todo: Make the {node_revision}.log column nullable so that we can
-      // remove this check.
       if (!isset($node->log)) {
         $node->log = '';
       }
@@ -1222,4 +1229,6 @@ function data_export_import_node_save_with_defined_id($node) {
     watchdog_exception('node', $e);
     throw $e;
   }
+
+  return TRUE;
 }
