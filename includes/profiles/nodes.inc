@@ -1030,7 +1030,7 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
 // which would presumably be issued a new ID number.
       //// data_export_import_node_insert_with_defined_nid($dataset_node);
       ////$dataset_node->is_new = FALSE;
-      node_save_with_defined_id($dataset_node);
+      data_export_import_node_save_with_defined_id($dataset_node);
 
       if (module_exists('upload')) {
 
@@ -1239,7 +1239,7 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
 
 
 
-function node_save_with_defined_id($node) {
+function data_export_import_node_save_with_defined_id($node) {
   
   // Here we will remove the nid from the object to trick the rest of
   // the function into thinking it is dealing with a normal insert.
