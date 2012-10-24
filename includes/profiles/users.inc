@@ -25,14 +25,14 @@ function data_export_import_export_users_form($form_state) {
   );
 
   $form['export_users']['description'] = array(
-    '#type' => 'item', 
+    '#type' => 'item',
     '#title' => t('Export all users to a dataset file'),
   );
 
   // Adds a simple submit button that refreshes the form and clears its
   // contents. This is the default behavior for forms.
   $form['export_users']['submit'] = array(
-    '#type' => 'submit', 
+    '#type' => 'submit',
     '#value' => 'Create dataset file',
   );
 
@@ -355,8 +355,6 @@ function data_export_import_import_users($file) {
 
       // Here we will update the password to match what the was
       // originally output.
-      // $sql_statement = "UPDATE {users} SET pass= '" . $dataset_file_user_value->pass . "' WHERE uid = " . $dataset_file_user_value->uid;
-      // update_sql($sql_statement);
       $num_updated = db_update('users')
         ->fields(array(
             'pass' => $dataset_file_user_value->pass,

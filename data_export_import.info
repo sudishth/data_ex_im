@@ -4,4 +4,3 @@ core = 7.x
 dependencies[] = node
 dependencies[] = taxonomy
 configure = admin/content/data_export_import
-

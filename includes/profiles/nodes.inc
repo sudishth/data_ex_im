@@ -26,7 +26,7 @@ function data_export_import_export_nodes_form($form_state) {
   );
 
   $form['export_nodes']['description'] = array(
-    '#type' => 'item', 
+    '#type' => 'item',
     '#title' => t('Export all nodes to a dataset file'),
   );
 
@@ -46,7 +46,7 @@ function data_export_import_export_nodes_form($form_state) {
   // Adds a simple submit button that refreshes the form and clears its
   // contents. This is the default behavior for forms.
   $form['export_nodes']['submit'] = array(
-    '#type' => 'submit', 
+    '#type' => 'submit',
     '#value' => 'Create dataset file',
   );
 
@@ -92,13 +92,13 @@ function data_export_import_export_nodes_to_file($form_state) {
   // gracefully.
   $at_least_one_content_type_is_selected_flag = FALSE;
   foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
-      if ($value == 1) {
-          
-          $at_least_one_content_type_is_selected_flag = TRUE;
-      }
+    if ($value == 1) {
+
+      $at_least_one_content_type_is_selected_flag = TRUE;
+    }
   }
-    
-    if (!$at_least_one_content_type_is_selected_flag) {
+
+  if (!$at_least_one_content_type_is_selected_flag) {
     drupal_set_message(t("No content types selected."));
     return TRUE;
   }
@@ -125,8 +125,8 @@ function data_export_import_export_nodes_to_file($form_state) {
   // required operations.
   foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
 
-      // This should mean that the rest of this loop will not be called if the 
-      // content_type was not selected.
+    // This should mean that the rest of this loop will not be called if the
+    // content_type was not selected.
     if ($value == 0) {
       continue;
     }
@@ -871,15 +871,11 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
       // CCK fields which have already been saved - and after saving
       // this node we will be able to use the correct revision vid to
       // link the node to the Upload module files which we will be
-      // saving next.
-
-
-// Here will try to use the new node_save() function in D7 which may
-// allow us to save the file with its current ID.  One thing, we will
-// set a field first to prevent the node being saved as a new file
-// which would presumably be issued a new ID number.
-      //// data_export_import_node_insert_with_defined_nid($dataset_node);
-      ////$dataset_node->is_new = FALSE;
+      // saving next. Here will try to use the new node_save()
+      // function in D7 which may allow us to save the file with its
+      // current ID.  One thing, we will set a field first to prevent
+      // the node being saved as a new file which would presumably be
+      // issued a new ID number.
       data_export_import_node_save_with_defined_id($dataset_node);
 
       if (module_exists('upload')) {
@@ -887,10 +883,10 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
         if (!empty($uploaded_files)) {
 
           foreach ($uploaded_files as $uploaded_file) {
-
             $directory = file_create_path(dirname($uploaded_file->filepath));
 
             if (file_check_directory($directory, TRUE)) {
+
               if (file_put_contents($uploaded_file->filepath, base64_decode($uploaded_file->data_export_import_file_data))) {
                 drupal_write_record('files', $uploaded_file);
 
@@ -1088,14 +1084,14 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
 
 
 function data_export_import_node_save_with_defined_id($node) {
-  
+
   // Here we will remove the nid from the object to trick the rest of
   // the function into thinking it is dealing with a normal insert.
   // We will then re-introduce the nid when needed.
   $defined_nid = $node->nid;
   unset($node->nid);
-    
-    $transaction = db_transaction();
+
+  $transaction = db_transaction();
 
   try {
     // Load the stored entity, if any.
@@ -1161,13 +1157,13 @@ function data_export_import_node_save_with_defined_id($node) {
     if ($node->is_new) {
       // For new nodes, save new records for both the node itself and the node
       // revision.
-      
-        // Just before we save the record we are going to reset the nid - 
-        // currently drupal_write_record() looks like it respects an nid
-        // which has been sent in to it.
-        $node->nid = $defined_nid;
-        
-        drupal_write_record('node', $node);
+
+      // Just before we save the record we are going to reset the nid -
+      // currently drupal_write_record() looks like it respects an nid
+      // which has been sent in to it.
+      $node->nid = $defined_nid;
+
+      drupal_write_record('node', $node);
       _node_save_revision($node, $user->uid);
       $op = 'insert';
     }

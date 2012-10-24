@@ -7,9 +7,9 @@
  * to see the command options.
  */
 
-require_once("profiles/nodes.inc");
-require_once("profiles/taxonomy_terms.inc");
-require_once("profiles/users.inc");
+require_once "profiles/nodes.inc";
+require_once "profiles/taxonomy_terms.inc";
+require_once "profiles/users.inc";
 
 /**
  * Implements hook_drush_command().
@@ -136,8 +136,8 @@ function drush_data_export_import_export($dataset_profile) {
 
       // Provide clean warning if content-types argument is not supplied.
       if (empty($list_of_content_types)) {
-	drupal_set_message(t("No content types supplied."), 'warning');
-	break;
+        drupal_set_message(t("No content types supplied."), 'warning');
+        break;
       }
 
       $array_of_content_types = explode(',', $list_of_content_types);

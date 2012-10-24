@@ -43,14 +43,14 @@ function data_export_import_export_taxonomy_terms_form($form_state) {
   );
 
   $form['export_taxonomy_terms']['description'] = array(
-    '#type' => 'item', 
+    '#type' => 'item',
     '#title' => t('Export all taxonomy terms to a dataset file'),
   );
 
   // Adds a simple submit button that refreshes the form and clears its
   // contents. This is the default behavior for forms.
   $form['export_taxonomy_terms']['submit'] = array(
-    '#type' => 'submit', 
+    '#type' => 'submit',
     '#value' => 'Create dataset file',
   );
 
@@ -527,7 +527,6 @@ function data_export_import_import_taxonomy_terms($file) {
 
     foreach ($vocabulary_from_dataset as $term_from_dataset) {
 
-      // $get_term_result = taxonomy_get_term($term_from_dataset->tid, $reset = TRUE);
       $get_term_result = entity_load('taxonomy_term', array($term_from_dataset->tid), array(), TRUE);
 
       if (empty($get_term_result)) {
