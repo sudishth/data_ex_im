@@ -92,7 +92,6 @@ function data_export_import_export_users_to_file() {
   file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
   // Save the string as a file. This is the dataset data file.
-  //  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_users.dataset";
   $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_users.dataset";
   $file_path_and_name = $dataset_directory . "/" . $file_name;
 
@@ -127,7 +126,6 @@ function data_export_import_import_users_form($form_state) {
   // links to dataset files.
   $directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/users";
 
-  // $mask = '.dataset';
   $mask = '/.dataset/';
 
   $files = file_scan_directory($directory, $mask);
@@ -141,7 +139,6 @@ function data_export_import_import_users_form($form_state) {
   $options['none'] = "None";
 
   foreach ($files as $file) {
-
     $options[$file->filename] = check_plain($file->filename);
   }
 
@@ -295,7 +292,6 @@ function data_export_import_import_users($file) {
   // then we will delete it.
   $result = db_query("SELECT uid FROM {users}");
 
-  //  while ($user = db_fetch_object($result)) {
   foreach ($result as $user) {
 
     // Ignore the anonymous and default admin users.
@@ -311,13 +307,12 @@ function data_export_import_import_users($file) {
       // No user with this ID exists in the dataset file.  Therefore we will
       // delete the current user as we want the current user list to exactly
       // match the list in the dataset.  The current user could well be a test
-      // user which was created during development.
-
-      // user_delete(array(), $user->uid);
-      // Here we will delete the user account and delete all content
-      // owned by that user.
+      // user which was created during development. Here we will
+      // delete the user account and delete all content owned by that
+      // user.
       user_cancel(array(), $user->uid, 'user_cancel_delete');
     }
+
     else {
 
       // Else if it does see if it is the same and if not then update
@@ -339,8 +334,6 @@ function data_export_import_import_users($file) {
 
         // Here we will update the password to match what the was
         // originally output.
-        //$sql_statement = "UPDATE {users} SET pass= '" . $user_from_dataset_file->pass . "' WHERE uid = " . $user_from_dataset_file->uid;
-        //update_sql($sql_statement);
         $num_updated = db_update('users')
           ->fields(array(
               'pass' => $user_from_dataset_file->pass,

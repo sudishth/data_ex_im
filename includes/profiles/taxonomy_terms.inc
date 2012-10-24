@@ -78,46 +78,7 @@ function data_export_import_export_taxonomy_terms_form_submit($form, &$form_stat
   drupal_set_message(check_plain($dataset_file_created));
 
   return TRUE;
-
-  /* Original code.
-
-  // This module has not yet been extended to correctly handle data
-  // which has internationalization (i18n) enabled.
-  if (module_exists('i18n')) {
-
-    drupal_set_message(t("The data export functionality is not currently compatible with internationalization (i18n)."), 'error');
-    return TRUE;
-  }
-
-  data_export_import_taxonomy_terms_export_to_file($form_state, $dataset_files_created);
-
-  drupal_set_message(t("The following dataset files were created:"));
-
-  foreach ($dataset_files_created as $dataset_file_name) {
-    drupal_set_message(check_plain($dataset_file_name));
-  }
-
-  return TRUE;
-  */
-
-
 }
-
-
-// function to export terms needed
-
-
-/**
- * Export the required dataset file.
- */
-/*
-function data_export_import_taxonomy_terms_export_to_file($form_state, &$dataset_files_created) {
-
-  if ($form_state['clicked_button']['#post']['taxonomy_terms']['taxonomy_terms'] == 1) {
-    $dataset_files_created[] = data_export_import_export_taxonomy_terms();
-  }
-}
-*/
 
 /**
  * Exports detailed data about the vocabularies and its terms.
@@ -148,9 +109,9 @@ function data_export_import_export_taxonomy_terms_to_file() {
   $vocabularies_array = taxonomy_get_vocabularies();
   $dataset['vocabularies'] = $vocabularies_array;
 
-  // Add the vocabulary terms to the main array.
-  // We will loop through the vocabularies array and use the vid to
-  // then get the list of terms in each vocabulary.
+  // Add the vocabulary terms to the main array. We will loop through
+  // the vocabularies array and use the vid to then get the list of
+  // terms in each vocabulary.
   foreach ($vocabularies_array as $vocabulary) {
 
     $vocabulary_id = $vocabulary->vid;
@@ -182,33 +143,6 @@ function data_export_import_export_taxonomy_terms_to_file() {
         // been output already - and if so then not re-output it
         // again.
         $list_of_terms[] = $term->tid;
-
-/* - SYNONYMS are not used in D7
-        // Here we add the synonyms to the term object being
-        // exported.
-        $synonyms_array = taxonomy_get_synonyms($term->tid);
-
-        // Sort the array to make it consistent with a later call to
-        // this function. When they are extracted using the API
-        // function  they are not sorted in any particular order.
-        asort($synonyms_array);
-
-        $term->synonyms = $synonyms_array;
-*/
-
-/* CURRENTLY NOT IMPLEMENTED - Related terms are implemented very
-differently in D7 and so needs to be re-done here.
-        // Add in the related terms.
-        $related_terms = taxonomy_get_related($term->tid);
-
-        $array_of_related_term_tids = array();
-
-        foreach ($related_terms as $related_term) {
-          $array_of_related_term_tids[] = $related_term->tid;
-        }
-
-        $term->relations = $array_of_related_term_tids;
-*/
       }
     }
 
@@ -233,17 +167,6 @@ differently in D7 and so needs to be re-done here.
   // can then be output to a file.
   $dataset_serialized = serialize($dataset);
 
-
-
-/*
-  // Create the default directory to hold the datasets.
-  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
-  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
-
-  $dataset_directory = file_directory_path() . "/data_export_import/taxonomy_terms/";
-  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
-*/
-
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
   file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
@@ -251,67 +174,14 @@ differently in D7 and so needs to be re-done here.
   $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/taxonomy_terms/";
   file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
-
-
-
   // Save the string as a file. This is the dataset data file.
-
-  //  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
   $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_taxonomy_terms.dataset";
   $file_path_and_name = $dataset_directory . "/" . $file_name;
 
-//  file_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
   file_unmanaged_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
-
-
-
-
-/*
-  // Save the string as a file. This is the dataset data file.
-  //  $file_name = format_date(time(), 'custom', 'Ymd_His') . "_users.dataset";
-  $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_users.dataset";
-  $file_path_and_name = $dataset_directory . "/" . $file_name;
-
-  file_unmanaged_save_data($dataset_serialized, $file_path_and_name, FILE_EXISTS_REPLACE);
-*/
-
-
-
-
 
   return $file_name;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Callback function to import taxonomy terms.
@@ -339,7 +209,6 @@ function data_export_import_import_taxonomy_terms_form($form_state) {
   // links to dataset files.
   $directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/taxonomy_terms";
 
-  // $mask = '.dataset';
   $mask = '/.dataset/';
 
   $files = file_scan_directory($directory, $mask);
@@ -389,10 +258,6 @@ function data_export_import_import_taxonomy_terms_form_submit($form, &$form_stat
     }
   }
 }
-
-// NEEDED HERE
-//function data_export_import_import_terms($file) {
-
 
 /**
  * Make taxonomy terms match the terms from a dataset file.
@@ -449,14 +314,8 @@ function data_export_import_import_taxonomy_terms_form_submit($form, &$form_stat
  */
 function data_export_import_import_taxonomy_terms($file) {
 
-  // @todo Need to add a check that the file exists and handle the error.
-  // *
   // Load the dataset file into a variable.
-  ////  $file_content = file_get_contents(file_directory_path() . "/data_export_import/taxonomy_terms/" . $file);
   $file_content = file_get_contents(variable_get('file_public_path', conf_path() . '/files')  . "/data_export_import/taxonomy_terms/" . $file);
-
-  ////  drupal_set_message(variable_get('file_public_path', conf_path() . '/files')  . "/data_export_import/taxonomy_terms/" . $file);
-  ////drupal_set_message(var_export($file_content, TRUE));
 
   // Decode the serialized data and store it in an array of objects.
   $file_content_as_array = unserialize($file_content);
@@ -499,7 +358,6 @@ function data_export_import_import_taxonomy_terms($file) {
     // vocabularies may be linked to different content types.
     unset($vocabulary_from_file->nodes);
     unset($existing_vocabulary->nodes);
-
 
     // Check the vocabularies actually match.
     if ($vocabulary_from_file != $existing_vocabulary) {
@@ -545,7 +403,6 @@ function data_export_import_import_taxonomy_terms($file) {
     // NB - These are terms which are in the receiving instance and we
     // are going to check them against the terms in the dataset being
     // imported.
-    //$existing_terms_array = data_export_import_taxonomy_get_tree_with_reset($existing_vocabulary_id, 0, -1, NULL, TRUE);
     $existing_terms_array = data_export_import_taxonomy_get_tree_with_reset($existing_vocabulary_id, 0, NULL, TRUE, TRUE);
 
     // We will use this array to hold all the terms id's which have
@@ -580,7 +437,6 @@ function data_export_import_import_taxonomy_terms($file) {
       // exist then is should be deleted from the receiving instance.
       if (!isset($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid])) {
 
-        // $return_status = taxonomy_del_term($existing_term->tid);
         $return_status = taxonomy_term_delete($existing_term->tid);
       }
 
@@ -596,26 +452,7 @@ function data_export_import_import_taxonomy_terms($file) {
         // *
         // We will sort the synonyms to put them in the same order as
         // they are in the dataset file.
-
-/*
-// Synonyms are no longer used.
-        $synonyms_array = taxonomy_get_synonyms($existing_term->tid);
-        asort($synonyms_array);
-        $existing_term->synonyms = $synonyms_array;
-*/
-
-/* Related terms are no longer used.
-        // Here we will add in the related terms to this object - this
-        // means we can do a full check if the term objects.
-        $related_terms = taxonomy_get_related($existing_term->tid);
-
-        $array_of_related_term_tids = array();
-        foreach ($related_terms as $related_term) {
-          $array_of_related_term_tids[] = $related_term->tid;
-        }
-        $existing_term->relations = $array_of_related_term_tids;
-*/
-
+        // *
         // We unset the depth as this is calculated and can be
         // different when terms have two parents which are at
         // different depths.
@@ -640,15 +477,6 @@ function data_export_import_import_taxonomy_terms($file) {
         // Update the term with the data from the dataset.
         if ($existing_term_object != $term_object_from_dataset) {
 
-/*
-          // The synonyms need to be converted to a list separated by
-          // new lines before we can use it.
-          $synonym_list = "";
-          foreach ($file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->synonyms as $synonym) {
-            $synonym_list .= $synonym . "\n";
-          }
-*/
-
           // Update the term with data from the dataset.
           $term_data_array = array(
             'tid' => $existing_term->tid,
@@ -664,8 +492,6 @@ function data_export_import_import_taxonomy_terms($file) {
           // $save_term_status = taxonomy_save_term($term_data_array);
           $save_term_status = taxonomy_term_save((object) $term_data_array);
 
-
-
           if ($save_term_status != 2) {
             drupal_set_message(t("Term not saved correctly.  Term id:") . $existing_term->tid . "\n", 'error');
           }
@@ -679,20 +505,10 @@ function data_export_import_import_taxonomy_terms($file) {
           // data_export_import_taxonomy_save_term_with_defined_tid()
           // function.
           if (module_exists('i18ntaxonomy')) {
-
-//            $query_result = db_query("UPDATE {taxonomy_term_data} SET language = '%s' WHERE tid = %d", $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->language, $existing_term->tid);
-
-// Drupal 7
-db_update('taxonomy_term_data')
-  ->fields(array('language' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->language))
-  ->condition('tid', $existing_term->tid)
-  ->execute();
-/*
-            if ($query_result == FALSE) {
-              drupal_set_message(t("Insertion into term_data table failed."), 'error');
-            }
-*/
-
+            db_update('taxonomy_term_data')
+              ->fields(array('language' => $file_content_as_array['vocabulary_terms'][$existing_vocabulary_id][$existing_term->tid]->language))
+              ->condition('tid', $existing_term->tid)
+              ->execute();
           }
         }
       }
@@ -715,16 +531,6 @@ db_update('taxonomy_term_data')
       $get_term_result = entity_load('taxonomy_term', array($term_from_dataset->tid), array(), TRUE);
 
       if (empty($get_term_result)) {
-
-/*
-        // Will use the a modified taxonomy_save_term API function to
-        // create the term. The synonyms need to be converted to a
-        // list separated by new lines before we can use it.
-        $synonym_list = "";
-        foreach ($term_from_dataset->synonyms as $synonym) {
-          $synonym_list .= $synonym . "\n";
-        }
-*/
 
         // Update the term with data from the dataset.
         $term_data_array = array(
@@ -754,19 +560,14 @@ db_update('taxonomy_term_data')
 
           // $query_result = db_query("UPDATE {taxonomy_term_data} SET language = '%s' WHERE tid = %d", $term_from_dataset->language, $term_from_dataset->tid);
 
-db_update('taxonomy_term_data')
-  ->fields(array('language' => $term_from_dataset->language))
-  ->condition('tid', $term_from_dataset->tid)
-  ->execute();
-
+          db_update('taxonomy_term_data')
+            ->fields(array('language' => $term_from_dataset->language))
+            ->condition('tid', $term_from_dataset->tid)
+            ->execute();
 
           if ($query_result == FALSE) {
             drupal_set_message(t("Insertion into term_data table failed."), 'error');
           }
-
-
-
-
         }
       }
     }
@@ -776,108 +577,19 @@ db_update('taxonomy_term_data')
   // value. This value is a calculated value which is stored in the
   // vocabularies table and will need to be calculated dependent on
   // the structure of the terms in the vocabulary.
-  // Value will be either:
-  // 0 - Flat list of terms.
-  // 1 - One or more terms have a parent.
-  // 2 - One or more terms have more than one parent.
+  // Value will be either: 0 - Flat list of terms. 1 - One or more
+  // terms have a parent. 2 - One or more terms have more than one
+  // parent.
   $vocabularies_array = taxonomy_get_vocabularies();
   foreach ($vocabularies_array as $vocabulary) {
-
-    // data_export_import_reset_taxonomy_vocabulary_hierarchy($vocabulary->vid);
-// Apparently the new reset API function should work OK.
-// We need to set the array with a fake tid field value to enable the
-// fucntion to run.
+    // Apparently the new reset API function should work OK. We need
+    // to set the array with a fake tid field value to enable the
+    // function to run.
     taxonomy_check_vocabulary_hierarchy($vocabulary, array("tid" => 0));
-
   }
 
   return TRUE;
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-// HELPER FUNCTIONS
-
-/**
- * This resets the value of the hierarchy field for the vocabulary.
- *
- * The value of the hierarchy field in the vocabulary is used to set
- * up how the admin screen works when editing terms. I.e. If the value
- * is set to '2' this means that there are terms with multiple parents
- * and consequently the drag and drop interface pn the admin page will
- * be disabled.
- *
- * As the terms are being programmatically updated by this module the
- * hierarchy value my not be correct for the terms and so needs to be
- * reset.
- *
- * @param int $vid
- *   Vocabulary ID of the vocabulary having it's hierarchy reset.
- *
- * @return bool
- *   TRUE if the function ran without error.
- */
-/*
-function data_export_import_reset_taxonomy_vocabulary_hierarchy($vid) {
-
-  // Get the tree of terms we are going to examine.
-  $tree = data_export_import_taxonomy_get_tree_with_reset($vid, 0, -1, NULL, TRUE);
-
-  // Set the hierarchy to the lowest level and increase it if relevant
-  // terms are found.
-  $hierarchy = '0';
-  foreach ($tree as $term) {
-
-    // Check this term's parent count.
-    if (count($term->parents) > 1) {
-
-      $hierarchy = '2';
-
-      // Break out the foreach loop as the highest hierarchy value has
-      // been set.
-      break;
-    }
-    // Look for a single parent - but do not set the value if there is
-    // a single parent value of '0' which is normal for terms with no
-    // parents.
-    elseif (count($term->parents) == 1 && '0' !== array_shift($term->parents)) {
-      $hierarchy = '1';
-    }
-  }
-
-  // Second parameter is set to TRUE to reset the cache.
-  $vocabulary_object = taxonomy_vocabulary_load($vid, TRUE);
-
-  // If the hieracrchy value has changed then save the new value back
-  // to the database.
-  if ($hierarchy != $vocabulary_object->hierarchy) {
-
-    $vocabulary_object->hierarchy = $hierarchy;
-
-    // Needs to be cast to an array as that is what the
-    // taxonomy_save_vocabulary function expects.
-
-// No longer needed.
-    //$vocabulary_array = (array) $vocabulary_object;
-
-    // taxonomy_save_vocabulary($vocabulary_array);
-    taxonomy_vocabulary_save($vocabulary_object);
-  }
-}
-*/
-
-
 
 /**
  * This function overrides the taxonomy_get_tree() API function.
@@ -918,17 +630,16 @@ function data_export_import_taxonomy_get_tree_with_reset($vid, $parent = 0, $max
   $parents = &drupal_static(__FUNCTION__ . ':parents', array());
   $terms = &drupal_static(__FUNCTION__ . ':terms', array());
 
-// Here we will unset the static values to force this function to get
-// fresh data.
+  // Here we will unset the static values to force this function to
+  // get fresh data.
   if ($reset) {
     unset($children[$vid]);
     unset($parents[$vid]);
     unset($terms[$vid]);
   }
 
-
-  // We cache trees, so it's not CPU-intensive to call taxonomy_get_tree() on a
-  // term and its children, too.
+  // We cache trees, so it's not CPU-intensive to call
+  // taxonomy_get_tree() on a term and its children, too.
   if (!isset($children[$vid])) {
     $children[$vid] = array();
     $parents[$vid] = array();
@@ -971,6 +682,7 @@ function data_export_import_taxonomy_get_tree_with_reset($vid, $parent = 0, $max
   // Uses a loop instead of a recursion, because it's more efficient.
   while (count($process_parents)) {
     $parent = array_pop($process_parents);
+
     // The number of parents determines the current depth.
     $depth = count($process_parents);
     if ($max_depth > $depth && !empty($children[$vid][$parent])) {
@@ -1016,9 +728,6 @@ function data_export_import_taxonomy_get_tree_with_reset($vid, $parent = 0, $max
   }
 
   return $tree;
-
-
-
 }
 
 /**
@@ -1043,128 +752,60 @@ function data_export_import_taxonomy_save_term_with_defined_tid(&$form_values) {
   // We're using a direct insertion as the drupal_write_record
   // function does not allow us to insert a new row with a defined id
   // value.
-
-  // $query_result = db_query("INSERT INTO {taxonomy_term_data} (`tid`, `vid`, `name`, `description`, `weight`) VALUES (%d, %d, '%s', '%s', %d)", $form_values['tid'], $form_values['vid'], $form_values['name'], $form_values['description'], $form_values['weight']);
-
-// Drupal 7
-$id = db_insert('taxonomy_term_data')
-  ->fields(array(
-    'tid' => $form_values['tid'],
-    'vid' => $form_values['vid'],
-    'name' => $form_values['name'],
-    'description' => $form_values['description'],
-    'weight' => $form_values['weight'],
-  ))
-  ->execute();
-
-/*
-  if ($query_result == FALSE) {
-    drupal_set_message(t("Insertion into term_data table failed."));
-  }
-*/
+  $id = db_insert('taxonomy_term_data')
+    ->fields(array(
+        'tid' => $form_values['tid'],
+        'vid' => $form_values['vid'],
+        'name' => $form_values['name'],
+        'description' => $form_values['description'],
+        'weight' => $form_values['weight'],
+      ))
+    ->execute();
 
   // Set up parameters used later when calling hook_taxonomy().
   $hook = 'insert';
   $status = SAVED_NEW;
 
-  // Deal with the data in the related tables.
-// Term relations are no longer used in D7.
-
-//  db_query('DELETE FROM {taxonomy_term_relation} WHERE tid1 = %d OR tid2 = %d', $form_values['tid'], $form_values['tid']);
-
-// Drupal 7
-/*
-$or = db_or()->condition('tid1', $form_values['tid'])->condition('tid2', $form_values['tid']);
-db_delete('taxonomy_term_relation')->condition($or)->execute();
-*/
-
-/*
-  if (!empty($form_values['relations'])) {
-    foreach ($form_values['relations'] as $related_id) {
-      if ($related_id != 0) {
-        db_query('INSERT INTO {taxonomy_term_relation} (tid1, tid2) VALUES (%d, %d)', $form_values['tid'], $related_id);
-      }
-    }
-  }
-*/
-
-
-//  db_query('DELETE FROM {taxonomy_term_hierarchy} WHERE tid = %d', $form_values['tid']);
-
-// Drupal 7
-db_delete('taxonomy_term_hierarchy')
-  ->condition('tid', $form_values['tid'])
-  ->execute();
-
+  db_delete('taxonomy_term_hierarchy')
+    ->condition('tid', $form_values['tid'])
+    ->execute();
 
   if (!isset($form_values['parent']) || empty($form_values['parent'])) {
     $form_values['parent'] = array(0);
   }
+
   if (is_array($form_values['parent'])) {
     foreach ($form_values['parent'] as $parent) {
       if (is_array($parent)) {
         foreach ($parent as $tid) {
-
-
-//          db_query('INSERT INTO {taxonomy_term_hierarchy} (tid, parent) VALUES (%d, %d)', $form_values['tid'], $tid);
-
-// Drupal 7
-$id = db_insert('taxonomy_term_hierarchy')
-  ->fields(array(
-    'tid' => $form_values['tid'],
-    'parent' => $tid,
-  ))
-  ->execute();
-
-
+          $id = db_insert('taxonomy_term_hierarchy')
+            ->fields(array(
+                'tid' => $form_values['tid'],
+                'parent' => $tid,
+              ))
+            ->execute();
         }
       }
       else {
-
-//        db_query('INSERT INTO {taxonomy_term_hierarchy} (tid, parent) VALUES (%d, %d)', $form_values['tid'], $parent);
-
-// Drupal 7
-$id = db_insert('taxonomy_term_hierarchy')
-  ->fields(array(
-    'tid' => $form_values['tid'],
-    'parent' => $parent,
-  ))
-  ->execute();
-
-
+        $id = db_insert('taxonomy_term_hierarchy')
+          ->fields(array(
+              'tid' => $form_values['tid'],
+              'parent' => $parent,
+            ))
+          ->execute();
       }
     }
   }
   else {
 
-
-//    db_query('INSERT INTO {taxonomy_term_hierarchy} (tid, parent) VALUES (%d, %d)', $form_values['tid'], $form_values['parent']);
-
-// Drupal 7
-$id = db_insert('taxonomy_term_hierarchy')
-  ->fields(array(
-    'tid' => $form_values['tid'],
-    'parent' => $form_values['parent'],
-  ))
-  ->execute();
-
-
-
+    $id = db_insert('taxonomy_term_hierarchy')
+      ->fields(array(
+          'tid' => $form_values['tid'],
+          'parent' => $form_values['parent'],
+        ))
+      ->execute();
   }
 
-// Synonyms are no longer used.
-/*
-  db_query('DELETE FROM {term_synonym} WHERE tid = %d', $form_values['tid']);
-  if (!empty($form_values['synonyms'])) {
-    foreach (explode("\n", str_replace("\r", '', $form_values['synonyms'])) as $synonym) {
-      if ($synonym) {
-        // Currently changed from chop() to rtrim() as recommended by
-        // coder_tough_love.
-        db_query("INSERT INTO {term_synonym} (tid, name) VALUES (%d, '%s')", $form_values['tid'], rtrim($synonym));
-      }
-    }
-  }
-*/
   // We're OK to run any hooks which are called. If we used
   // drupal_write_record() to insert the record then it would have
   // filled in the tid field with the newly created tid and passed it
@@ -1180,5 +821,3 @@ $id = db_insert('taxonomy_term_hierarchy')
 
   return $status;
 }
-
-

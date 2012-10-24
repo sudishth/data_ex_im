@@ -48,7 +48,6 @@ function data_export_import_drush_command() {
       'dataset_type' => 'Required - the type of dataset being imported; users, terms or nodes.',
     ),
     'options' => array(
-		       ////'options' => 'List of comma separated options to supply to the command.',
       'file' => 'Required - filename of the file being imported (without the path).',
     ),
     'examples' => array(
@@ -121,11 +120,9 @@ function data_export_import_drush_help($section) {
  */
 function drush_data_export_import_export($dataset_profile) {
 
-  // @todo These options should be pulled in from the profile files.
   switch ($dataset_profile) {
 
     case 'terms':
-      ////      $msg = data_export_import_export_taxonomy_terms();
       $msg = data_export_import_export_taxonomy_terms_to_file();
       break;
 
@@ -139,18 +136,17 @@ function drush_data_export_import_export($dataset_profile) {
 
       // Provide clean warning if content-types argument is not supplied.
       if (empty($list_of_content_types)) {
-	drupal_set_message("No content types supplied.", 'warning');
+	drupal_set_message(t("No content types supplied."), 'warning');
 	break;
       }
 
       $array_of_content_types = explode(',', $list_of_content_types);
-
       $msg = data_export_import_export_nodes_to_file_using_drush($array_of_content_types);
-
       break;
 
     default:
       $msg = "No valid argument was supplied.";
+
   }
 
   drush_print($msg);
@@ -174,23 +170,11 @@ function drush_data_export_import_import($dataset_type) {
 
     case 'terms':
       $filename = drush_get_option('file');
-
-      //      echo $filename;
-
       data_export_import_import_taxonomy_terms($filename);
-      ////data_export_import_import_taxonomy_terms("20120928_150416_taxonomy_terms.dataset");
       break;
 
     case 'users':
-
-
-
       $filename = drush_get_option('file');
-      //      $filename = "asdf";
-
-      //// var_export($filename);
-
-
       data_export_import_import_users($filename);
       break;
 

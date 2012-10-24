@@ -38,7 +38,6 @@ function data_export_import_export_nodes_form($form_state) {
     $node_type_type = $node_type->type;
     $node_type_name = $node_type->name;
 
-    //    $form['export_nodes'][$node_type_type] = array(
     $form['export_nodes']['content_types'][$node_type_type] = array(
       '#type' => 'checkbox',
       '#title' => check_plain($node_type_name),);
@@ -58,12 +57,6 @@ function data_export_import_export_nodes_form($form_state) {
  * Function to process form to export nodes.
  */
 function data_export_import_export_nodes_form_submit($form, &$form_state) {
-
-  // This is the function which will carry out the exporting of the
-  // nodes to a dataset file.
-
-////  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
-
 
   // This module has not yet been extended to correctly handle data
   // which has internationalization (i18n) enabled.
@@ -97,16 +90,7 @@ function data_export_import_export_nodes_to_file($form_state) {
 
   // See if any content types were selected - if none then exit out
   // gracefully.
-
-  //NB - HERE WE NEED TO CHECK AT LEAST ON VALUE OF ['values']['content_types'] has a value of '1'.
-  /*
-  if (!isset($form_state['clicked_button']['#post']['all_content_types'])) {
-    drupal_set_message(t("No content types selected."));
-    return TRUE;
-  }
-  */
-    
-$at_least_one_content_type_is_selected_flag = FALSE;
+  $at_least_one_content_type_is_selected_flag = FALSE;
   foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
       if ($value == 1) {
           
@@ -119,27 +103,12 @@ $at_least_one_content_type_is_selected_flag = FALSE;
     return TRUE;
   }
 
-  
-  
-    
-  /*
-  // Create the default directory to hold the datasets.
-  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
-  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
-
-  $dataset_directory = file_directory_path() . "/data_export_import/all_content_types";
-  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
-  */
-
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
   file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
 
   $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/";
   file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
-
-
-
 
   // Adding in the main values to the $batch variable.
   $batch = array();
@@ -148,36 +117,26 @@ $at_least_one_content_type_is_selected_flag = FALSE;
   $batch['init_message'] = t('The exportation of nodes starting.');
   $batch['progress_message'] = t('Processed @current out of @total.');
   $batch['error_message'] = t('Exporting nodes has encountered an error.');
-
-////  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
   $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc';
 
   // We can loop through which content types need to be exported.
   // The #post array will only contain values which have been set to
   // have a value of '1'. We will build up the $batch object with the
   // required operations.
-
-  //  foreach ($form_state['clicked_button']['#post']['all_content_types'] as $content_type => $value) {
-//  foreach ($form_state['values']['content_types'] as $content_type => $value) {
   foreach ($form_state['values']['export_nodes']['content_types'] as $content_type => $value) {
 
-    // NB - HERE HERE HERE - TEST THIS WORKS OK.
       // This should mean that the rest of this loop will not be called if the 
       // content_type was not selected.
     if ($value == 0) {
       continue;
     }
 
-    // Get the filename we are going to save the data to.
-////    $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_all_content_types_" . $content_type . ".dataset";
     $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
     $file_path_and_name = $dataset_directory . "/" . $file_name;
 
     // Here we are getting all content types and selecting just the one
     // we need - this seems to give more consistent results than just
     // extracting the single node object.
-
-    ////    // $node_types = node_get_types();
     node_types_rebuild();
     $node_types = node_type_get_types();
 
@@ -206,14 +165,10 @@ $at_least_one_content_type_is_selected_flag = FALSE;
 
   // Since we are not calling this batch processing from a form we will need to
   // request that the batch is processed.
-////  batch_process('admin/content/data_export_import/all_content_types');
-///  batch_process('admin/content/data_export_import/nodes');
   batch_process('admin/config/system/data_export_import/nodes');
 
   return TRUE;
 }
-
-
 
 /**
  * Export the required dataset files via drush.
@@ -242,28 +197,16 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
   }
 
   // Create the default directory to hold the datasets.
-  /*
-  $dataset_directory_parent_directory = file_directory_path() . "/data_export_import";
-  file_check_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
-
-  $dataset_directory = file_directory_path() . "/data_export_import/nodes";
-  file_check_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
-  */
-
-  // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
   file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
 
   $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/";
   file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
 
-
-
   // Adding in the main values to the $batch variable.
   $batch = array();
   $batch['error_message'] = t('Exporting nodes has encountered an error.');
 
-  //  $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/all_content_types.inc';
   $batch['file'] = drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc';
 
   // We can loop through which content types need to be exported.
@@ -274,9 +217,6 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
   foreach ($content_types as $content_type) {
 
     // Get the filename we are going to save the data to.
-
-
-  ////    $file_name = format_date(time(), 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
     $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
     $file_path_and_name = $dataset_directory . "/" . $file_name;
 
@@ -287,7 +227,6 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
     // Here we are getting all content types and selecting just the one
     // we need - this seems to give more consistent results than just
     // extracting the single node object.
-    ////    $node_types = node_get_types();
     node_types_rebuild();
     $node_types = node_type_get_types();
 
@@ -299,7 +238,6 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
     $content_type_data_serialized = serialize($node_types[$content_type]);
 
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
-    ////file_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
     file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
 
     // Each content type being exported to a dataset file will be run
@@ -323,16 +261,7 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
   drush_backend_batch_process();
 
   return implode("\n", $files_created);
-
-
-
 }
-
-
-
-
-
-
 
 /**
  * Batch function called to export the content type.
@@ -347,29 +276,22 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
  *   TRUE if all ran OK.
  */
 function data_export_import_batch_export_nodes_to_file($content_type, $file_path_and_name, &$context) {
+
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['current_node'] = 0;
-////    $context['sandbox']['max'] = db_result(db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = '%s'", $content_type));
     $context['sandbox']['max'] = db_query("SELECT COUNT(DISTINCT nid) FROM {node} WHERE type = :content_type", array(':content_type' => $content_type))->fetchField();
-
   }
 
   // We will set this to make one pass at a time to limit timeouts.
   $limit = 1;
 
-//  $result = db_query_range("SELECT nid FROM {node} WHERE nid > %d AND type = '%s' ORDER BY nid ASC", array($context['sandbox']['current_node'], $content_type), 0, $limit);
   $result = db_query_range("SELECT nid FROM {node} WHERE nid > :current_node AND type = :content_type ORDER BY nid ASC", 0, $limit, array(':current_node' => $context['sandbox']['current_node'], ':content_type' => $content_type));
 
-
-// Changing two things here - the new D7 syntax returns an object not
-// an array.
-
-////  while ($row = db_fetch_array($result)) {
+  // The new D7 syntax returns an object not an array.
   foreach ($result as $row) {
 
     // Output one node to the file.
-////    $node = node_load($row['nid'], NULL, TRUE);
     $node = node_load($row->nid, NULL, TRUE);
 
     // Here we will deal with any files attached to the node if the
@@ -425,13 +347,9 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 
     file_put_contents($file_path_and_name, $node_serialized_and_base64_encoded . "\n", FILE_APPEND | LOCK_EX);
 
-
     // Update our progress information.
     $context['sandbox']['progress']++;
     $context['sandbox']['current_node'] = $node->nid;
-
-    // Taken out as this was being output when this function was called by drush.
-    //// $context['message'] = t('Now processing %node', array('%node' => $node->title));
   }
 
   // Store some result for post-processing in the finished callback.
@@ -456,7 +374,6 @@ function data_export_import_batch_export_nodes_finished($success, $results, $ope
 
     // Here we do something meaningful with the results.
     $message = "The following dataset files were created:";
-////    $message .= theme('item_list', $results);
     $message .= theme('item_list', array('items' => $results));
   }
   else {
@@ -475,22 +392,6 @@ function data_export_import_batch_export_nodes_finished($success, $results, $ope
 
   drupal_set_message($message);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Callback function to import nodes.
@@ -518,9 +419,7 @@ function data_export_import_import_nodes_form($form_state) {
   // links to dataset files.
   $directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes";
 
-  // $mask = '.dataset';
   $mask = '/.dataset/';
-
   $files = file_scan_directory($directory, $mask);
 
   // Sort them by the filename which is used as the key.  Since the
@@ -532,7 +431,6 @@ function data_export_import_import_nodes_form($form_state) {
   $options['none'] = "None";
 
   foreach ($files as $file) {
-
     $options[$file->filename] = check_plain($file->filename);
   }
 
@@ -556,9 +454,6 @@ function data_export_import_import_nodes_form($form_state) {
  */
 function data_export_import_import_nodes_form_submit($form, &$form_state) {
 
-// DEBUG
-////  drupal_set_message("<pre>" . var_export($form_state, TRUE) . "</pre>");
-
   if ($form_state['values']['dataset_file'] != 'none') {
 
     $result = data_export_import_import_nodes($form_state['values']['dataset_file']);
@@ -570,25 +465,7 @@ function data_export_import_import_nodes_form_submit($form, &$form_state) {
       drupal_set_message(t('The Nodes dataset file %dataset_file was not imported.', array('%dataset_file' => $form_state['values']['dataset_file'])), 'error');
     }
   }
-
 }
-
-/**
- * Make nodes list match the nodes from a dataset file.
- *
- * @param string $file
- *   The dataset file which is being imported.
- *
- * @return bool
- *   TRUE if the import process ran without errors.
- */
-/*
-function data_export_import_import_nodes($file) {
-
-  return TRUE;
-}
-*/
-
 
 /**
  * Import a dataset file and make current nodes match exactly.
@@ -634,11 +511,7 @@ function data_export_import_import_nodes($file) {
 
   // Read the first line - decode the object and check that the content types
   // are an exact match.
-  ////  $file_path = file_directory_path() . "/data_export_import/nodes/" . $file;
   $file_path = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/" . $file;
-
-
-
 
   $handle = fopen($file_path, "r");
   if ($handle) {
@@ -654,7 +527,6 @@ function data_export_import_import_nodes($file) {
 
   node_types_rebuild();
   $node_types = node_type_get_types();
-////  $node_types = node_get_types();
 
   // Check that the content type exists in the receiving instance.
   if (is_null($node_types[$node_content_type])) {
@@ -701,31 +573,22 @@ function data_export_import_import_nodes($file) {
       echo "Error: unexpected fgets() fail\n";
     }
     fclose($handle);
-
   }
 
   // Loop through the existing nodes (for that content type) and if
-  // they don't exist in the dataset then delete them.
-
-// Here we are going to be a bit simpler but harsher.  If a node of
-// *any* content type exists with the matching ID then delete it.
-
-// And we're going to allow the user running the import to be able to
-// delete any nodes so that the data keeps consistent.
-
-////  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
-////  $results = db_query($query, $node_content_type);
-
+  // they don't exist in the dataset then delete them. Here we are
+  // going to be a bit simpler but harsher.  If a node of *any*
+  // content type exists with the matching ID then delete it. And
+  // we're going to allow the user running the import to be able to
+  // delete any nodes so that the data keeps consistent.
   $results = db_query("SELECT nid FROM {node}");
 
-////  while ($nid = db_result($results)) {
   foreach ($results as $row) {
 
     if (!in_array($row->nid, $nids_from_file)) {
 
       // Delete node as it does not exist in the dataset being
       // imported.
-      ////node_delete($nid);
       node_delete($row->nid);
     }
   }
@@ -751,7 +614,6 @@ function data_export_import_import_nodes($file) {
 
   // Since this is not called from a file then we need to call the
   // batch process function.
-////  batch_process('admin/content/data_export_import/nodes/import');
   batch_process('admin/config/system/data_export_import/nodes/import');
 
   return TRUE;
@@ -772,7 +634,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
 
   // Read the first line - decode the object and check that the content types
   // are an exact match.
-  ////  $file_path = file_directory_path() . "/data_export_import/all_content_types/" . $file;
   $file_path = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/" . $file;
 
   $handle = fopen($file_path, "r");
@@ -786,7 +647,7 @@ function data_export_import_import_all_content_types_using_drush($file) {
 
   // Check that the content types exist and match.
   $node_content_type = $node_content_type_object_from_file->type;
-  ////  $node_types = node_get_types();
+
   node_types_rebuild();
   $node_types = node_type_get_types();
 
@@ -843,18 +704,10 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // used n.nid here as the db_rewrite_sql function will call a
   // link to access/grants tables and this could result in an
   // ambiguous field called 'nid'.
-
-
-  ////  $query = db_rewrite_sql("SELECT n.nid FROM {node} n WHERE type = '%s'", 'n');
-  ////  $results = db_query($query, $node_content_type);
-
   $results = db_query("SELECT nid FROM {node}");
 
-
-  ////  while ($nid = db_result($results)) {
   foreach ($results as $row) {
 
-    ////    if (!in_array($nid, $nids_from_file)) {
     if (!in_array($row->nid, $nids_from_file)) {
 
       // Delete node as it does not exist in the dataset being
@@ -888,10 +741,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
   return TRUE;
 }
 
-
-
-
-
 /**
  * Batch function to process lines from a dataset.
  *
@@ -907,6 +756,7 @@ function data_export_import_import_all_content_types_using_drush($file) {
  *   TRUE if the address is in a valid format, and FALSE if it isn't.
  */
 function data_export_import_batch_import_dataset_lines($file_path, &$context) {
+
   if (!isset($context['sandbox']['progress'])) {
 
     $context['sandbox']['progress'] = 0;
@@ -1100,7 +950,6 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
         // this would lose all the revision history.
         $dataset_node->vid = $existing_node_vid;
         $dataset_node->revision = 1;
-	////        $dataset_node->log = "Imported from dataset file: " . $file;
         $dataset_node->log = "Imported from dataset file: " . $file_path;
 
         // Here we will save the files attached to the node via CCK
@@ -1217,7 +1066,6 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
 
     // Here we do something meaningful with the results.
     $message = "The following file was imported:";
-////    $message .= theme('item_list', $results);
     $message .= theme('item_list', array('items' => $results));
   }
   else {
@@ -1267,10 +1115,10 @@ function data_export_import_node_save_with_defined_id($node) {
     if (empty($node->created)) {
       $node->created = REQUEST_TIME;
     }
+
     // The changed timestamp is always updated for bookkeeping purposes,
     // for example: revisions, searching, etc.
     $node->changed = REQUEST_TIME;
-
     $node->timestamp = REQUEST_TIME;
     $update_node = TRUE;
 

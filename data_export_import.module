@@ -39,37 +39,6 @@ function data_export_import_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
-
-/*
-  $items['admin/config/system/data_export_import/nodes'] = array(
-    'title' => 'Nodes',
-    'page callback' => 'data_export_import_callback_export_nodes',
-    'access arguments' => array('access data export import'),
-    'weight' => 1,
-    'description' => 'Export Nodes',
-    'type' => MENU_LOCAL_TASK,
-  );
-
-  $items['admin/config/system/data_export_import/nodes/export'] = array(
-    'title' => 'Export',
-    'page callback' => 'data_export_import_callback_export_nodes',
-    'access arguments' => array('access data export import'),
-    'weight' => 2,
-    'description' => 'Export Nodes',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  $items['admin/config/system/data_export_import/nodes/import'] = array(
-    'title' => 'Import',
-    'page callback' => 'data_export_import_callback_import_nodes',
-    'access arguments' => array('access data export import'),
-    'weight' => 3,
-    'description' => 'Import Nodes',
-    'type' => MENU_LOCAL_TASK,
-  );
-*/
-
-
   $items['admin/config/system/data_export_import/nodes'] = array(
     'title' => 'Nodes',
     'description' => 'Export Nodes',
@@ -95,42 +64,6 @@ function data_export_import_menu() {
     'weight' => 3,
     'type' => MENU_LOCAL_TASK,
   );
-
-
-
-
-
-
-
-/*
-  $items['admin/config/system/data_export_import/taxonomy_terms'] = array(
-    'title' => 'Taxonomy Terms',
-    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
-    'access arguments' => array('access data export import'),
-    'weight' => 4,
-    'description' => 'Export Taxonomy Terms',
-    'type' => MENU_LOCAL_TASK,
-  );
-
-  $items['admin/config/system/data_export_import/taxonomy_terms/export'] = array(
-    'title' => 'Export',
-    'page callback' => 'data_export_import_callback_export_taxonomy_terms',
-    'access arguments' => array('access data export import'),
-    'weight' => 5,
-    'description' => 'Export Taxonomy Terms',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-  );
-
-  $items['admin/config/system/data_export_import/taxonomy_terms/import'] = array(
-    'title' => 'Import',
-    'page callback' => 'data_export_import_callback_import_taxonomy_terms',
-    'access arguments' => array('access data export import'),
-    'weight' => 6,
-    'description' => 'Import Taxonomy Terms',
-    'type' => MENU_LOCAL_TASK,
-  );
-*/
-
 
   $items['admin/config/system/data_export_import/taxonomy_terms'] = array(
     'title' => 'Taxonomy terms',
@@ -157,7 +90,6 @@ function data_export_import_menu() {
     'weight' => 6,
     'type' => MENU_LOCAL_TASK,
   );
-
 
   $items['admin/config/system/data_export_import/users'] = array(
     'title' => 'Users',
@@ -199,41 +131,3 @@ function data_export_import_callback_overview() {
   // This is a simple display of some instructions and warnings.
   return t("Please click on one of the profile tabs to export or import data.");
 }
-
-/*
-function data_export_import_callback_export_nodes() {
-
-  // This is a simple display of some instructions and warnings.
-  return t("EXPORT NODES.");
-}
-
-function data_export_import_callback_import_nodes() {
-
-  // This is a simple display of some instructions and warnings.
-  return t("IMPORT NODES.");
-}
-*/
-/*
-function data_export_import_callback_export_taxonomy_terms() {
-
-  // This is a simple display of some instructions and warnings.
-  return t("EXPORT TERMS.");
-}
-
-function data_export_import_callback_import_taxonomy_terms() {
-
-  // This is a simple display of some instructions and warnings.
-  return t("IMPORT TERMS.");
-}
-*/
-//function data_export_import_callback_export_users() {
-
-  // This is a simple display of some instructions and warnings.
-//  return t("EXPORT USERS INIT.");
-//}
-
-//function data_export_import_callback_import_users() {
-
-  // This is a simple display of some instructions and warnings.
-//  return t("IMPORT USERS.");
-//}
