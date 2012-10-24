@@ -1162,12 +1162,11 @@ function data_export_import_node_save_with_defined_id($node) {
 
     // Save the node and node revision.
     if ($node->is_new) {
-      // For new nodes, save new records for both the node itself and the node
-      // revision.
 
-      // Just before we save the record we are going to reset the nid -
-      // currently drupal_write_record() looks like it respects an nid
-      // which has been sent in to it.
+      // For new nodes, save new records for both the node itself and the node
+      // revision. Just before we save the record we are going to
+      // reset the nid - currently drupal_write_record() looks like it
+      // respects an nid which has been sent in to it.
       $node->nid = $defined_nid;
 
       drupal_write_record('node', $node);
