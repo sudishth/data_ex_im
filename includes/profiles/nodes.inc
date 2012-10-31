@@ -134,9 +134,7 @@ function data_export_import_export_nodes_to_file($form_state) {
     $file_name = format_date(REQUEST_TIME, 'custom', 'Ymd_His') . "_nodes_" . $content_type . ".dataset";
     $file_path_and_name = $dataset_directory . "/" . $file_name;
 
-    // Here we are getting all content types and selecting just the one
-    // we need - this seems to give more consistent results than just
-    // extracting the single node object.
+// Rebuild is needed to flush out content types which may have been deleted.  
     node_types_rebuild();
     $node_types = node_type_get_types();
 
@@ -149,6 +147,29 @@ function data_export_import_export_nodes_to_file($form_state) {
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
     file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
 
+    
+    // Here we will loop through the fields in the content type and look for fields
+    // which are of type 'file'.  We will then send an array of these fields into
+    // the data_export_import_batch_export_nodes_to_file function - this will mean that the
+    // data_export_import_batch_export_nodes_to_file function will know which are
+    // the file fields so it can store the file data.
+    
+    $fields_of_type_file = array();
+    $fields_info = field_info_instances('node', $content_type);
+foreach ($fields_info as $field_name => $field_value) {
+  $field_info = field_info_field($field_name);
+  $type = $field_info['type'];
+  
+  if ($type == 'file') {
+      
+     $fields_of_type_file[] = $field_name; 
+      
+  }
+  
+//  echo "The type is $type, duh.";
+}
+    
+    
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
     $batch['operations'][] = array(
@@ -156,6 +177,7 @@ function data_export_import_export_nodes_to_file($form_state) {
       array(
         $content_type,
         $file_path_and_name,
+        $fields_of_type_file,  
       ),
     );
   }
@@ -275,7 +297,7 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
  * @return bool
  *   TRUE if all ran OK.
  */
-function data_export_import_batch_export_nodes_to_file($content_type, $file_path_and_name, &$context) {
+function data_export_import_batch_export_nodes_to_file($content_type, $file_path_and_name, $fields_of_type_file, &$context) {
 
   if (!isset($context['sandbox']['progress'])) {
     $context['sandbox']['progress'] = 0;
@@ -294,6 +316,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     // Output one node to the file.
     $node = node_load($row->nid, NULL, TRUE);
 
+    /*
     // Here we will deal with any files attached to the node if the
     // upload module is being used.  What we are going to do is to
     // extract the file, convert it to a character encoding and then
@@ -312,7 +335,9 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
         }
       }
     }
-
+    */
+    
+    /*
     // Here we are looking for all the file data fields which are
     // attached using CCK.
     foreach ($node as $node_field_key => $node_field_value) {
@@ -335,7 +360,43 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
         }
       }
     }
+    */
+    
+foreach ($fields_of_type_file as $file_field) {
+    
+    $a = $file_field;
+    
+      $file_field_items = field_get_items('node', $node, $file_field);
+  if ($file_field_items) {
+    
+    foreach($file_field_items as $field_item_key => $field_item_value) {
+        
+      $a = 1;
+      $handle = fopen($field_item_value['uri'], 'r');  
+      $file_data = base64_encode(stream_get_contents($handle));
+      //$file_data = stream_get_contents($handle);
+      $b = 2;
+     
+//$file_data = base64_encode(file_get_contents($file_details_value['filepath']));
+      //$node->field_test_attach['und'][$field_item_key]['data_export_import_file_data'] = $file_data;
+      $node->{$file_field}['und'][$field_item_key]['data_export_import_file_data'] = $file_data;
+      
+      $c = 3;
+    }   
+      
+    //$my_field_first_item = reset($my_field_items);
+    //$my_field_value = $my_field_first_item['value'];
 
+    
+    
+    
+    }
+    
+    
+    
+    
+}    
+    
     // Here we will serialize the array to convert it to a string
     // which can then be output to a file.
     $node_serialized = serialize($node);
