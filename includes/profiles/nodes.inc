@@ -1012,6 +1012,45 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
         
 $temp1 = $fields_of_type_file;        
         
+foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
+    
+
+  
+    
+// Here we are going to loop through all of the files which may have been
+// attached to this field.
+    
+foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
+    
+    $file_data = base64_decode($file_array_data['data_export_import_file_data']);
+    $dest = $file_array_data['uri'];
+ 
+    // Actually save the file to the file system.
+    $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
+    
+    // Set the node object to use the returned fid value as this may be from the
+    // original fid value.
+    $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
+}    
+    
+//  
+//  
+//$file_data = $dataset_node->{$file_field_data}[und][$file_field_key]['data_export_import_file_data'];
+//$dest = $dataset_node->{$file_field_data}[und][$file_field_key]['uri'];
+    
+    
+}
+/*
+unset($dataset_node->field_test_attach);
+unset($dataset_node->field_test_file_field2);
+*/
+//$dataset_node->field_test_attach = "";
+//$dataset_node->field_test_file_field2 = "";
+
+
+
+
+
       // This is the important line where we actually save the node.
       // The node should now have correct fid values to link to the
       // CCK fields which have already been saved - and after saving
@@ -1159,6 +1198,41 @@ $temp1 = $fields_of_type_file;
 */
 
         $temp2 = $fields_of_type_file;        
+
+        
+foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
+    
+
+  
+    
+// Here we are going to loop through all of the files which may have been
+// attached to this field and re-import them.
+    
+foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
+    
+    $file_data = base64_decode($file_array_data['data_export_import_file_data']);
+    $dest = $file_array_data['uri'];
+ 
+    // Actually save the file to the file system.
+    $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
+    
+    // Set the node object to use the returned fid value as this may be from the
+    // original fid value.
+    $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
+}    
+    
+//  
+//  
+//$file_data = $dataset_node->{$file_field_data}[und][$file_field_key]['data_export_import_file_data'];
+//$dest = $dataset_node->{$file_field_data}[und][$file_field_key]['uri'];
+    
+    
+}
+        
+        
+        
+        
+        
         
         node_save($dataset_node);
 /* REMOVED AS D7 DOES NOT USE the upload module.
@@ -1198,6 +1272,7 @@ $temp1 = $fields_of_type_file;
     }
   }
 
+  
   $context['sandbox']['progress']++;
 
   $context['results'][$file_path] = basename($file_path);
