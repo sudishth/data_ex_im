@@ -262,6 +262,28 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
     file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
 
+    
+     // Here we will loop through the fields in the content type and look for fields
+    // which are of type 'file'.  We will then send an array of these fields into
+    // the data_export_import_batch_export_nodes_to_file function - this will mean that the
+    // data_export_import_batch_export_nodes_to_file function will know which are
+    // the file fields so it can store the file data.
+    
+    $fields_of_type_file = array();
+    $fields_info = field_info_instances('node', $content_type);
+foreach ($fields_info as $field_name => $field_value) {
+  $field_info = field_info_field($field_name);
+  $type = $field_info['type'];
+  
+  if ($type == 'file') {
+      
+     $fields_of_type_file[] = $field_name; 
+      
+  }
+  
+//  echo "The type is $type, duh.";
+}
+    
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
     $batch['operations'][] = array(
@@ -269,6 +291,7 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
       array(
         $content_type,
         $file_path_and_name,
+        $fields_of_type_file,  
       ),
     );
   }
@@ -642,7 +665,8 @@ function data_export_import_import_nodes($file) {
   // content type exists with the matching ID then delete it. And
   // we're going to allow the user running the import to be able to
   // delete any nodes so that the data keeps consistent.
-  $results = db_query("SELECT nid FROM {node}");
+//  $results = db_query("SELECT nid FROM {node}");
+  $results = db_query('SELECT nid FROM {node} WHERE type = :type', array(':type' => $node_content_type));
 
   foreach ($results as $row) {
 
@@ -654,6 +678,23 @@ function data_export_import_import_nodes($file) {
     }
   }
 
+  // Here we are going to get a list of fields which are of type 'file' for the 
+  // content type selected.
+    $fields_of_type_file = array();
+    $fields_info = field_info_instances('node', $node_content_type);
+foreach ($fields_info as $field_name => $field_value) {
+  $field_info = field_info_field($field_name);
+  $type = $field_info['type'];
+  
+  if ($type == 'file') {
+      
+     $fields_of_type_file[] = $field_name; 
+      
+  }
+  
+//  echo "The type is $type, duh.";
+}  
+  
   // Loop through all the lines in the dataset file and extract each
   // node line. If the receiving instance has a node with a matching
   // nid then update it - or if not then create a new node with the
@@ -661,7 +702,7 @@ function data_export_import_import_nodes($file) {
   // the file.
   $batch = array(
     'operations' => array(
-      array('data_export_import_batch_import_dataset_lines', array($file_path)),
+      array('data_export_import_batch_import_dataset_lines', array($file_path, $fields_of_type_file)),
     ),
     'finished' => 'data_export_import_batch_import_dataset_lines_finished',
     'title' => t('Processing Import of nodes from file Batch'),
@@ -765,8 +806,10 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // used n.nid here as the db_rewrite_sql function will call a
   // link to access/grants tables and this could result in an
   // ambiguous field called 'nid'.
-  $results = db_query("SELECT nid FROM {node}");
+//  $results = db_query("SELECT nid FROM {node}");
 
+  $results = db_query('SELECT nid FROM {node} WHERE type = :type', array(':type' => $node_content_type));
+  
   foreach ($results as $row) {
 
     if (!in_array($row->nid, $nids_from_file)) {
@@ -782,6 +825,7 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // nid then update it - or if not then create a new node with the
   // same nid. We will use a batch function to process the lines from
   // the file.
+/*
   $batch = array(
     'operations' => array(
       array('data_export_import_batch_import_dataset_lines', array($file_path)),
@@ -790,7 +834,39 @@ function data_export_import_import_all_content_types_using_drush($file) {
     'error_message' => t('Batch importing of nodes from file has encountered an error.'),
     'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
   );
+*/
 
+  
+    $fields_of_type_file = array();
+    $fields_info = field_info_instances('node', $node_content_type);
+foreach ($fields_info as $field_name => $field_value) {
+  $field_info = field_info_field($field_name);
+  $type = $field_info['type'];
+  
+  if ($type == 'file') {
+      
+     $fields_of_type_file[] = $field_name; 
+      
+  }
+  
+//  echo "The type is $type, duh.";
+}
+  
+  
+  
+  $batch = array(
+    'operations' => array(
+      array('data_export_import_batch_import_dataset_lines', array($file_path, $fields_of_type_file)),
+    ),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
+    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
+  );
+
+  
+  
+  
+  
   $batch['progressive'] = FALSE;
   batch_set($batch);
 
@@ -815,7 +891,7 @@ function data_export_import_import_all_content_types_using_drush($file) {
  * @return bool
  *   TRUE if the address is in a valid format, and FALSE if it isn't.
  */
-function data_export_import_batch_import_dataset_lines($file_path, &$context) {
+function data_export_import_batch_import_dataset_lines($file_path, $fields_of_type_file, &$context) {
 
   if (!isset($context['sandbox']['progress'])) {
 
@@ -876,7 +952,10 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
       // will then save these files. This means that we can then use
       // the new file ID in the node data and when we save the node
       // the link to the CCK file will be working correctly.
-      foreach ($dataset_node as $node_field_key => $node_field_value) {
+
+/* REMOVED AS NEEDS TO BE MODIFIED FOR D7.
+
+        foreach ($dataset_node as $node_field_key => $node_field_value) {
 
         if (is_array($node_field_value)) {
 
@@ -909,13 +988,15 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
           }
         }
       }
-
+*/
+        
       // Here we need to to deal with the files attached to a node via
       // the Upload module.  As they will have unusable fid values we
       // will first move the uploaded files to a separate variable,
       // we'll then create the node and then create the file and
       // records necessary for the node to see the file(s) as
       // attached.
+/* REMOVED AS FILES ARE NOT HANDLED THIS WAY IN D7.        
       if (module_exists('upload')) {
 
         $a = 1;
@@ -925,19 +1006,28 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
           unset($dataset_node->files);
         }
       }
+*/
 
+        
+        
+$temp1 = $fields_of_type_file;        
+        
       // This is the important line where we actually save the node.
       // The node should now have correct fid values to link to the
       // CCK fields which have already been saved - and after saving
       // this node we will be able to use the correct revision vid to
       // link the node to the Upload module files which we will be
-      // saving next. Here will try to use the new node_save()
-      // function in D7 which may allow us to save the file with its
-      // current ID.  One thing, we will set a field first to prevent
+      // saving next. 
+      // 
+      // Here will try to use the new node_save()
+      // function in D7 which may allow us to save the node with its
+      // current ID.  
+      // 
+      // One thing, we will set a field first to prevent
       // the node being saved as a new file which would presumably be
       // issued a new ID number.
       data_export_import_node_save_with_defined_id($dataset_node);
-
+/*
       if (module_exists('upload')) {
 
         if (!empty($uploaded_files)) {
@@ -968,6 +1058,7 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
           }
         }
       }
+*/      
     }
 
     else {
@@ -1011,6 +1102,7 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
         // Here we will save the files attached to the node via CCK
         // fields and update the fid values stored in the
         // $dataset_node.
+/*
         foreach ($dataset_node as $node_field_key => $node_field_value) {
 
           if (is_array($node_field_value)) {
@@ -1046,13 +1138,15 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
             }
           }
         }
-
+*/
+        
         // Here we need to to deal with the files attached to a node
         // via the Upload module.  As they will have unusable fid
         // values we will first move the uploaded files to a separate
         // variable, we'll then create the node and then create the
         // file and records necessary for the ndoe to see the file(s)
         // as attached.
+/*        
         if (module_exists('upload')) {
 
           $a = 1;
@@ -1062,9 +1156,12 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
             unset($dataset_node->files);
           }
         }
+*/
 
+        $temp2 = $fields_of_type_file;        
+        
         node_save($dataset_node);
-
+/* REMOVED AS D7 DOES NOT USE the upload module.
         if (module_exists('upload')) {
 
           if (!empty($uploaded_files)) {
@@ -1096,6 +1193,7 @@ function data_export_import_batch_import_dataset_lines($file_path, &$context) {
             }
           }
         }
+*/        
       }
     }
   }
