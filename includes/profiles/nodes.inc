@@ -147,15 +147,14 @@ function data_export_import_export_nodes_to_file($form_state) {
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
     file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
 
-    
     // Here we will loop through the fields in the content type and look for fields
     // which are of type 'file'.  We will then send an array of these fields into
     // the data_export_import_batch_export_nodes_to_file function - this will mean that the
     // data_export_import_batch_export_nodes_to_file function will know which are
     // the file fields so it can store the file data.
-    
     $fields_of_type_file = array();
     $fields_info = field_info_instances('node', $content_type);
+
 foreach ($fields_info as $field_name => $field_value) {
   $field_info = field_info_field($field_name);
   $type = $field_info['type'];
@@ -165,10 +164,7 @@ foreach ($fields_info as $field_name => $field_value) {
      $fields_of_type_file[] = $field_name; 
       
   }
-  
-//  echo "The type is $type, duh.";
 }
-    
     
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
@@ -261,7 +257,6 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
 
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
     file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
-
     
      // Here we will loop through the fields in the content type and look for fields
     // which are of type 'file'.  We will then send an array of these fields into
@@ -280,8 +275,6 @@ foreach ($fields_info as $field_name => $field_value) {
      $fields_of_type_file[] = $field_name; 
       
   }
-  
-//  echo "The type is $type, duh.";
 }
     
     // Each content type being exported to a dataset file will be run
@@ -339,52 +332,6 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     // Output one node to the file.
     $node = node_load($row->nid, NULL, TRUE);
 
-    /*
-    // Here we will deal with any files attached to the node if the
-    // upload module is being used.  What we are going to do is to
-    // extract the file, convert it to a character encoding and then
-    // attach it to the files array on the node.
-    if (module_exists('upload')) {
-
-      if (!empty($node->files) && is_array($node->files)) {
-
-        // Loop through the files.
-        foreach ($node->files as $attached_file_key => $attached_file) {
-
-          // Get the file into a safe character based format and then
-          // attach it to the array.
-          $export_data = base64_encode(file_get_contents($attached_file->filepath));
-          $node->files[$attached_file_key]->data_export_import_file_data = $export_data;
-        }
-      }
-    }
-    */
-    
-    /*
-    // Here we are looking for all the file data fields which are
-    // attached using CCK.
-    foreach ($node as $node_field_key => $node_field_value) {
-
-      if (is_array($node_field_value)) {
-
-        foreach ($node_field_value as $file_detail_key => $file_details_value) {
-
-          // This looks for the correct type of value and if there is
-          // a setting for fid, filename, filepath set then we will
-          // assume this is a field of file(s) attached via CCK.
-          if (is_array($file_details_value) && isset($file_details_value['fid']) && isset($file_details_value['filename']) &&isset($file_details_value['filepath'])) {
-
-            // Get the file data in a serialized format and attach this as data
-            // to the correct place on the $node object.
-            $file_data = base64_encode(file_get_contents($file_details_value['filepath']));
-
-            $node->{$node_field_key}[$file_detail_key]['cck_file_data'] = $file_data;
-          }
-        }
-      }
-    }
-    */
-    
 foreach ($fields_of_type_file as $file_field) {
     
     $a = $file_field;
@@ -400,24 +347,11 @@ foreach ($fields_of_type_file as $file_field) {
       //$file_data = stream_get_contents($handle);
       $b = 2;
      
-//$file_data = base64_encode(file_get_contents($file_details_value['filepath']));
-      //$node->field_test_attach['und'][$field_item_key]['data_export_import_file_data'] = $file_data;
       $node->{$file_field}['und'][$field_item_key]['data_export_import_file_data'] = $file_data;
       
       $c = 3;
     }   
-      
-    //$my_field_first_item = reset($my_field_items);
-    //$my_field_value = $my_field_first_item['value'];
-
-    
-    
-    
     }
-    
-    
-    
-    
 }    
     
     // Here we will serialize the array to convert it to a string
@@ -691,8 +625,6 @@ foreach ($fields_info as $field_name => $field_value) {
      $fields_of_type_file[] = $field_name; 
       
   }
-  
-//  echo "The type is $type, duh.";
 }  
   
   // Loop through all the lines in the dataset file and extract each
@@ -807,7 +739,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // link to access/grants tables and this could result in an
   // ambiguous field called 'nid'.
 //  $results = db_query("SELECT nid FROM {node}");
-
   $results = db_query('SELECT nid FROM {node} WHERE type = :type', array(':type' => $node_content_type));
   
   foreach ($results as $row) {
@@ -825,18 +756,6 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // nid then update it - or if not then create a new node with the
   // same nid. We will use a batch function to process the lines from
   // the file.
-/*
-  $batch = array(
-    'operations' => array(
-      array('data_export_import_batch_import_dataset_lines', array($file_path)),
-    ),
-    'progress_message' => t('Processed @current out of @total.'),
-    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
-    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
-  );
-*/
-
-  
     $fields_of_type_file = array();
     $fields_info = field_info_instances('node', $node_content_type);
 foreach ($fields_info as $field_name => $field_value) {
@@ -848,12 +767,8 @@ foreach ($fields_info as $field_name => $field_value) {
      $fields_of_type_file[] = $field_name; 
       
   }
-  
-//  echo "The type is $type, duh.";
 }
-  
-  
-  
+
   $batch = array(
     'operations' => array(
       array('data_export_import_batch_import_dataset_lines', array($file_path, $fields_of_type_file)),
@@ -862,10 +777,6 @@ foreach ($fields_info as $field_name => $field_value) {
     'error_message' => t('Batch importing of nodes from file has encountered an error.'),
     'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
   );
-
-  
-  
-  
   
   $batch['progressive'] = FALSE;
   batch_set($batch);
@@ -952,74 +863,13 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // will then save these files. This means that we can then use
       // the new file ID in the node data and when we save the node
       // the link to the CCK file will be working correctly.
-
-/* REMOVED AS NEEDS TO BE MODIFIED FOR D7.
-
-        foreach ($dataset_node as $node_field_key => $node_field_value) {
-
-        if (is_array($node_field_value)) {
-
-          foreach ($node_field_value as $file_detail_key => $file_details_value) {
-
-            // This looks for the correct type of value and if there
-            // is a setting fid/filename/filepath set then we will
-            // assume this is a field of attached CCK files.
-            if (is_array($file_details_value) && isset($file_details_value['fid']) && isset($file_details_value['filename']) &&isset($file_details_value['filepath'])) {
-
-              if (isset($file_details_value['cck_file_data'])) {
-
-                $directory = file_create_path(dirname($file_details_value['filepath']));
-
-                if (file_check_directory($directory, TRUE)) {
-                  if (file_put_contents($file_details_value['filepath'], base64_decode($file_details_value['cck_file_data']))) {
-                    drupal_write_record('files', $file_details_value);
-
-                    // As we've just saved the file it will probably have been
-                    // given a new fid.  We are not going to force the file to
-                    // be saved with the same ID as in the dataset as there may
-                    // be another file which is using the ID value.  We need to
-                    // get this new ID value and put that into the node data so
-                    // the node links to the correct file.
-                    $dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-*/
-        
-      // Here we need to to deal with the files attached to a node via
-      // the Upload module.  As they will have unusable fid values we
-      // will first move the uploaded files to a separate variable,
-      // we'll then create the node and then create the file and
-      // records necessary for the node to see the file(s) as
-      // attached.
-/* REMOVED AS FILES ARE NOT HANDLED THIS WAY IN D7.        
-      if (module_exists('upload')) {
-
-        $a = 1;
-        if (isset($dataset_node->files)) {
-
-          $uploaded_files = $dataset_node->files;
-          unset($dataset_node->files);
-        }
-      }
-*/
-
-        
         
 $temp1 = $fields_of_type_file;        
         
 foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
     
-
-  
-    
 // Here we are going to loop through all of the files which may have been
 // attached to this field.
-    
 foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
     
     $file_data = base64_decode($file_array_data['data_export_import_file_data']);
@@ -1032,24 +882,7 @@ foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_ar
     // original fid value.
     $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
 }    
-    
-//  
-//  
-//$file_data = $dataset_node->{$file_field_data}[und][$file_field_key]['data_export_import_file_data'];
-//$dest = $dataset_node->{$file_field_data}[und][$file_field_key]['uri'];
-    
-    
 }
-/*
-unset($dataset_node->field_test_attach);
-unset($dataset_node->field_test_file_field2);
-*/
-//$dataset_node->field_test_attach = "";
-//$dataset_node->field_test_file_field2 = "";
-
-
-
-
 
       // This is the important line where we actually save the node.
       // The node should now have correct fid values to link to the
@@ -1066,38 +899,6 @@ unset($dataset_node->field_test_file_field2);
       // the node being saved as a new file which would presumably be
       // issued a new ID number.
       data_export_import_node_save_with_defined_id($dataset_node);
-/*
-      if (module_exists('upload')) {
-
-        if (!empty($uploaded_files)) {
-
-          foreach ($uploaded_files as $uploaded_file) {
-            $directory = file_create_path(dirname($uploaded_file->filepath));
-
-            if (file_check_directory($directory, TRUE)) {
-
-              if (file_put_contents($uploaded_file->filepath, base64_decode($uploaded_file->data_export_import_file_data))) {
-                drupal_write_record('files', $uploaded_file);
-
-                // Need to create the {upload} record which will
-                // link the node to the data in the {files}
-                // table.  We will use the new vid value which has
-                // been generated when we saved the node.
-                $upload_record = array();
-                $upload_record['fid'] = $uploaded_file->fid;
-                $upload_record['nid'] = $dataset_node->nid;
-                $upload_record['vid'] = $dataset_node->vid;
-                $upload_record['description'] = $uploaded_file->filename;
-                $upload_record['list'] = $uploaded_file->list;
-                $upload_record['weight'] = $uploaded_file->weight;
-
-                drupal_write_record('upload', $upload_record);
-              }
-            }
-          }
-        }
-      }
-*/      
     }
 
     else {
@@ -1138,76 +939,12 @@ unset($dataset_node->field_test_file_field2);
         $dataset_node->revision = 1;
         $dataset_node->log = "Imported from dataset file: " . $file_path;
 
-        // Here we will save the files attached to the node via CCK
-        // fields and update the fid values stored in the
-        // $dataset_node.
-/*
-        foreach ($dataset_node as $node_field_key => $node_field_value) {
-
-          if (is_array($node_field_value)) {
-
-            foreach ($node_field_value as $file_detail_key => $file_details_value) {
-
-              // This looks for the correct type of value and if there
-              // is a setting fid/filename/filepath set then we will
-              // assume this is a field of attached CCK files.
-              if (is_array($file_details_value) && isset($file_details_value['fid']) && isset($file_details_value['filename']) &&isset($file_details_value['filepath'])) {
-
-                if (isset($file_details_value['cck_file_data'])) {
-
-                  $directory = file_create_path(dirname($file_details_value['filepath']));
-
-                  if (file_check_directory($directory, TRUE)) {
-                    if (file_put_contents($file_details_value['filepath'], base64_decode($file_details_value['cck_file_data']))) {
-                      drupal_write_record('files', $file_details_value);
-
-                      // As we've just saved the file it will probably
-                      // have been given a new fid.  We are not going
-                      // to force the file to be saved with the same
-                      // ID as in the dataset as there may be another
-                      // file which is using the ID value.  We need to
-                      // get this new ID value and put that into the
-                      // node data so the node links to the correct
-                      // file.
-                      $dataset_node->{$node_field_key}[$file_detail_key]['fid'] = $file_details_value['fid'];
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-*/
-        
-        // Here we need to to deal with the files attached to a node
-        // via the Upload module.  As they will have unusable fid
-        // values we will first move the uploaded files to a separate
-        // variable, we'll then create the node and then create the
-        // file and records necessary for the ndoe to see the file(s)
-        // as attached.
-/*        
-        if (module_exists('upload')) {
-
-          $a = 1;
-          if (isset($dataset_node->files)) {
-
-            $uploaded_files = $dataset_node->files;
-            unset($dataset_node->files);
-          }
-        }
-*/
-
         $temp2 = $fields_of_type_file;        
-
         
 foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
     
-
-  
-    
 // Here we are going to loop through all of the files which may have been
 // attached to this field and re-import them.
-    
 foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
     
     $file_data = base64_decode($file_array_data['data_export_import_file_data']);
@@ -1220,54 +957,9 @@ foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_ar
     // original fid value.
     $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
 }    
-    
-//  
-//  
-//$file_data = $dataset_node->{$file_field_data}[und][$file_field_key]['data_export_import_file_data'];
-//$dest = $dataset_node->{$file_field_data}[und][$file_field_key]['uri'];
-    
-    
 }
         
-        
-        
-        
-        
-        
         node_save($dataset_node);
-/* REMOVED AS D7 DOES NOT USE the upload module.
-        if (module_exists('upload')) {
-
-          if (!empty($uploaded_files)) {
-
-            foreach ($uploaded_files as $uploaded_file) {
-
-              $directory = file_create_path(dirname($uploaded_file->filepath));
-
-              if (file_check_directory($directory, TRUE)) {
-
-                if (file_put_contents($uploaded_file->filepath, base64_decode($uploaded_file->data_export_import_file_data))) {
-                  drupal_write_record('files', $uploaded_file);
-
-                  // Need to create the {upload} record which will
-                  // link the node to the data in the {files}
-                  // table.  We will use the new vid value which has
-                  // been generated when we saved the node.
-                  $upload_record = array();
-                  $upload_record['fid'] = $uploaded_file->fid;
-                  $upload_record['nid'] = $dataset_node->nid;
-                  $upload_record['vid'] = $dataset_node->vid;
-                  $upload_record['description'] = $uploaded_file->filename;
-                  $upload_record['list'] = $uploaded_file->list;
-                  $upload_record['weight'] = $uploaded_file->weight;
-
-                  drupal_write_record('upload', $upload_record);
-                }
-              }
-            }
-          }
-        }
-*/        
       }
     }
   }
