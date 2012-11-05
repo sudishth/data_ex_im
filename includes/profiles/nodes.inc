@@ -105,10 +105,10 @@ function data_export_import_export_nodes_to_file($form_state) {
 
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
-  file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+  file_prepare_directory($dataset_directory_parent_directory, FILE_CREATE_DIRECTORY);
 
   $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/";
-  file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+  file_prepare_directory($dataset_directory, FILE_CREATE_DIRECTORY);
 
   // Adding in the main values to the $batch variable.
   $batch = array();
@@ -155,16 +155,16 @@ function data_export_import_export_nodes_to_file($form_state) {
     $fields_of_type_file = array();
     $fields_info = field_info_instances('node', $content_type);
 
-foreach ($fields_info as $field_name => $field_value) {
-  $field_info = field_info_field($field_name);
-  $type = $field_info['type'];
+    foreach ($fields_info as $field_name => $field_value) {
   
-  if ($type == 'file') {
+      $field_info = field_info_field($field_name);
+      $type = $field_info['type'];
+  
+      if ($type == 'file') {
       
-     $fields_of_type_file[] = $field_name; 
-      
-  }
-}
+        $fields_of_type_file[] = $field_name; 
+      }
+    }
     
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
@@ -216,10 +216,10 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
 
   // Create the default directory to hold the datasets.
   $dataset_directory_parent_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import";
-  file_prepare_directory($dataset_directory_parent_directory, $mode = FILE_CREATE_DIRECTORY);
+  file_prepare_directory($dataset_directory_parent_directory, FILE_CREATE_DIRECTORY);
 
   $dataset_directory = variable_get('file_public_path', conf_path() . '/files') . "/data_export_import/nodes/";
-  file_prepare_directory($dataset_directory, $mode = FILE_CREATE_DIRECTORY);
+  file_prepare_directory($dataset_directory, FILE_CREATE_DIRECTORY);
 
   // Adding in the main values to the $batch variable.
   $batch = array();
@@ -258,7 +258,7 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
     $content_type_data_serialized_and_encoded = base64_encode($content_type_data_serialized);
     file_unmanaged_save_data($content_type_data_serialized_and_encoded . "\n", $file_path_and_name, FILE_EXISTS_REPLACE);
     
-     // Here we will loop through the fields in the content type and look for fields
+    // Here we will loop through the fields in the content type and look for fields
     // which are of type 'file'.  We will then send an array of these fields into
     // the data_export_import_batch_export_nodes_to_file function - this will mean that the
     // data_export_import_batch_export_nodes_to_file function will know which are
@@ -266,16 +266,16 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
     
     $fields_of_type_file = array();
     $fields_info = field_info_instances('node', $content_type);
-foreach ($fields_info as $field_name => $field_value) {
-  $field_info = field_info_field($field_name);
-  $type = $field_info['type'];
+    foreach ($fields_info as $field_name => $field_value) {
+      $field_info = field_info_field($field_name);
+      $type = $field_info['type'];
   
-  if ($type == 'file') {
+      if ($type == 'file') {
       
-     $fields_of_type_file[] = $field_name; 
+        $fields_of_type_file[] = $field_name; 
       
-  }
-}
+      }
+    }
     
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
@@ -332,27 +332,21 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     // Output one node to the file.
     $node = node_load($row->nid, NULL, TRUE);
 
-foreach ($fields_of_type_file as $file_field) {
-    
-    $a = $file_field;
+    foreach ($fields_of_type_file as $file_field) {
     
       $file_field_items = field_get_items('node', $node, $file_field);
-  if ($file_field_items) {
+      if ($file_field_items) {
     
-    foreach($file_field_items as $field_item_key => $field_item_value) {
+        foreach($file_field_items as $field_item_key => $field_item_value) {
         
-      $a = 1;
-      $handle = fopen($field_item_value['uri'], 'r');  
-      $file_data = base64_encode(stream_get_contents($handle));
-      //$file_data = stream_get_contents($handle);
-      $b = 2;
+          $handle = fopen($field_item_value['uri'], 'r');  
+          $file_data = base64_encode(stream_get_contents($handle));
+          //$file_data = stream_get_contents($handle);
      
-      $node->{$file_field}['und'][$field_item_key]['data_export_import_file_data'] = $file_data;
-      
-      $c = 3;
-    }   
-    }
-}    
+          $node->{$file_field}['und'][$field_item_key]['data_export_import_file_data'] = $file_data;
+        }   
+      }
+    }    
     
     // Here we will serialize the array to convert it to a string
     // which can then be output to a file.
@@ -614,18 +608,18 @@ function data_export_import_import_nodes($file) {
 
   // Here we are going to get a list of fields which are of type 'file' for the 
   // content type selected.
-    $fields_of_type_file = array();
-    $fields_info = field_info_instances('node', $node_content_type);
-foreach ($fields_info as $field_name => $field_value) {
-  $field_info = field_info_field($field_name);
-  $type = $field_info['type'];
+  $fields_of_type_file = array();
+  $fields_info = field_info_instances('node', $node_content_type);
+  foreach ($fields_info as $field_name => $field_value) {
+    $field_info = field_info_field($field_name);
+    $type = $field_info['type'];
   
-  if ($type == 'file') {
+    if ($type == 'file') {
       
-     $fields_of_type_file[] = $field_name; 
+      $fields_of_type_file[] = $field_name; 
       
-  }
-}  
+    }
+  }  
   
   // Loop through all the lines in the dataset file and extract each
   // node line. If the receiving instance has a node with a matching
@@ -756,18 +750,18 @@ function data_export_import_import_all_content_types_using_drush($file) {
   // nid then update it - or if not then create a new node with the
   // same nid. We will use a batch function to process the lines from
   // the file.
-    $fields_of_type_file = array();
-    $fields_info = field_info_instances('node', $node_content_type);
-foreach ($fields_info as $field_name => $field_value) {
-  $field_info = field_info_field($field_name);
-  $type = $field_info['type'];
+  $fields_of_type_file = array();
+  $fields_info = field_info_instances('node', $node_content_type);
+  foreach ($fields_info as $field_name => $field_value) {
+    $field_info = field_info_field($field_name);
+    $type = $field_info['type'];
   
-  if ($type == 'file') {
+    if ($type == 'file') {
       
-     $fields_of_type_file[] = $field_name; 
+      $fields_of_type_file[] = $field_name; 
       
+    }
   }
-}
 
   $batch = array(
     'operations' => array(
@@ -863,26 +857,23 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // will then save these files. This means that we can then use
       // the new file ID in the node data and when we save the node
       // the link to the CCK file will be working correctly.
-        
-$temp1 = $fields_of_type_file;        
-        
-foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
+      foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
     
 // Here we are going to loop through all of the files which may have been
 // attached to this field.
-foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
+        foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
     
-    $file_data = base64_decode($file_array_data['data_export_import_file_data']);
-    $dest = $file_array_data['uri'];
+          $file_data = base64_decode($file_array_data['data_export_import_file_data']);
+          $dest = $file_array_data['uri'];
  
-    // Actually save the file to the file system.
-    $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
+          // Actually save the file to the file system.
+          $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
     
-    // Set the node object to use the returned fid value as this may be from the
-    // original fid value.
-    $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
-}    
-}
+          // Set the node object to use the returned fid value as this may be from the
+          // original fid value.
+          $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
+        }    
+      }
 
       // This is the important line where we actually save the node.
       // The node should now have correct fid values to link to the
@@ -938,26 +929,24 @@ foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_ar
         $dataset_node->vid = $existing_node_vid;
         $dataset_node->revision = 1;
         $dataset_node->log = "Imported from dataset file: " . $file_path;
-
-        $temp2 = $fields_of_type_file;        
         
-foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
+        foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
     
 // Here we are going to loop through all of the files which may have been
 // attached to this field and re-import them.
-foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
+          foreach ($dataset_node->{$file_field_data}['und'] as $file_array_key => $file_array_data) {
     
-    $file_data = base64_decode($file_array_data['data_export_import_file_data']);
-    $dest = $file_array_data['uri'];
+            $file_data = base64_decode($file_array_data['data_export_import_file_data']);
+            $dest = $file_array_data['uri'];
  
-    // Actually save the file to the file system.
-    $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
+            // Actually save the file to the file system.
+            $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
     
-    // Set the node object to use the returned fid value as this may be from the
-    // original fid value.
-    $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
-}    
-}
+            // Set the node object to use the returned fid value as this may be from the
+            // original fid value.
+            $dataset_node->{$file_field_data}[und][$file_array_key]['fid'] = $file_object->fid; 
+          }    
+        }
         
         node_save($dataset_node);
       }
