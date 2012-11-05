@@ -765,17 +765,16 @@ function data_export_import_import_all_content_types_using_drush($file) {
     }
   }
 
-  $batch =
+  $batch = array(
+    'operations' =>
     array(
-      'operations' =>
       array(
+        'data_export_import_batch_import_dataset_lines',
         array(
-          'data_export_import_batch_import_dataset_lines',
-          array(
-            $file_path,
-            $fields_of_type_file,
-          ),
+          $file_path,
+          $fields_of_type_file,
         ),
+      ),
       ),
       'progress_message' => t('Processed @current out of @total.'),
       'error_message' => t('Batch importing of nodes from file has encountered an error.'),
