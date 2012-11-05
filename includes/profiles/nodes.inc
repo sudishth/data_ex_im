@@ -775,11 +775,11 @@ function data_export_import_import_all_content_types_using_drush($file) {
           $fields_of_type_file,
         ),
       ),
-      ),
-      'progress_message' => t('Processed @current out of @total.'),
-      'error_message' => t('Batch importing of nodes from file has encountered an error.'),
-      'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
-    );
+    ),
+    'progress_message' => t('Processed @current out of @total.'),
+    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
+    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
+  );
 
   $batch['progressive'] = FALSE;
   batch_set($batch);
