@@ -15,6 +15,20 @@ function data_export_import_help($path, $arg) {
 }
 
 /**
+ * Implements hook_permission().
+ */
+function data_export_import_permission() {
+
+  return array(
+    'access data export import' => array(
+      'title' => t('Access Data Export Import Functions.'),
+      'description' => t('Allows users to use all functions which are part of the Data Export Import module.'),
+      'restrict access' => FALSE,
+    ),
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function data_export_import_menu() {

@@ -47,7 +47,7 @@ function data_export_import_export_nodes_form($form_state) {
   // contents. This is the default behavior for forms.
   $form['export_nodes']['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Create dataset file',
+    '#value' => t('Create dataset file'),
   );
 
   return $form;
@@ -386,7 +386,7 @@ function data_export_import_batch_export_nodes_finished($success, $results, $ope
   if ($success) {
 
     // Here we do something meaningful with the results.
-    $message = "The following dataset files were created:";
+    $message = t('The following dataset files were created:');
     $message .= theme('item_list', array('items' => $results));
   }
   else {
@@ -441,7 +441,7 @@ function data_export_import_import_nodes_form($form_state) {
   ksort($files);
 
   $options = array();
-  $options['none'] = "None";
+  $options['none'] = t('None');
 
   foreach ($files as $file) {
     $options[$file->filename] = check_plain($file->filename);
@@ -456,7 +456,7 @@ function data_export_import_import_nodes_form($form_state) {
 
   $form['import_nodes']['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Import dataset files',
+    '#value' => t('Import dataset files'),
   );
 
   return $form;
@@ -583,7 +583,7 @@ function data_export_import_import_nodes($file) {
     }
 
     if (!feof($handle)) {
-      echo "Error: unexpected fgets() fail\n";
+      drupal_set_message(t("Unexpected error when reading file."), 'error');
     }
     fclose($handle);
   }
@@ -724,7 +724,7 @@ function data_export_import_import_all_content_types_using_drush($file) {
     }
 
     if (!feof($handle)) {
-      echo "Error: unexpected fgets() fail\n";
+      drupal_set_message(t("Unexpected error when reading file."), 'error');
     }
     fclose($handle);
 

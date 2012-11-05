@@ -33,7 +33,7 @@ function data_export_import_export_users_form($form_state) {
   // contents. This is the default behavior for forms.
   $form['export_users']['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Create dataset file',
+    '#value' => t('Create dataset file'),
   );
 
   return $form;
@@ -151,7 +151,7 @@ function data_export_import_import_users_form($form_state) {
 
   $form['import_users']['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Import dataset files',
+    '#value' => t('Import dataset files'),
   );
 
   return $form;
