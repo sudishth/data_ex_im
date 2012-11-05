@@ -628,9 +628,10 @@ function data_export_import_import_nodes($file) {
   // the file.
   $batch = array(
     'operations' => array(
-      array('data_export_import_batch_import_dataset_lines', 
+      array(
+        'data_export_import_batch_import_dataset_lines',
         array($file_path, $fields_of_type_file),
-           ),
+      ),
     ),
     'finished' => 'data_export_import_batch_import_dataset_lines_finished',
     'title' => t('Processing Import of nodes from file Batch'),
@@ -764,12 +765,17 @@ function data_export_import_import_all_content_types_using_drush($file) {
     }
   }
 
-  $batch = array(
-    'operations' => array(
+  $batch =
+    array(
+      'operations' =>
       array(
-        'data_export_import_batch_import_dataset_lines', 
-        array($file_path, $fields_of_type_file),
-      ),
+        array(
+          'data_export_import_batch_import_dataset_lines',
+          array(
+            $file_path,
+            $fields_of_type_file,
+          ),
+        ),
       ),
       'progress_message' => t('Processed @current out of @total.'),
       'error_message' => t('Batch importing of nodes from file has encountered an error.'),
@@ -863,8 +869,8 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // the link to the CCK file will be working correctly.
       foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
 
-      // Here we are going to loop through all of the files which may
-      // have been attached to this field.
+        // Here we are going to loop through all of the files which
+        // may have been attached to this field.
         foreach ($dataset_node->{$file_field_data}[LANGUAGE_NONE] as $file_array_key => $file_array_data) {
 
           $file_data = base64_decode($file_array_data['data_export_import_file_data']);
@@ -936,8 +942,8 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
 
         foreach ($fields_of_type_file as $file_field_key => $file_field_data) {
 
-        // Here we are going to loop through all of the files which
-        // may have been attached to this field and re-import them.
+          // Here we are going to loop through all of the files which
+          // may have been attached to this field and re-import them.
           foreach ($dataset_node->{$file_field_data}[LANGUAGE_NONE] as $file_array_key => $file_array_data) {
 
             $file_data = base64_decode($file_array_data['data_export_import_file_data']);
