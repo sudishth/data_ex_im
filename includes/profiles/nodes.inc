@@ -162,7 +162,7 @@ function data_export_import_export_nodes_to_file($form_state) {
       $field_info = field_info_field($field_name);
       $type = $field_info['type'];
 
-      if ($type == 'file') {
+      if ($type == 'file' || $type == 'image') {
 
         $fields_of_type_file[] = $field_name;
       }
@@ -273,7 +273,7 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
       $field_info = field_info_field($field_name);
       $type = $field_info['type'];
 
-      if ($type == 'file') {
+      if ($type == 'file' || $type == 'image') {
 
         $fields_of_type_file[] = $field_name;
 
@@ -614,7 +614,7 @@ function data_export_import_import_nodes($file) {
     $field_info = field_info_field($field_name);
     $type = $field_info['type'];
 
-    if ($type == 'file') {
+    if ($type == 'file' || $type == 'image') {
 
       $fields_of_type_file[] = $field_name;
 
@@ -758,7 +758,7 @@ function data_export_import_import_all_content_types_using_drush($file) {
     $field_info = field_info_field($field_name);
     $type = $field_info['type'];
 
-    if ($type == 'file') {
+    if ($type == 'file' || $type == 'image') {
 
       $fields_of_type_file[] = $field_name;
 

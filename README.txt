@@ -73,7 +73,7 @@ INSTALLATION
 USAGE
 -----
 
- * Configure and use the module at admin/content/data_export_import.
+ * Configure and use the module at admin/config/system/data_export_import.
 
  * The dataset files are exported to and imported from
    {files}/data_export_import.  Various methods can be used to manage the

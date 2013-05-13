@@ -3,4 +3,4 @@ description = Exports content data as dataset files which can then imported into
 core = 7.x
 dependencies[] = node
 dependencies[] = taxonomy
-configure = admin/content/data_export_import
+configure = admin/config/system/data_export_import
