@@ -228,7 +228,7 @@ function data_export_import_import_taxonomy_terms_form($form_state) {
 
   $form['import_taxonomy_terms']['dataset_file'] = array(
     '#type' => 'radios',
-    '#title' => t('Select file to import - NB You might want to switch off account activation email notification at /admin/config/people/accounts.'),
+    '#title' => t('Select file to import.'),
     '#default_value' => 'none',
     '#options' => $options,
   );
