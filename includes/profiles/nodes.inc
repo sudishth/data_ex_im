@@ -898,6 +898,7 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // One thing, we will set a field first to prevent
       // the node being saved as a new file which would presumably be
       // issued a new ID number.
+      unset($dataset_node->vid);
       data_export_import_node_save_with_defined_id($dataset_node);
     }
 
