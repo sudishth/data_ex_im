@@ -18,17 +18,17 @@ function data_export_import_callback_export_nodes() {
 function data_export_import_export_nodes_form($form_state) {
 
   $form['export_nodes'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Export nodes'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-    '#tree' => TRUE,
-  );
+				'#type' => 'fieldset',
+				'#title' => t('Export nodes'),
+				'#collapsible' => FALSE,
+				'#collapsed' => FALSE,
+				'#tree' => TRUE,
+				);
 
   $form['export_nodes']['description'] = array(
-    '#type' => 'item',
-    '#title' => t('Export all nodes to a dataset file'),
-  );
+					       '#type' => 'item',
+					       '#title' => t('Export all nodes to a dataset file'),
+					       );
 
   node_types_rebuild();
   $node_types = node_type_get_types();
@@ -39,16 +39,16 @@ function data_export_import_export_nodes_form($form_state) {
     $node_type_name = $node_type->name;
 
     $form['export_nodes']['content_types'][$node_type_type] = array(
-      '#type' => 'checkbox',
-      '#title' => check_plain($node_type_name),);
+								    '#type' => 'checkbox',
+								    '#title' => check_plain($node_type_name),);
   }
 
   // Adds a simple submit button that refreshes the form and clears its
   // contents. This is the default behavior for forms.
   $form['export_nodes']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Create dataset file'),
-  );
+					  '#type' => 'submit',
+					  '#value' => t('Create dataset file'),
+					  );
 
   return $form;
 }
@@ -171,13 +171,13 @@ function data_export_import_export_nodes_to_file($form_state) {
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
     $batch['operations'][] = array(
-      'data_export_import_batch_export_nodes_to_file',
-      array(
-        $content_type,
-        $file_path_and_name,
-        $fields_of_type_file,
-      ),
-    );
+				   'data_export_import_batch_export_nodes_to_file',
+				   array(
+					 $content_type,
+					 $file_path_and_name,
+					 $fields_of_type_file,
+					 ),
+				   );
   }
 
   // This is the key function which will set the batch up to be processed.
@@ -283,13 +283,13 @@ function data_export_import_export_nodes_to_file_using_drush($content_types) {
     // Each content type being exported to a dataset file will be run
     // as a batch to prevent timeouts.
     $batch['operations'][] = array(
-      'data_export_import_batch_export_nodes_to_file',
-      array(
-        $content_type,
-        $file_path_and_name,
-        $fields_of_type_file,
-      ),
-    );
+				   'data_export_import_batch_export_nodes_to_file',
+				   array(
+					 $content_type,
+					 $file_path_and_name,
+					 $fields_of_type_file,
+					 ),
+				   );
   }
 
   // This is the key function which will set the batch up to be
@@ -349,6 +349,15 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
       }
     }
 
+    // Here we will get the comments for a node and attach them to the node
+    // object.
+    $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $row->nid));
+    foreach ($comments_result as $comment_row) {
+      drupal_set_message("adding comment");
+      $whole_comment = comment_load($comment_row->cid, TRUE);
+      $node->comments[] = $whole_comment;
+    }
+
     // Here we will serialize the array to convert it to a string
     // which can then be output to a file.
     $node_serialized = serialize($node);
@@ -395,12 +404,12 @@ function data_export_import_batch_export_nodes_finished($success, $results, $ope
     // remained unprocessed.
     $error_operation = reset($operations);
     $message = t(
-      'An error occurred while processing %error_operation with arguments: @arguments',
-      array(
-        '%error_operation' => $error_operation[0],
-        '@arguments' => print_r($error_operation[1], TRUE),
-      )
-    );
+		 'An error occurred while processing %error_operation with arguments: @arguments',
+		 array(
+		       '%error_operation' => $error_operation[0],
+		       '@arguments' => print_r($error_operation[1], TRUE),
+		       )
+		 );
   }
 
   drupal_set_message($message);
@@ -422,11 +431,11 @@ function data_export_import_import_nodes_form($form_state) {
   $form = array();
 
   $form['import_nodes'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Import nodes'),
-    '#collapsible' => FALSE,
-    '#collapsed' => FALSE,
-  );
+				'#type' => 'fieldset',
+				'#title' => t('Import nodes'),
+				'#collapsible' => FALSE,
+				'#collapsed' => FALSE,
+				);
 
   // Get the contents of the dataset directory and create a list of
   // links to dataset files.
@@ -448,16 +457,16 @@ function data_export_import_import_nodes_form($form_state) {
   }
 
   $form['import_nodes']['dataset_file'] = array(
-    '#type' => 'radios',
-    '#title' => t('Select file to import.'),
-    '#default_value' => 'none',
-    '#options' => $options,
-  );
+						'#type' => 'radios',
+						'#title' => t('Select file to import.'),
+						'#default_value' => 'none',
+						'#options' => $options,
+						);
 
   $form['import_nodes']['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Import dataset files'),
-  );
+					  '#type' => 'submit',
+					  '#value' => t('Import dataset files'),
+					  );
 
   return $form;
 }
@@ -627,19 +636,19 @@ function data_export_import_import_nodes($file) {
   // same nid. We will use a batch function to process the lines from
   // the file.
   $batch = array(
-    'operations' => array(
-      array(
-        'data_export_import_batch_import_dataset_lines',
-        array($file_path, $fields_of_type_file),
-      ),
-    ),
-    'finished' => 'data_export_import_batch_import_dataset_lines_finished',
-    'title' => t('Processing Import of nodes from file Batch'),
-    'init_message' => t('Batch of node importing starting.'),
-    'progress_message' => t('Processed @current out of @total.'),
-    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
-    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
-  );
+		 'operations' => array(
+				       array(
+					     'data_export_import_batch_import_dataset_lines',
+					     array($file_path, $fields_of_type_file),
+					     ),
+				       ),
+		 'finished' => 'data_export_import_batch_import_dataset_lines_finished',
+		 'title' => t('Processing Import of nodes from file Batch'),
+		 'init_message' => t('Batch of node importing starting.'),
+		 'progress_message' => t('Processed @current out of @total.'),
+		 'error_message' => t('Batch importing of nodes from file has encountered an error.'),
+		 'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
+		 );
 
   batch_set($batch);
 
@@ -766,20 +775,20 @@ function data_export_import_import_all_content_types_using_drush($file) {
   }
 
   $batch = array(
-    'operations' =>
-    array(
-      array(
-        'data_export_import_batch_import_dataset_lines',
-        array(
-          $file_path,
-          $fields_of_type_file,
-        ),
-      ),
-    ),
-    'progress_message' => t('Processed @current out of @total.'),
-    'error_message' => t('Batch importing of nodes from file has encountered an error.'),
-    'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
-  );
+		 'operations' =>
+		 array(
+		       array(
+			     'data_export_import_batch_import_dataset_lines',
+			     array(
+				   $file_path,
+				   $fields_of_type_file,
+				   ),
+			     ),
+		       ),
+		 'progress_message' => t('Processed @current out of @total.'),
+		 'error_message' => t('Batch importing of nodes from file has encountered an error.'),
+		 'file' => drupal_get_path('module', 'data_export_import') . '/includes/profiles/nodes.inc',
+		 );
 
   $batch['progressive'] = FALSE;
   batch_set($batch);
@@ -834,7 +843,8 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
 
   // Check if file pointer position exists in the sandbox, and jump to
   // location in file.
-  if ($context['sandbox']['file_pointer_position']) {
+  //  if ($context['sandbox']['file_pointer_position']) {
+  if (isset($context['sandbox']['file_pointer_position'])) {
     fseek($file_handle, $context['sandbox']['file_pointer_position']);
   }
 
@@ -900,6 +910,40 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // issued a new ID number.
       unset($dataset_node->vid);
       data_export_import_node_save_with_defined_id($dataset_node);
+
+      // Here we wll re-create all of the comments which were exported into the
+      // dataset.  First we will delete all existing comments for the node -
+      // this should probably not be necessary but there may be excess comments/
+      // replies which are attached to the node which need to be removed.
+      // Remember that this module is designed to end up with identical data on
+      // the receiving site as the sending site.
+      $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
+      foreach ($comments_result as $comment_row) {
+
+	drupal_set_message("deleting comment:". $comment_row->cid);
+	comment_delete($comment_row->cid);
+      }
+
+      foreach ($dataset_node->comments as $attached_comment) {
+
+        drupal_set_message("saving a comment");
+        $attached_comment->is_anonymous = 0;
+
+        // Before we save the record we are going to create a placeholder record
+        // with the defined id value.  That way - when the comment_save function
+        // tries to save the comment with a specified cid value the underlying
+        // functions will be able to update an existing record and will not fail
+        // to carry out the SQL UPDATE statement.
+	db_merge('comment')
+	  ->key(array('cid' => $attached_comment->cid))
+	  ->fields(array(
+			 'thread' => "",
+			 ))
+	  ->execute();
+
+        comment_submit($attached_comment);
+        comment_save($attached_comment);
+      }
     }
 
     else {
@@ -927,6 +971,15 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       unset($dataset_node->changed);
       unset($existing_node->changed);
 
+      // There is an important tweak RE comments attached to the node.  If there
+      // were any comments attached to the original node then these are attached
+      // to the node object as an array on the 'comments' attribute.  As the
+      // existing_node will never have this attribute then the nodes will never
+      // match and so the node will be updated.  This is fine as it saves us
+      // from having to check that the comments from the existing node are an
+      // exact match for the comments on the node being imported.  As for import
+      // times - it is probably better to recreate the comments as checking exsiting
+      // comments would probably add more overhead than simply updating the node.
       if ($dataset_node != $existing_node) {
 
         // Create a new revision. The dataset node may be from several
@@ -944,21 +997,59 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
 
           // Here we are going to loop through all of the files which
           // may have been attached to this field and re-import them.
-          foreach ($dataset_node->{$file_field_data}[LANGUAGE_NONE] as $file_array_key => $file_array_data) {
+          if (isset($dataset_node->{$file_field_data}[LANGUAGE_NONE])) {
+	    foreach ($dataset_node->{$file_field_data}[LANGUAGE_NONE] as $file_array_key => $file_array_data) {
 
-            $file_data = base64_decode($file_array_data['data_export_import_file_data']);
-            $dest = $file_array_data['uri'];
+	      $file_data = base64_decode($file_array_data['data_export_import_file_data']);
+	      $dest = $file_array_data['uri'];
 
-            // Actually save the file to the file system.
-            $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
+	      // Actually save the file to the file system.
+	      $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
 
-            // Set the node object to use the returned fid value as
-            // this may be from the original fid value.
-            $dataset_node->{$file_field_data}[LANGUAGE_NONE][$file_array_key]['fid'] = $file_object->fid;
+	      // Set the node object to use the returned fid value as
+	      // this may be from the original fid value.
+	      $dataset_node->{$file_field_data}[LANGUAGE_NONE][$file_array_key]['fid'] = $file_object->fid;
+	    }
           }
         }
 
         node_save($dataset_node);
+
+	// Here we wll re-create all of the comments which were exported into the
+	// dataset.  First we will delete all existing comments for the node -
+	// this should probably not be necessary but there may be excess comments/
+	// replies which are attached to the node which need to be removed.
+	// Remember that this module is designed to end up with identical data on
+	// the receiving site as the sending site.
+	$comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
+
+	foreach ($comments_result as $comment_row) {
+	  drupal_set_message("deleting comment:". $comment_row->cid);
+	  comment_delete($comment_row->cid);
+	}
+
+	foreach ($dataset_node->comments as $attached_comment) {
+
+	  drupal_set_message("saving a comment");
+
+	  // This is needed to get the comment_save to work - not sure why.
+	  $attached_comment->is_anonymous = 0;
+
+	  // Before we save the record we are going to create a placeholder record
+	  // with the defined id value.  That way - when the comment_save function
+	  // tries to save the comment with a specified cid value the underlying
+	  // functions will be able to update an existing record and will not fail
+	  // to carry out the SQL UPDATE statement.
+	  db_merge('comment')
+	    ->key(array('cid' => $attached_comment->cid))
+	    ->fields(array(
+			   'thread' => "",
+			   ))
+	    ->execute();
+
+	  comment_submit($attached_comment);
+	  comment_save($attached_comment);
+	}
       }
     }
   }
@@ -993,12 +1084,12 @@ function data_export_import_batch_import_dataset_lines_finished($success, $resul
     // that remained unprocessed.
     $error_operation = reset($operations);
     $message = t(
-      'An error occurred while processing %error_operation with arguments: @arguments',
-      array(
-        '%error_operation' => $error_operation[0],
-        '@arguments' => print_r($error_operation[1], TRUE),
-      )
-    );
+		 'An error occurred while processing %error_operation with arguments: @arguments',
+		 array(
+		       '%error_operation' => $error_operation[0],
+		       '@arguments' => print_r($error_operation[1], TRUE),
+		       )
+		 );
   }
 
   drupal_set_message($message);
