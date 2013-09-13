@@ -353,7 +353,7 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
     // object.
     $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $row->nid));
     foreach ($comments_result as $comment_row) {
-      drupal_set_message("adding comment");
+
       $whole_comment = comment_load($comment_row->cid, TRUE);
       $node->comments[] = $whole_comment;
     }
@@ -843,7 +843,6 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
 
   // Check if file pointer position exists in the sandbox, and jump to
   // location in file.
-  //  if ($context['sandbox']['file_pointer_position']) {
   if (isset($context['sandbox']['file_pointer_position'])) {
     fseek($file_handle, $context['sandbox']['file_pointer_position']);
   }
@@ -920,13 +919,11 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
       foreach ($comments_result as $comment_row) {
 
-        drupal_set_message("deleting comment:". $comment_row->cid);
         comment_delete($comment_row->cid);
       }
 
       foreach ($dataset_node->comments as $attached_comment) {
 
-        drupal_set_message("saving a comment");
         $attached_comment->is_anonymous = 0;
 
         // Before we save the record we are going to create a placeholder record
@@ -978,8 +975,9 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // match and so the node will be updated.  This is fine as it saves us
       // from having to check that the comments from the existing node are an
       // exact match for the comments on the node being imported.  As for import
-      // times - it is probably better to recreate the comments as checking exsiting
-      // comments would probably add more overhead than simply updating the node.
+      // times - it is probably better to recreate the comments as checking
+      // existing comments would probably add more overhead than simply updating
+      // the node.
       if ($dataset_node != $existing_node) {
 
         // Create a new revision. The dataset node may be from several
@@ -1015,31 +1013,30 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
 
         node_save($dataset_node);
 
-        // Here we wll re-create all of the comments which were exported into the
-        // dataset.  First we will delete all existing comments for the node -
-        // this should probably not be necessary but there may be excess comments/
-        // replies which are attached to the node which need to be removed.
-        // Remember that this module is designed to end up with identical data on
-        // the receiving site as the sending site.
+        // Here we wll re-create all of the comments which were
+        // exported into the dataset.  First we will delete all
+        // existing comments for the node - this should probably not
+        // be necessary but there may be excess comments/replies which
+        // are attached to the node which need to be removed. Remember
+        // that this module is designed to end up with identical data
+        // on the receiving site as the sending site.
         $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
 
         foreach ($comments_result as $comment_row) {
-          drupal_set_message("deleting comment:". $comment_row->cid);
           comment_delete($comment_row->cid);
         }
 
         foreach ($dataset_node->comments as $attached_comment) {
 
-          drupal_set_message("saving a comment");
-
           // This is needed to get the comment_save to work - not sure why.
           $attached_comment->is_anonymous = 0;
 
-          // Before we save the record we are going to create a placeholder record
-          // with the defined id value.  That way - when the comment_save function
-          // tries to save the comment with a specified cid value the underlying
-          // functions will be able to update an existing record and will not fail
-          // to carry out the SQL UPDATE statement.
+          // Before we save the record we are going to create a
+          // placeholder record with the defined id value.  That way -
+          // when the comment_save function tries to save the comment
+          // with a specified cid value the underlying functions will
+          // be able to update an existing record and will not fail to
+          // carry out the SQL UPDATE statement.
           db_merge('comment')
             ->key(array('cid' => $attached_comment->cid))
             ->fields(array(
