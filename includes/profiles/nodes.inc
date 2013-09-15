@@ -351,11 +351,14 @@ function data_export_import_batch_export_nodes_to_file($content_type, $file_path
 
     // Here we will get the comments for a node and attach them to the node
     // object.
-    $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $row->nid));
-    foreach ($comments_result as $comment_row) {
+    if (module_exists('comment')) {
 
-      $whole_comment = comment_load($comment_row->cid, TRUE);
-      $node->comments[] = $whole_comment;
+      $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $row->nid));
+      foreach ($comments_result as $comment_row) {
+
+        $whole_comment = comment_load($comment_row->cid, TRUE);
+        $node->comments[] = $whole_comment;
+      }
     }
 
     // Here we will serialize the array to convert it to a string
@@ -916,30 +919,33 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
       // replies which are attached to the node which need to be removed.
       // Remember that this module is designed to end up with identical data on
       // the receiving site as the sending site.
-      $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
-      foreach ($comments_result as $comment_row) {
+      if (module_exists('comment')) {
 
-        comment_delete($comment_row->cid);
-      }
+        $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
+        foreach ($comments_result as $comment_row) {
 
-      foreach ($dataset_node->comments as $attached_comment) {
+          comment_delete($comment_row->cid);
+        }
 
-        $attached_comment->is_anonymous = 0;
+        foreach ($dataset_node->comments as $attached_comment) {
 
-        // Before we save the record we are going to create a placeholder record
-        // with the defined id value.  That way - when the comment_save function
-        // tries to save the comment with a specified cid value the underlying
-        // functions will be able to update an existing record and will not fail
-        // to carry out the SQL UPDATE statement.
-        db_merge('comment')
-          ->key(array('cid' => $attached_comment->cid))
-          ->fields(array(
-              'thread' => "",
-            ))
-          ->execute();
+          $attached_comment->is_anonymous = 0;
 
-        comment_submit($attached_comment);
-        comment_save($attached_comment);
+          // Before we save the record we are going to create a placeholder record
+          // with the defined id value.  That way - when the comment_save function
+          // tries to save the comment with a specified cid value the underlying
+          // functions will be able to update an existing record and will not fail
+          // to carry out the SQL UPDATE statement.
+          db_merge('comment')
+            ->key(array('cid' => $attached_comment->cid))
+            ->fields(array(
+                'thread' => "",
+              ))
+            ->execute();
+
+          comment_submit($attached_comment);
+          comment_save($attached_comment);
+        }
       }
     }
 
@@ -1020,32 +1026,35 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
         // are attached to the node which need to be removed. Remember
         // that this module is designed to end up with identical data
         // on the receiving site as the sending site.
-        $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
+        if (module_exists('comment')) {
 
-        foreach ($comments_result as $comment_row) {
-          comment_delete($comment_row->cid);
-        }
+          $comments_result = db_query("SELECT cid FROM {comment} WHERE nid = :comment_node ORDER BY cid ASC", array(':comment_node' => $dataset_node->nid));
 
-        foreach ($dataset_node->comments as $attached_comment) {
+          foreach ($comments_result as $comment_row) {
+            comment_delete($comment_row->cid);
+          }
 
-          // This is needed to get the comment_save to work - not sure why.
-          $attached_comment->is_anonymous = 0;
+          foreach ($dataset_node->comments as $attached_comment) {
 
-          // Before we save the record we are going to create a
-          // placeholder record with the defined id value.  That way -
-          // when the comment_save function tries to save the comment
-          // with a specified cid value the underlying functions will
-          // be able to update an existing record and will not fail to
-          // carry out the SQL UPDATE statement.
-          db_merge('comment')
-            ->key(array('cid' => $attached_comment->cid))
-            ->fields(array(
-                'thread' => "",
-              ))
-            ->execute();
+            // This is needed to get the comment_save to work - not sure why.
+            $attached_comment->is_anonymous = 0;
 
-          comment_submit($attached_comment);
-          comment_save($attached_comment);
+            // Before we save the record we are going to create a
+            // placeholder record with the defined id value.  That way -
+            // when the comment_save function tries to save the comment
+            // with a specified cid value the underlying functions will
+            // be able to update an existing record and will not fail to
+            // carry out the SQL UPDATE statement.
+            db_merge('comment')
+              ->key(array('cid' => $attached_comment->cid))
+              ->fields(array(
+                  'thread' => "",
+                ))
+              ->execute();
+
+            comment_submit($attached_comment);
+            comment_save($attached_comment);
+          }
         }
       }
     }
