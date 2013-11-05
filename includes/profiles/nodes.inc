@@ -882,17 +882,19 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
 
         // Here we are going to loop through all of the files which
         // may have been attached to this field.
-        foreach ($dataset_node->{$file_field_data}[LANGUAGE_NONE] as $file_array_key => $file_array_data) {
+        if (isset($dataset_node->{$file_field_data}[LANGUAGE_NONE])) {
+          foreach ($dataset_node->{$file_field_data}[LANGUAGE_NONE] as $file_array_key => $file_array_data) {
 
-          $file_data = base64_decode($file_array_data['data_export_import_file_data']);
-          $dest = $file_array_data['uri'];
+            $file_data = base64_decode($file_array_data['data_export_import_file_data']);
+            $dest = $file_array_data['uri'];
 
-          // Actually save the file to the file system.
-          $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
+            // Actually save the file to the file system.
+            $file_object = file_save_data($file_data, $dest, FILE_EXISTS_REPLACE);
 
-          // Set the node object to use the returned fid value as this
-          // may be from the original fid value.
-          $dataset_node->{$file_field_data}[LANGUAGE_NONE][$file_array_key]['fid'] = $file_object->fid;
+            // Set the node object to use the returned fid value as this
+            // may be from the original fid value.
+            $dataset_node->{$file_field_data}[LANGUAGE_NONE][$file_array_key]['fid'] = $file_object->fid;
+          }
         }
       }
 
@@ -927,24 +929,26 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
           comment_delete($comment_row->cid);
         }
 
-        foreach ($dataset_node->comments as $attached_comment) {
+        if (property_exists($dataset_node, 'comments')) {
+          foreach ($dataset_node->comments as $attached_comment) {
 
-          $attached_comment->is_anonymous = 0;
+            $attached_comment->is_anonymous = 0;
 
-          // Before we save the record we are going to create a placeholder record
-          // with the defined id value.  That way - when the comment_save function
-          // tries to save the comment with a specified cid value the underlying
-          // functions will be able to update an existing record and will not fail
-          // to carry out the SQL UPDATE statement.
-          db_merge('comment')
-            ->key(array('cid' => $attached_comment->cid))
-            ->fields(array(
-                'thread' => "",
-              ))
-            ->execute();
+            // Before we save the record we are going to create a placeholder record
+            // with the defined id value.  That way - when the comment_save function
+            // tries to save the comment with a specified cid value the underlying
+            // functions will be able to update an existing record and will not fail
+            // to carry out the SQL UPDATE statement.
+            db_merge('comment')
+              ->key(array('cid' => $attached_comment->cid))
+              ->fields(array(
+                  'thread' => "",
+                ))
+              ->execute();
 
-          comment_submit($attached_comment);
-          comment_save($attached_comment);
+            comment_submit($attached_comment);
+            comment_save($attached_comment);
+          }
         }
       }
     }
@@ -1034,26 +1038,28 @@ function data_export_import_batch_import_dataset_lines($file_path, $fields_of_ty
             comment_delete($comment_row->cid);
           }
 
-          foreach ($dataset_node->comments as $attached_comment) {
+          if (property_exists($dataset_node, 'comments')) {
+            foreach ($dataset_node->comments as $attached_comment) {
 
-            // This is needed to get the comment_save to work - not sure why.
-            $attached_comment->is_anonymous = 0;
+              // This is needed to get the comment_save to work - not sure why.
+              $attached_comment->is_anonymous = 0;
 
-            // Before we save the record we are going to create a
-            // placeholder record with the defined id value.  That way -
-            // when the comment_save function tries to save the comment
-            // with a specified cid value the underlying functions will
-            // be able to update an existing record and will not fail to
-            // carry out the SQL UPDATE statement.
-            db_merge('comment')
-              ->key(array('cid' => $attached_comment->cid))
-              ->fields(array(
-                  'thread' => "",
-                ))
-              ->execute();
+              // Before we save the record we are going to create a
+              // placeholder record with the defined id value.  That way -
+              // when the comment_save function tries to save the comment
+              // with a specified cid value the underlying functions will
+              // be able to update an existing record and will not fail to
+              // carry out the SQL UPDATE statement.
+              db_merge('comment')
+                ->key(array('cid' => $attached_comment->cid))
+                ->fields(array(
+                    'thread' => "",
+                  ))
+                ->execute();
 
-            comment_submit($attached_comment);
-            comment_save($attached_comment);
+              comment_submit($attached_comment);
+              comment_save($attached_comment);
+            }
           }
         }
       }
