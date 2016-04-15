@@ -1,0 +1,43 @@
+data_export_import.overview:
+  title: 'Overview'
+  route_name: data_export_import.overview
+  base_route: data_export_import.overview
+
+data_export_import.node:
+  title: 'Node'
+  route_name: data_export_import.node
+  base_route: data_export_import.overview
+data_export_import.node.export:
+  title: 'Export'
+  route_name: data_export_import.node
+  parent_id: data_export_import.node
+data_export_import.node.import:
+  title: 'Import'
+  route_name: data_export_import.node.import
+  parent_id: data_export_import.node
+
+data_export_import.terms:
+  title: 'Taxonomy'
+  route_name: data_export_import.terms
+  base_route: data_export_import.overview
+data_export_import.terms.export:
+  title: 'Export'
+  route_name: data_export_import.terms
+  parent_id: data_export_import.terms
+data_export_import.terms.import:
+  title: 'Import'
+  route_name: data_export_import.terms.import
+  parent_id: data_export_import.terms
+
+data_export_import.user:
+  title: 'User'
+  route_name: data_export_import.user
+  base_route: data_export_import.overview
+data_export_import.user.export:
+  title: 'Export'
+  route_name: data_export_import.user
+  parent_id: data_export_import.user
+data_export_import.user.import:
+  title: 'Import'
+  route_name: data_export_import.user.import
+  parent_id: data_export_import.user

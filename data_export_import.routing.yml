@@ -1,0 +1,69 @@
+data_export_import.overview:
+  path: 'admin/config/system/data_export_import'
+  defaults:
+    _controller: '\Drupal\data_export_import\Controller\DataExportImport::CallbackOverview'
+    _title: 'Data export import'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
+
+data_export_import.node:
+  path: 'admin/config/system/data_export_import/nodes'
+  defaults:
+    _form: '\Drupal\data_export_import\Form\ExportNodes'
+    _title: 'Export Nodes'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
+
+data_export_import.node.import:
+  path: 'admin/config/system/data_export_import/nodes/import'
+  defaults:
+    _controller: '\Drupal\data_export_import\Controller\DataExportImport::ImportNodes'
+    _title: 'Import Nodes'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
+
+data_export_import.terms:
+  path: 'admin/config/system/data_export_import/taxonomy_terms'
+  defaults:
+    _controller: '\Drupal\data_export_import\Controller\DataExportImport::ExportTerms'
+    _title: 'Export Taxonomy Terms'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
+
+data_export_import.terms.import:
+  path: 'admin/config/system/data_export_import/nodes/taxonomy_terms'
+  defaults:
+    _controller: '\Drupal\data_export_import\Controller\DataExportImport::ImportTerms'
+    _title: 'Import Taxonomy Terms'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
+
+data_export_import.user:
+  path: 'admin/config/system/data_export_import/user'
+  defaults:
+    _controller: '\Drupal\data_export_import\Controller\DataExportImport::ExportUser'
+    _title: 'Export User'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
+
+data_export_import.user.import:
+  path: 'admin/config/system/data_export_import/nodes/user'
+  defaults:
+    _controller: '\Drupal\data_export_import\Controller\DataExportImport::ImportUser'
+    _title: 'Import user'
+  requirements:
+    _permission: 'access data export import'
+  options:
+    _admin_route: TRUE
